@@ -105,3 +105,4 @@ dist
 
 # PresenceBot Config
 config.json
+*.code-workspace

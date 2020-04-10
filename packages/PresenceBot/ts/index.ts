@@ -1,9 +1,11 @@
-import { Client } from "discord.js";
+import { Client, Activity } from "discord.js";
 import fs from "fs-extra";
 import got from "got";
 import path from "path";
 import splashy from "splashy";
 import { App, WebSocket } from "uWebSockets.js";
+import { PresenceAdapter, AdapterState } from "./adapter";
+import { SpotifyAdapter } from "./spotify";
 
 const CONFIG_PATH = process.env.CONFIG_PATH || path.resolve(__dirname, "..", "config.json");
 const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
@@ -11,6 +13,7 @@ const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
 const config = {
   token: "",
   user: "",
+  spotifyCookies: "",
   port: 8138
 };
 
@@ -30,7 +33,23 @@ bot.login(config.token).then(async () => {
   const app = App();
 
   const clients: WebSocket[] = [];
+  const adapters: PresenceAdapter[] = [];
+
+  // block for initializing adapters
+  {
+    if (config.spotifyCookies && config.spotifyCookies.length > 0) {
+      adapters.push(new SpotifyAdapter(config.spotifyCookies));
+    }
+  }
+
+  adapters.forEach(adapter => adapter.on("presence", broadcastPresence))
+
   let latestPresence = await computePresence(config.user);
+
+  async function broadcastPresence() {
+    latestPresence = await computePresence(config.user);
+    await Promise.all(clients.map(c => c.send(JSON.stringify(latestPresence))));
+  }
 
   app.ws('/presence', {
     open(ws, req) {
@@ -39,15 +58,15 @@ bot.login(config.token).then(async () => {
     },
     close(ws, code, message) {
       clients.splice(clients.indexOf(ws), 1);
-    }
+    },
+    idleTimeout: 0
   });
 
   bot.on("presenceUpdate", async (oldP, newP) => {
     const id: string | null = newP.user?.id || newP.member?.id || (<any>newP)['userID'];
     if (!id) return;
     if (config.user !== id) return;
-    latestPresence = await computePresence(id);
-    await Promise.all(clients.map(c => c.send(JSON.stringify(latestPresence))));
+    await broadcastPresence();
   });
 
   function presenceForID(id: string) {
@@ -60,38 +79,18 @@ bot.login(config.token).then(async () => {
   async function computePresence(id: string) {
     const presence = presenceForID(id);
 
-    if (!presence) {
-      return null;
-    }
-
-    const spotifyAssets =
-    presence.activities.filter(a => a.name === "Spotify")
-            .map(a => a.assets)
-            .filter(a => !!a)
-            .map(a => Object.values(a!))
-            .map(a => a.filter(a => !!a)
-                       .map((t: string) => t.split(':'))
-                       .filter(([protocol]) => protocol === "spotify")
-                       .map(([, tag]) => ([ tag, scdn(tag) ])))
-            .reduce((a, a1) => a.concat(a1), [])
-            .map(([key, value]) => ({ key, url: value, palette: [] as string[] }));
-
-    await Promise.all(spotifyAssets.map(async (asset) => {
-      const body = await got(asset.url).buffer();
-      const palette = await splashy(body);
-      asset.palette.push(...palette);
-    }));
+    await Promise.all(adapters.filter(adapter => adapter.state === AdapterState.READY).map(adapter => adapter.run()));
+    const activities: Array<Partial<Activity>> = (await Promise.all(adapters.filter(adapter => adapter.state === AdapterState.RUNNING).map(adapter => adapter.activity()))).filter(a => !!a) as any;
 
     return {
-      userID: presence.user?.id,
-      status: presence.status,
-      activities: presence.activities.map(a => ({
+      userID: id,
+      status: presence?.status || "offline",
+      activities: (presence?.activities || []).map(a => ({
         ...a,
         assets: a.assets && {
           ...a.assets
         }
-      })),
-      spotifyAssets: spotifyAssets.reduce((a, { key, url, palette }) => ({...a, [key]: {url, palette}}), {})
+      })).filter(a => !activities.find(b => a.name === b.name)).concat(activities as Activity[])
     };
   };
 

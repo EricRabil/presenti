@@ -5,15 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const fs_extra_1 = __importDefault(require("fs-extra"));
-const got_1 = __importDefault(require("got"));
 const path_1 = __importDefault(require("path"));
-const splashy_1 = __importDefault(require("splashy"));
 const uWebSockets_js_1 = require("uWebSockets.js");
+const adapter_1 = require("./adapter");
+const spotify_1 = require("./spotify");
 const CONFIG_PATH = process.env.CONFIG_PATH || path_1.default.resolve(__dirname, "..", "config.json");
 const scdn = (tag) => `https://i.scdn.co/image/${tag}`;
 const config = {
     token: "",
     user: "",
+    spotifyCookies: "",
     port: 8138
 };
 if (!fs_extra_1.default.pathExistsSync(CONFIG_PATH)) {
@@ -30,7 +31,19 @@ const bot = new discord_js_1.Client();
 bot.login(config.token).then(async () => {
     const app = uWebSockets_js_1.App();
     const clients = [];
+    const adapters = [];
+    // block for initializing adapters
+    {
+        if (config.spotifyCookies && config.spotifyCookies.length > 0) {
+            adapters.push(new spotify_1.SpotifyAdapter(config.spotifyCookies));
+        }
+    }
+    adapters.forEach(adapter => adapter.on("presence", broadcastPresence));
     let latestPresence = await computePresence(config.user);
+    async function broadcastPresence() {
+        latestPresence = await computePresence(config.user);
+        await Promise.all(clients.map(c => c.send(JSON.stringify(latestPresence))));
+    }
     app.ws('/presence', {
         open(ws, req) {
             clients.push(ws);
@@ -38,7 +51,8 @@ bot.login(config.token).then(async () => {
         },
         close(ws, code, message) {
             clients.splice(clients.indexOf(ws), 1);
-        }
+        },
+        idleTimeout: 0
     });
     bot.on("presenceUpdate", async (oldP, newP) => {
         var _a, _b;
@@ -47,8 +61,7 @@ bot.login(config.token).then(async () => {
             return;
         if (config.user !== id)
             return;
-        latestPresence = await computePresence(id);
-        await Promise.all(clients.map(c => c.send(JSON.stringify(latestPresence))));
+        await broadcastPresence();
     });
     function presenceForID(id) {
         if (config.user !== id)
@@ -59,36 +72,19 @@ bot.login(config.token).then(async () => {
         return user.presence;
     }
     async function computePresence(id) {
-        var _a;
+        var _a, _b;
         const presence = presenceForID(id);
-        if (!presence) {
-            return null;
-        }
-        const spotifyAssets = presence.activities.filter(a => a.name === "Spotify")
-            .map(a => a.assets)
-            .filter(a => !!a)
-            .map(a => Object.values(a))
-            .map(a => a.filter(a => !!a)
-            .map((t) => t.split(':'))
-            .filter(([protocol]) => protocol === "spotify")
-            .map(([, tag]) => ([tag, scdn(tag)])))
-            .reduce((a, a1) => a.concat(a1), [])
-            .map(([key, value]) => ({ key, url: value, palette: [] }));
-        await Promise.all(spotifyAssets.map(async (asset) => {
-            const body = await got_1.default(asset.url).buffer();
-            const palette = await splashy_1.default(body);
-            asset.palette.push(...palette);
-        }));
+        await Promise.all(adapters.filter(adapter => adapter.state === adapter_1.AdapterState.READY).map(adapter => adapter.run()));
+        const activities = (await Promise.all(adapters.filter(adapter => adapter.state === adapter_1.AdapterState.RUNNING).map(adapter => adapter.activity()))).filter(a => !!a);
         return {
-            userID: (_a = presence.user) === null || _a === void 0 ? void 0 : _a.id,
-            status: presence.status,
-            activities: presence.activities.map(a => ({
+            userID: id,
+            status: ((_a = presence) === null || _a === void 0 ? void 0 : _a.status) || "offline",
+            activities: (((_b = presence) === null || _b === void 0 ? void 0 : _b.activities) || []).map(a => ({
                 ...a,
                 assets: a.assets && {
                     ...a.assets
                 }
-            })),
-            spotifyAssets: spotifyAssets.reduce((a, { key, url, palette }) => ({ ...a, [key]: { url, palette } }), {})
+            })).filter(a => !activities.find(b => a.name === b.name)).concat(activities)
         };
     }
     ;
