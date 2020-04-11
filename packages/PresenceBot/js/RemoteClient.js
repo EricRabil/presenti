@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const adapter_1 = require("./adapter");
 const RemoteAdapter_1 = require("./adapters/RemoteAdapter");
 const RemoteAdapter_2 = require("./adapters/RemoteAdapter");
 const ws_1 = __importDefault(require("ws"));
@@ -13,11 +14,24 @@ class RemoteClient {
     constructor(options) {
         this.options = options;
         this.ready = false;
+        this.adapters = [];
         this._retryCounter = 0;
         this.socket = new ws_1.default(options.url);
     }
+    initialize() {
+        return Promise.all(this.adapters.filter(adapter => (adapter.state === adapter_1.AdapterState.READY)).map(adapter => (adapter.run())));
+    }
     run() {
-        this._buildSocket();
+        this.initialize().then(() => this._buildSocket());
+    }
+    register(adapter) {
+        if (this.adapters.includes(adapter)) {
+            throw new Error("Cannot register an adapter more than once.");
+        }
+        this.adapters.push(adapter.on("presence", this.sendLatestPresence.bind(this)));
+    }
+    sendLatestPresence() {
+        return Promise.all(this.adapters.filter(adapter => (adapter.state === adapter_1.AdapterState.RUNNING)).map(adapter => (adapter.activity()))).then(activities => (activities.filter(activity => (!!activity)).map(activity => (Array.isArray(activity) ? activity : [activity])).reduce((a, c) => a.concat(c), []))).then(activities => this.presence(activities));
     }
     _buildSocket() {
         this._retryCounter++;

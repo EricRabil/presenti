@@ -1,4 +1,4 @@
-import { Presence } from "./adapter";
+import { Presence, PresenceAdapter, AdapterState } from "./adapter";
 import { RemotePayload, PayloadType } from "./adapters/RemoteAdapter";
 import { isRemotePayload } from "./adapters/RemoteAdapter";
 import WebSocket from "ws";
@@ -14,13 +14,49 @@ export interface RemoteClientOptions {
 export class RemoteClient {
   socket: WebSocket;
   ready: boolean = false;
+  adapters: PresenceAdapter[] = [];
 
   constructor(private options: RemoteClientOptions) {
     this.socket = new WebSocket(options.url);
   }
 
+  private initialize() {
+    return Promise.all(
+      this.adapters.filter(adapter => (
+        adapter.state === AdapterState.READY
+      )).map(adapter => (
+        adapter.run()
+      ))
+    );
+  }
+
   run() {
-    this._buildSocket();
+    this.initialize().then(() => this._buildSocket());
+  }
+
+  register(adapter: PresenceAdapter) {
+    if (this.adapters.includes(adapter)) {
+      throw new Error("Cannot register an adapter more than once.");
+    }
+    this.adapters.push(
+      adapter.on("presence", this.sendLatestPresence.bind(this))
+    );
+  }
+
+  sendLatestPresence() {
+    return <any>Promise.all(
+      this.adapters.filter(adapter => (
+        adapter.state === AdapterState.RUNNING
+      )).map(adapter => (
+       adapter.activity()
+      ))
+    ).then(activities => (
+      activities.filter(activity => (
+        !!activity
+      )).map(activity => (
+        Array.isArray(activity) ? activity : [activity]
+      )).reduce((a, c) => a.concat(c), [])
+    )).then(activities => this.presence(activities));
   }
   
   private _retryCounter: number = 0;

@@ -1,4 +1,4 @@
-import { Presence } from "./adapter";
+import { Presence, PresenceAdapter } from "./adapter";
 import { RemotePayload } from "./adapters/RemoteAdapter";
 import WebSocket from "ws";
 export interface RemoteClientOptions {
@@ -12,8 +12,12 @@ export declare class RemoteClient {
     private options;
     socket: WebSocket;
     ready: boolean;
+    adapters: PresenceAdapter[];
     constructor(options: RemoteClientOptions);
+    private initialize;
     run(): void;
+    register(adapter: PresenceAdapter): void;
+    sendLatestPresence(): any;
     private _retryCounter;
     private _buildSocket;
     /**
