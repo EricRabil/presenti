@@ -1,40 +1,15 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_extra_1 = __importDefault(require("fs-extra"));
-const path_1 = __importDefault(require("path"));
 const uWebSockets_js_1 = require("uWebSockets.js");
 const AdapterSupervisor_1 = require("./AdapterSupervisor");
 const RemoteAdapter_1 = require("./adapters/RemoteAdapter");
-const CONFIG_PATH = process.env.CONFIG_PATH || path_1.default.resolve(__dirname, "..", "config.json");
-const scdn = (tag) => `https://i.scdn.co/image/${tag}`;
-const config = {
-    token: "",
-    user: "",
-    spotifyCookies: "",
-    port: 8138
-};
-if (!fs_extra_1.default.pathExistsSync(CONFIG_PATH)) {
-    fs_extra_1.default.writeJSONSync(CONFIG_PATH, config, { spaces: 4 });
-}
-else {
-    Object.assign(config, fs_extra_1.default.readJSONSync(CONFIG_PATH));
-}
-if (!config.token) {
-    console.log('Please configure PresenceBot! No token was provided.');
-    process.exit(1);
-}
-const user = {
-    'token1': 'eric',
-    'token2': 'justin'
-};
 /**
  * Tracks global and scoped (per-user presence)
  */
 class PresenceService {
-    constructor() {
+    constructor(port, userQuery) {
+        this.port = port;
+        this.userQuery = userQuery;
         this.clients = {};
         this.idMap = new Map();
         this.scopedPayloads = {};
@@ -93,7 +68,7 @@ class PresenceService {
      * Registers all adapters with the supervisor
      */
     registerAdapters() {
-        this.supervisor.register(new RemoteAdapter_1.RemoteAdapter(this.app, async (token) => user[token]));
+        this.supervisor.register(new RemoteAdapter_1.RemoteAdapter(this.app, this.userQuery));
     }
     /**
      * Dispatches the latest presence state to the given selector
@@ -126,14 +101,10 @@ class PresenceService {
      */
     async run() {
         await this.supervisor.initialize();
-        await new Promise(resolve => this.app.listen('0.0.0.0', config.port, resolve));
+        await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
     }
 }
 exports.PresenceService = PresenceService;
-const service = new PresenceService();
-service.run().then(() => {
-    console.log('Service is running!');
-});
 var RemoteClient_1 = require("./RemoteClient");
 exports.default = RemoteClient_1.RemoteClient;
 var SpotifyAdapter_1 = require("./adapters/SpotifyAdapter");

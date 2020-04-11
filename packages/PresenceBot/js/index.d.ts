@@ -5,13 +5,15 @@ import { AdapterSupervisor } from "./AdapterSupervisor";
  * Tracks global and scoped (per-user presence)
  */
 export declare class PresenceService {
+    private port;
+    private userQuery;
     supervisor: AdapterSupervisor;
     app: TemplatedApp;
     clients: Record<string, WebSocket[]>;
     idMap: Map<WebSocket, string>;
     scopedPayloads: Record<string, Presence[]>;
     globalPayload: Presence[];
-    constructor();
+    constructor(port: number, userQuery: (token: string) => Promise<string | null>);
     /**
      * Merges latest global payload with the latest scoped payload
      * @param id scope id

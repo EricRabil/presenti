@@ -1,40 +1,7 @@
-import { Client, Activity } from "discord.js";
-import fs from "fs-extra";
-import got from "got";
-import path from "path";
-import splashy from "splashy";
 import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
-import { PresenceAdapter, AdapterState, Presence } from "./adapter";
-import { SpotifyAdapter } from "./adapters/SpotifyAdapter";
-import { DiscordAdapter } from "./adapters/DiscordAdapter";
-import { AdapterSupervisor, SupervisorUpdateEvent } from "./AdapterSupervisor";
+import { Presence } from "./adapter";
+import { AdapterSupervisor } from "./AdapterSupervisor";
 import { RemoteAdapter } from "./adapters/RemoteAdapter";
-
-const CONFIG_PATH = process.env.CONFIG_PATH || path.resolve(__dirname, "..", "config.json");
-const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
-
-const config = {
-  token: "",
-  user: "",
-  spotifyCookies: "",
-  port: 8138
-};
-
-if (!fs.pathExistsSync(CONFIG_PATH)) {
-  fs.writeJSONSync(CONFIG_PATH, config, { spaces: 4 });
-} else {
-  Object.assign(config, fs.readJSONSync(CONFIG_PATH));
-}
-
-if (!config.token) {
-  console.log('Please configure PresenceBot! No token was provided.');
-  process.exit(1);
-}
-
-const user: Record<string, string> = {
-  'token1': 'eric',
-  'token2': 'justin'
-}
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -47,7 +14,7 @@ export class PresenceService {
   scopedPayloads: Record<string, Presence[]> = {};
   globalPayload: Presence[] = [];
 
-  constructor() {
+  constructor(private port: number, private userQuery: (token: string) => Promise<string | null>) {
     this.app = App();
     this.supervisor = new AdapterSupervisor(this.app);
 
@@ -106,7 +73,7 @@ export class PresenceService {
    * Registers all adapters with the supervisor
    */
   registerAdapters() {
-    this.supervisor.register(new RemoteAdapter(this.app, async token => user[token]))
+    this.supervisor.register(new RemoteAdapter(this.app, this.userQuery))
   }
 
   /**
@@ -146,14 +113,9 @@ export class PresenceService {
    */
   async run() {
     await this.supervisor.initialize();
-    await new Promise(resolve => this.app.listen('0.0.0.0', config.port, resolve));
+    await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
   }
 }
-
-const service = new PresenceService();
-service.run().then(() => {
-  console.log('Service is running!');
-});
 
 export { RemoteClient as default } from "./RemoteClient";
 export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
