@@ -3,9 +3,12 @@ import fs from "fs-extra";
 import got from "got";
 import path from "path";
 import splashy from "splashy";
-import { App, WebSocket } from "uWebSockets.js";
-import { PresenceAdapter, AdapterState } from "./adapter";
-import { SpotifyAdapter } from "./spotify";
+import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
+import { PresenceAdapter, AdapterState, Presence } from "./adapter";
+import { SpotifyAdapter } from "./adapters/SpotifyAdapter";
+import { DiscordAdapter } from "./adapters/DiscordAdapter";
+import { AdapterSupervisor, SupervisorUpdateEvent } from "./AdapterSupervisor";
+import { RemoteAdapter } from "./adapters/RemoteAdapter";
 
 const CONFIG_PATH = process.env.CONFIG_PATH || path.resolve(__dirname, "..", "config.json");
 const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
@@ -28,73 +31,130 @@ if (!config.token) {
   process.exit(1);
 }
 
-const bot = new Client();
-bot.login(config.token).then(async () => {
-  const app = App();
+const user: Record<string, string> = {
+  'token1': 'eric',
+  'token2': 'justin'
+}
 
-  const clients: WebSocket[] = [];
-  const adapters: PresenceAdapter[] = [];
+/**
+ * Tracks global and scoped (per-user presence)
+ */
+export class PresenceService {
+  supervisor: AdapterSupervisor;
+  app: TemplatedApp;
+  clients: Record<string, WebSocket[]> = {};
+  idMap: Map<WebSocket, string> = new Map();
+  scopedPayloads: Record<string, Presence[]> = {};
+  globalPayload: Presence[] = [];
 
-  // block for initializing adapters
-  {
-    if (config.spotifyCookies && config.spotifyCookies.length > 0) {
-      adapters.push(new SpotifyAdapter(config.spotifyCookies));
-    }
+  constructor() {
+    this.app = App();
+    this.supervisor = new AdapterSupervisor(this.app);
+
+    this.supervisor.on("updated", ({$selector}) => this.dispatch($selector));
+
+    this.app.ws('/presence/:id', {
+      open: (ws, req) => {
+        const id = req.getParameter(0);
+        this.mountClient(id, ws);
+        ws.send(JSON.stringify({
+          activities: this.latest(id)
+        }));
+      },
+      close: (ws, code, message) => {
+        this.unmountClient(ws);
+      }
+    });
+
+    this.registerAdapters();
   }
 
-  adapters.forEach(adapter => adapter.on("presence", broadcastPresence))
-
-  let latestPresence = await computePresence(config.user);
-
-  async function broadcastPresence() {
-    latestPresence = await computePresence(config.user);
-    await Promise.all(clients.map(c => c.send(JSON.stringify(latestPresence))));
+  /**
+   * Merges latest global payload with the latest scoped payload
+   * @param id scope id
+   */
+  latest(id?: string) {
+    return this.globalPayload.concat(id ? this.scopedPayloads[id] : []);
   }
 
-  app.ws('/presence', {
-    open(ws, req) {
-      clients.push(ws);
-      ws.send(JSON.stringify(latestPresence));
-    },
-    close(ws, code, message) {
-      clients.splice(clients.indexOf(ws), 1);
-    },
-    idleTimeout: 0
-  });
+  /**
+   * Allocates resources to a websocket with a scope ID
+   * @param id scope ID
+   * @param socket socket
+   */
+  mountClient(id: string, socket: WebSocket) {
+    const clients = (this.clients[id] || (this.clients[id] = []));
+    if (clients.includes(socket)) return;
+    this.idMap.set(socket, id);
+    clients.push(socket);
+  }
 
-  bot.on("presenceUpdate", async (oldP, newP) => {
-    const id: string | null = newP.user?.id || newP.member?.id || (<any>newP)['userID'];
+  /**
+   * Deallocates resources for a websocket
+   * @param socket socket to deallocate
+   */
+  unmountClient(socket: WebSocket) {
+    const id = this.idMap.get(socket);
     if (!id) return;
-    if (config.user !== id) return;
-    await broadcastPresence();
-  });
-
-  function presenceForID(id: string) {
-    if (config.user !== id) return null;
-    const user = bot.users.resolve(id);
-    if (!user) return null;
-    return user.presence;
+    const clients = (this.clients[id] || (this.clients[id] = []));
+    if (!clients.includes(socket)) return;
+    clients.splice(clients.indexOf(socket), 1);
+    this.idMap.delete(socket);
   }
 
-  async function computePresence(id: string) {
-    const presence = presenceForID(id);
+  /**
+   * Registers all adapters with the supervisor
+   */
+  registerAdapters() {
+    this.supervisor.register(new RemoteAdapter(this.app, async token => user[token]))
+  }
 
-    await Promise.all(adapters.filter(adapter => adapter.state === AdapterState.READY).map(adapter => adapter.run()));
-    const activities: Array<Partial<Activity>> = (await Promise.all(adapters.filter(adapter => adapter.state === AdapterState.RUNNING).map(adapter => adapter.activity()))).filter(a => !!a) as any;
+  /**
+   * Dispatches the latest presence state to the given selector
+   * @param selector selector to dispatch to
+   */
+  async dispatchToSelector(selector: string) {
+    const clients = this.clients[selector];
+    if (!clients || clients.length === 0) return;
+    this.scopedPayloads[selector] = await this.supervisor.scopedActivities(selector);
+    this.globalPayload = await this.supervisor.globalActivities();
 
-    return {
-      userID: id,
-      status: presence?.status || "offline",
-      activities: (presence?.activities || []).map(a => ({
-        ...a,
-        assets: a.assets && {
-          ...a.assets
-        }
-      })).filter(a => !activities.find(b => a.name === b.name)).concat(activities as Activity[])
-    };
-  };
+    const payload = JSON.stringify({
+      activities: this.latest(selector)
+    });
 
-  app.listen('0.0.0.0', config.port, () => {
-    console.log(`Listening on ${config.port}`)
-  })
+    await Promise.all(
+      clients.map(client => (
+        client.send(payload)
+      ))
+    );
+  }
+
+  /**
+   * Dispatches to a set of selectors, or all connected users
+   * @param selector selectors to dispatch to
+   */
+  async dispatch(selector?: string | string[]) {
+    if (!selector) selector = Object.keys(this.clients);
+    else if (!Array.isArray(selector)) selector = [selector];
+
+    return selector.map(sel => this.dispatchToSelector(sel));
+  }
+  
+  /**
+   * Starts the presence service
+   */
+  async run() {
+    await this.supervisor.initialize();
+    await new Promise(resolve => this.app.listen('0.0.0.0', config.port, resolve));
+  }
+}
+
+const service = new PresenceService();
+service.run().then(() => {
+  console.log('Service is running!');
 });
+
+export { RemoteClient as default } from "./RemoteClient";
+export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
+export { DiscordAdapter } from "./adapters/DiscordAdapter";

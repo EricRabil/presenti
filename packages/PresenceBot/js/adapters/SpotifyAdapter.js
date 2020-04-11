@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sactivity_1 = __importDefault(require("sactivity"));
-const adapter_1 = require("./adapter");
+const adapter_1 = require("../adapter");
 const source_1 = __importDefault(require("got/dist/source"));
 const splashy_1 = __importDefault(require("splashy"));
 const scdn = (tag) => `https://i.scdn.co/image/${tag}`;
@@ -116,7 +116,6 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
         this.client.on("playing", broadcast);
         this.client.on("paused", broadcast);
         this.client.on("stopped", broadcast);
-        this.client.on("position", broadcast);
         this.client.on("track", broadcast);
         this.state = adapter_1.AdapterState.RUNNING;
     }

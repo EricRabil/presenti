@@ -1,5 +1,5 @@
 import Sactivity, { SpotifyClient } from "sactivity";
-import { PresenceAdapter, AdapterState } from "./adapter";
+import { PresenceAdapter, AdapterState } from "../adapter";
 import { Activity } from "discord.js";
 import got from "got/dist/source";
 import splashy from "splashy";
@@ -13,6 +13,8 @@ export class SpotifyAdapter extends PresenceAdapter {
   activitySupervisor: Sactivity = null!;
   client: SpotifyClient = null!;
   state: AdapterState = AdapterState.READY;
+
+  static readonly NAME = "Spotify";
 
   constructor(public readonly cookies: string) {
     super();
@@ -36,7 +38,7 @@ export class SpotifyAdapter extends PresenceAdapter {
   async activity(): Promise<Partial<Activity> | undefined> {
     if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata)) return undefined;
     return this.playing ? {
-      name: "Spotify",
+      name: SpotifyAdapter.NAME,
       type: "LISTENING",
       assets: {
         largeImage: this.imageURL && this.imageURL.replace(':image', ''),
@@ -128,7 +130,6 @@ export class SpotifyAdapter extends PresenceAdapter {
     this.client.on("playing", broadcast);
     this.client.on("paused", broadcast);
     this.client.on("stopped", broadcast);
-    this.client.on("position", broadcast);
     this.client.on("track", broadcast);
 
     this.state = AdapterState.RUNNING;
