@@ -148,6 +148,6 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
   async activityForUser(id: string) {
     const socketIDs = Object.entries(this.authTable).filter(([socket, user]) => user === id).map(([socket]) => socket);
     const presences = socketIDs.map(socket => this.presences[socket]);
-    return presences.map(list => list.filter(presence => !!presence)).reduce((a,c) => a.concat(c)) as any;
+    return presences.map(list => list.filter(presence => !!presence)).reduce((a,c) => a.concat(c), []) as any;
   }
 }
