@@ -29,7 +29,7 @@
     "fs-extra": "^9.0.0",
     "got": "^10.7.0",
     "node-uuid": "^1.4.8",
-    "sactivity": "github:EricRabil/sactivity",
+    "sactivity": "file:../sactivity",
     "splashy": "^5.0.2",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.3.0"
   },

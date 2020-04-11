@@ -37,14 +37,15 @@ export class SpotifyAdapter extends PresenceAdapter {
 
   async activity(): Promise<Partial<Activity> | undefined> {
     if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata)) return undefined;
+    if (!this.track) return;
     return this.playing ? {
       name: SpotifyAdapter.NAME,
       type: "LISTENING",
       assets: {
         largeImage: this.imageURL && this.imageURL.replace(':image', ''),
-        largeText: this.client.track.metadata.album_title
+        largeText: this.albumName
       } as any,
-      state: this.artistName,
+      state: null,
       details: this.trackName,
       timestamps: {
         start: new Date(this.start),
@@ -52,6 +53,9 @@ export class SpotifyAdapter extends PresenceAdapter {
       },
       ['data' as any]: {
         palette: await this.palette(),
+        artists: this.artists,
+        albumLink: this.albumLink,
+        songLink: this.songLink,
         artwork: this.imageURL && scdn(this.imageURL.split('spotify:')[1])
       },
       ['syncID' as any]: this.client.track.uri.split(':track:')[1]
@@ -63,7 +67,7 @@ export class SpotifyAdapter extends PresenceAdapter {
   }
 
   get end() {
-    return this.start + parseInt(this.track.duration);
+    return this.start + this.track.duration_ms;
   }
 
   get playing() {
@@ -71,15 +75,15 @@ export class SpotifyAdapter extends PresenceAdapter {
   }
 
   get imageURL(): string | undefined {
-    return (this.client.track.metadata.image_xlarge_url || this.client.track.metadata.image_large_url || this.client.track.metadata.image_url || this.client.track.metadata.image_small_url)?.replace(':image', '');
+    return (this.client.shallowTrack.metadata.image_xlarge_url || this.client.shallowTrack.metadata.image_large_url || this.client.shallowTrack.metadata.image_url || this.client.shallowTrack.metadata.image_small_url)?.replace(':image', '');
   }
 
-  get artistName() {
-    return this.client.track.metadata.artist_name || this.client.track.metadata.album_artist_name;
+  get artists() {
+    return this.track.artists.map(({ name, external_urls: { spotify: link }}) => ({ name, link }));
   }
 
   get track() {
-    return this.client.track.metadata;
+    return this.client.track;
   }
 
   get trackUID() {
@@ -87,11 +91,19 @@ export class SpotifyAdapter extends PresenceAdapter {
   }
 
   get trackName() {
-    return this.track.title;
+    return this.track.name;
   }
 
   get albumName() {
-    return this.client.track.metadata.album_title;
+    return this.client.track.album.name;
+  }
+
+  get songLink() {
+    return this.client.track.external_urls.spotify;
+  }
+
+  get albumLink() {
+    return this.client.track.album.external_urls.spotify;
   }
 
   rebuild() {

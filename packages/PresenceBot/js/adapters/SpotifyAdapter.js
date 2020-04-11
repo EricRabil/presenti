@@ -38,14 +38,16 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
     async activity() {
         if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata))
             return undefined;
+        if (!this.track)
+            return;
         return this.playing ? {
             name: SpotifyAdapter.NAME,
             type: "LISTENING",
             assets: {
                 largeImage: this.imageURL && this.imageURL.replace(':image', ''),
-                largeText: this.client.track.metadata.album_title
+                largeText: this.albumName
             },
-            state: this.artistName,
+            state: null,
             details: this.trackName,
             timestamps: {
                 start: new Date(this.start),
@@ -53,6 +55,9 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
             },
             ['data']: {
                 palette: await this.palette(),
+                artists: this.artists,
+                albumLink: this.albumLink,
+                songLink: this.songLink,
                 artwork: this.imageURL && scdn(this.imageURL.split('spotify:')[1])
             },
             ['syncID']: this.client.track.uri.split(':track:')[1]
@@ -62,29 +67,35 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
         return parseInt(this.client.playerState.timestamp);
     }
     get end() {
-        return this.start + parseInt(this.track.duration);
+        return this.start + this.track.duration_ms;
     }
     get playing() {
         return this.client.playerState && (this.client.playerState.is_playing && !this.client.playerState.is_paused);
     }
     get imageURL() {
         var _a;
-        return (_a = (this.client.track.metadata.image_xlarge_url || this.client.track.metadata.image_large_url || this.client.track.metadata.image_url || this.client.track.metadata.image_small_url)) === null || _a === void 0 ? void 0 : _a.replace(':image', '');
+        return (_a = (this.client.shallowTrack.metadata.image_xlarge_url || this.client.shallowTrack.metadata.image_large_url || this.client.shallowTrack.metadata.image_url || this.client.shallowTrack.metadata.image_small_url)) === null || _a === void 0 ? void 0 : _a.replace(':image', '');
     }
-    get artistName() {
-        return this.client.track.metadata.artist_name || this.client.track.metadata.album_artist_name;
+    get artists() {
+        return this.track.artists.map(({ name, external_urls: { spotify: link } }) => ({ name, link }));
     }
     get track() {
-        return this.client.track.metadata;
+        return this.client.track;
     }
     get trackUID() {
         return this.client.playerState.track.uid;
     }
     get trackName() {
-        return this.track.title;
+        return this.track.name;
     }
     get albumName() {
-        return this.client.track.metadata.album_title;
+        return this.client.track.album.name;
+    }
+    get songLink() {
+        return this.client.track.external_urls.spotify;
+    }
+    get albumLink() {
+        return this.client.track.album.external_urls.spotify;
     }
     rebuild() {
         this.rebuildActivitySupervisor();
