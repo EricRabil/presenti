@@ -70,7 +70,10 @@ export class RemoteClient {
     this.socket = new WebSocket(this.options.url);
 
     this.socket.onopen = () => {
-      this.ping();
+      this.send({
+        type: PayloadType.IDENTIFY,
+        data: this.options.token
+      });
     }
 
     this.socket.onmessage = ({ data }) => {

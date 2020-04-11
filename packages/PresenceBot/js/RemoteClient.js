@@ -40,7 +40,10 @@ class RemoteClient {
         }
         this.socket = new ws_1.default(this.options.url);
         this.socket.onopen = () => {
-            this.ping();
+            this.send({
+                type: RemoteAdapter_1.PayloadType.IDENTIFY,
+                data: this.options.token
+            });
         };
         this.socket.onmessage = ({ data }) => {
             var payload;
