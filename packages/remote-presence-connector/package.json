@@ -1,6 +1,6 @@
 {
   "name": "remote-presence-connector",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Utility library that allows you to use the Remote Presence API in Presenti",
   "main": "js/index.js",
   "scripts": {
