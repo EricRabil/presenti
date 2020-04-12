@@ -3,21 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const adapter_1 = require("../adapter");
+const remote_presence_utils_1 = require("remote-presence-utils");
+const remote_presence_utils_2 = require("remote-presence-utils");
 const node_uuid_1 = __importDefault(require("node-uuid"));
 const scoped_adapter_1 = require("../scoped-adapter");
-var PayloadType;
-(function (PayloadType) {
-    PayloadType[PayloadType["PING"] = 0] = "PING";
-    PayloadType[PayloadType["PONG"] = 1] = "PONG";
-    PayloadType[PayloadType["PRESENCE"] = 2] = "PRESENCE";
-    PayloadType[PayloadType["IDENTIFY"] = 3] = "IDENTIFY";
-    PayloadType[PayloadType["GREETINGS"] = 4] = "GREETINGS";
-})(PayloadType = exports.PayloadType || (exports.PayloadType = {}));
-function isRemotePayload(payload) {
-    return "type" in payload;
-}
-exports.isRemotePayload = isRemotePayload;
 class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
     constructor(app, validate) {
         super();
@@ -29,7 +18,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
          */
         this.authTable = {};
         this.presences = {};
-        this.state = adapter_1.AdapterState.READY;
+        this.state = remote_presence_utils_1.AdapterState.READY;
         app.ws('/remote', {
             open: (ws, req) => {
                 const id = node_uuid_1.default.v4();
@@ -59,14 +48,14 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                     ws.close();
                     return;
                 }
-                if (!isRemotePayload(parsed))
+                if (!remote_presence_utils_2.isRemotePayload(parsed))
                     return;
                 switch (parsed.type) {
-                    case PayloadType.PING:
+                    case remote_presence_utils_2.PayloadType.PING:
                         // pong!
-                        ws.send(JSON.stringify({ type: PayloadType.PONG }));
+                        ws.send(JSON.stringify({ type: remote_presence_utils_2.PayloadType.PONG }));
                         break;
-                    case PayloadType.PRESENCE:
+                    case remote_presence_utils_2.PayloadType.PRESENCE:
                         // close if not authenticated >:(
                         if (!authenticated) {
                             ws.close();
@@ -79,7 +68,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                         this.presences[id] = parsed.data;
                         this.emit("presence", authenticated);
                         break;
-                    case PayloadType.IDENTIFY:
+                    case remote_presence_utils_2.PayloadType.IDENTIFY:
                         // close if already authenticated >:(
                         if (authenticated) {
                             console.log('fuck');
@@ -97,7 +86,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                         // welcome to the club, baby
                         this.authTable[id] = user;
                         this.presences[id] = [];
-                        ws.send(JSON.stringify({ type: PayloadType.GREETINGS }));
+                        ws.send(JSON.stringify({ type: remote_presence_utils_2.PayloadType.GREETINGS }));
                         break;
                 }
             },
@@ -115,7 +104,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         });
     }
     async run() {
-        this.state = adapter_1.AdapterState.RUNNING;
+        this.state = remote_presence_utils_1.AdapterState.RUNNING;
     }
     /**
      * Returns all presence packets

@@ -1,4 +1,4 @@
-import { PresenceAdapter, Presence } from "./adapter";
+import { PresenceAdapter, Presence } from "remote-presence-utils";
 export declare interface ScopedPresenceAdapter {
     on(event: 'presence', listener: (id: string) => any): this;
     on(event: string, listener: Function): this;

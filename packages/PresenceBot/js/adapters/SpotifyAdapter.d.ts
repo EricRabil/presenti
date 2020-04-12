@@ -1,6 +1,5 @@
 import Sactivity, { SpotifyClient } from "sactivity";
-import { PresenceAdapter, AdapterState } from "../adapter";
-import { Activity } from "discord.js";
+import { PresenceAdapter, AdapterState } from "remote-presence-utils";
 /**
  * Presence binding for sactivity
  */
@@ -14,7 +13,27 @@ export declare class SpotifyAdapter extends PresenceAdapter {
     run(): Promise<void>;
     palettes: Record<string, string[]>;
     palette(): Promise<string[]>;
-    activity(): Promise<Partial<Activity> | undefined>;
+    activity(): Promise<{
+        [x: number]: string | {
+            palette: string[];
+            artists: {
+                name: string;
+                link: string;
+            }[];
+            albumLink: string;
+            songLink: string;
+            artwork: string | undefined;
+        };
+        name: string;
+        type: "LISTENING";
+        assets: any;
+        state: null;
+        details: string;
+        timestamps: {
+            start: string;
+            end: string;
+        };
+    } | undefined>;
     get start(): number;
     get end(): number;
     get playing(): boolean;

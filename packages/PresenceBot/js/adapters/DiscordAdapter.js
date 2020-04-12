@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const adapter_1 = require("../adapter");
+const remote_presence_utils_1 = require("remote-presence-utils");
 const discord_js_1 = require("discord.js");
-class DiscordAdapter extends adapter_1.PresenceAdapter {
+class DiscordAdapter extends remote_presence_utils_1.PresenceAdapter {
     constructor(options) {
         super();
         this.options = options;
-        this.state = adapter_1.AdapterState.READY;
+        this.state = remote_presence_utils_1.AdapterState.READY;
     }
     async run() {
         this.client = new discord_js_1.Client();
@@ -20,7 +20,7 @@ class DiscordAdapter extends adapter_1.PresenceAdapter {
                 return;
             this.emit("presence");
         });
-        this.state = adapter_1.AdapterState.RUNNING;
+        this.state = remote_presence_utils_1.AdapterState.RUNNING;
     }
     get user() {
         return this.client.users.resolve(this.options.user);

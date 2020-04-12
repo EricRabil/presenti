@@ -1,5 +1,5 @@
 import Sactivity, { SpotifyClient } from "sactivity";
-import { PresenceAdapter, AdapterState } from "../adapter";
+import { PresenceAdapter, AdapterState } from "remote-presence-utils";
 import { Activity } from "discord.js";
 import got from "got/dist/source";
 import splashy from "splashy";
@@ -35,12 +35,12 @@ export class SpotifyAdapter extends PresenceAdapter {
     return this.palettes[this.trackUID] = palette;
   }
 
-  async activity(): Promise<Partial<Activity> | undefined> {
+  async activity() {
     if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata)) return undefined;
     if (!this.track) return;
     return this.playing ? {
       name: SpotifyAdapter.NAME,
-      type: "LISTENING",
+      type: "LISTENING" as "LISTENING",
       assets: {
         largeImage: this.imageURL && this.imageURL.replace(':image', ''),
         largeText: this.albumName
@@ -48,8 +48,8 @@ export class SpotifyAdapter extends PresenceAdapter {
       state: null,
       details: this.trackName,
       timestamps: {
-        start: new Date(this.start),
-        end: new Date(this.end)
+        start: new Date(this.start).toISOString(),
+        end: new Date(this.end).toISOString()
       },
       ['data' as any]: {
         palette: await this.palette(),

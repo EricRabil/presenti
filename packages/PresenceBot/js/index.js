@@ -105,8 +105,6 @@ class PresenceService {
     }
 }
 exports.PresenceService = PresenceService;
-var RemoteClient_1 = require("./RemoteClient");
-exports.default = RemoteClient_1.RemoteClient;
 var SpotifyAdapter_1 = require("./adapters/SpotifyAdapter");
 exports.SpotifyAdapter = SpotifyAdapter_1.SpotifyAdapter;
 var DiscordAdapter_1 = require("./adapters/DiscordAdapter");

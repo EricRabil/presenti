@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const adapter_1 = require("./adapter");
+const remote_presence_utils_1 = require("remote-presence-utils");
 const events_1 = require("events");
 const scoped_adapter_1 = require("./scoped-adapter");
 class AdapterSupervisor extends events_1.EventEmitter {
@@ -23,13 +23,13 @@ class AdapterSupervisor extends events_1.EventEmitter {
         });
     }
     initialize() {
-        return Promise.all(this.adapters.filter(adapter => (adapter.state === adapter_1.AdapterState.READY)).map(adapter => (adapter.run())));
+        return Promise.all(this.adapters.filter(adapter => (adapter.state === remote_presence_utils_1.AdapterState.READY)).map(adapter => (adapter.run())));
     }
     scopedActivities(id) {
-        return Promise.all(this.adapters.filter(adapter => ((adapter.state === adapter_1.AdapterState.RUNNING) && (adapter instanceof scoped_adapter_1.ScopedPresenceAdapter))).map(adapter => (adapter.activityForUser(id)))).then(activities => (activities.filter(activity => (!!activity)).map(activity => (Array.isArray(activity) ? activity : [activity])).reduce((a, c) => a.concat(c), [])));
+        return Promise.all(this.adapters.filter(adapter => ((adapter.state === remote_presence_utils_1.AdapterState.RUNNING) && (adapter instanceof scoped_adapter_1.ScopedPresenceAdapter))).map(adapter => (adapter.activityForUser(id)))).then(activities => (activities.filter(activity => (!!activity)).map(activity => (Array.isArray(activity) ? activity : [activity])).reduce((a, c) => a.concat(c), [])));
     }
     globalActivities() {
-        return Promise.all(this.adapters.filter(adapter => (adapter.state === adapter_1.AdapterState.RUNNING)).map(adapter => (!(adapter instanceof scoped_adapter_1.ScopedPresenceAdapter) ? adapter.activity() : []))).then(activities => (activities.filter(activity => (!!activity)).map(activity => (Array.isArray(activity) ? activity : [activity])).reduce((a, c) => a.concat(c), [])));
+        return Promise.all(this.adapters.filter(adapter => (adapter.state === remote_presence_utils_1.AdapterState.RUNNING)).map(adapter => (!(adapter instanceof scoped_adapter_1.ScopedPresenceAdapter) ? adapter.activity() : []))).then(activities => (activities.filter(activity => (!!activity)).map(activity => (Array.isArray(activity) ? activity : [activity])).reduce((a, c) => a.concat(c), [])));
     }
 }
 exports.AdapterSupervisor = AdapterSupervisor;

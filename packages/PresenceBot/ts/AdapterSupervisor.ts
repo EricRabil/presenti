@@ -1,4 +1,4 @@
-import { PresenceAdapter, AdapterState, Presence } from "./adapter";
+import { PresenceAdapter, AdapterState, Presence } from "remote-presence-utils";
 import { EventEmitter } from "events";
 import { Activity } from "discord.js";
 import { TemplatedApp } from "uWebSockets.js";
@@ -50,7 +50,7 @@ export class AdapterSupervisor extends EventEmitter {
     );
   }
 
-  scopedActivities(id: string): Promise<Array<Partial<Activity>>> {
+  scopedActivities(id: string): Promise<Presence[]> {
     return <any>Promise.all(
       this.adapters.filter(adapter => (
         (adapter.state === AdapterState.RUNNING) && (adapter instanceof ScopedPresenceAdapter)
@@ -66,7 +66,7 @@ export class AdapterSupervisor extends EventEmitter {
     ))
   }
 
-  globalActivities(): Promise<Array<Partial<Activity>>> {
+  globalActivities(): Promise<Presence[]> {
     return <any>Promise.all(
       this.adapters.filter(adapter => (
         adapter.state === AdapterState.RUNNING

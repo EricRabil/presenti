@@ -1,4 +1,4 @@
-import { PresenceAdapter, AdapterState } from "../adapter";
+import { PresenceAdapter, AdapterState, Presence } from "remote-presence-utils";
 import { Client, Activity } from "discord.js";
 
 export interface DiscordAdapterOptions {
@@ -35,7 +35,7 @@ export class DiscordAdapter extends PresenceAdapter {
     return this.client.users.resolve(this.options.user);
   }
 
-  async activity() {
-    return this.user?.presence.activities.filter(activity => !this.options.overrides.includes(activity.name));
+  async activity(): Promise<Presence> {
+    return this.user?.presence.activities.filter(activity => !this.options.overrides.includes(activity.name)) as any;
   }
 }

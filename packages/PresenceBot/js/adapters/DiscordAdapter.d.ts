@@ -1,5 +1,5 @@
-import { PresenceAdapter, AdapterState } from "../adapter";
-import { Client, Activity } from "discord.js";
+import { PresenceAdapter, AdapterState, Presence } from "remote-presence-utils";
+import { Client } from "discord.js";
 export interface DiscordAdapterOptions {
     token: string;
     user: string;
@@ -12,5 +12,5 @@ export declare class DiscordAdapter extends PresenceAdapter {
     state: AdapterState;
     run(): Promise<void>;
     get user(): import("discord.js").User | null;
-    activity(): Promise<Activity[] | undefined>;
+    activity(): Promise<Presence>;
 }

@@ -1,5 +1,5 @@
 import { WebSocket, TemplatedApp } from "uWebSockets.js";
-import { Presence } from "./adapter";
+import { Presence } from "remote-presence-utils";
 import { AdapterSupervisor } from "./AdapterSupervisor";
 /**
  * Tracks global and scoped (per-user presence)
@@ -49,6 +49,5 @@ export declare class PresenceService {
      */
     run(): Promise<void>;
 }
-export { RemoteClient as default } from "./RemoteClient";
 export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
 export { DiscordAdapter } from "./adapters/DiscordAdapter";

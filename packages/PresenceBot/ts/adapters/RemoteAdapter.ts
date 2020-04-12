@@ -1,34 +1,9 @@
-import { PresenceAdapter, Presence, AdapterState } from "../adapter";
+import { PresenceAdapter, Presence, AdapterState } from "remote-presence-utils";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
+import { PayloadType, isRemotePayload } from "remote-presence-utils";
 import uuid from "node-uuid";
 import { Activity } from "discord.js";
 import { ScopedPresenceAdapter } from "../scoped-adapter";
-
-export interface RemoteAdapterOptions {
-  
-}
-
-export interface RemotePayload {
-  type: PayloadType;
-  data?: any;
-}
-
-export interface RemotePresencePayload {
-  type: PayloadType.PRESENCE;
-  data: Presence[];
-}
-
-export enum PayloadType {
-  PING, PONG, PRESENCE, IDENTIFY, GREETINGS
-}
-
-export function isRemotePayload(payload: any): payload is RemotePayload {
-  return "type" in payload;
-}
-
-export interface PresenceUpdateEvent {
-  $selector: string;
-}
 
 export class RemoteAdapter extends ScopedPresenceAdapter {
   clients: Record<string, WebSocket> = {};
@@ -133,7 +108,7 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
   /**
    * Returns all presence packets
    */
-  async activity(): Promise<import("../adapter").Presence> {
+  async activity(): Promise<Presence> {
     return Object.values(this.presences).filter(p => (
       !!p && Array.isArray(p)
     )).reduce((a, c) => (

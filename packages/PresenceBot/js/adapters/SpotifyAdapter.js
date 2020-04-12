@@ -4,20 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sactivity_1 = __importDefault(require("sactivity"));
-const adapter_1 = require("../adapter");
+const remote_presence_utils_1 = require("remote-presence-utils");
 const source_1 = __importDefault(require("got/dist/source"));
 const splashy_1 = __importDefault(require("splashy"));
 const scdn = (tag) => `https://i.scdn.co/image/${tag}`;
 /**
  * Presence binding for sactivity
  */
-class SpotifyAdapter extends adapter_1.PresenceAdapter {
+class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
     constructor(cookies) {
         super();
         this.cookies = cookies;
         this.activitySupervisor = null;
         this.client = null;
-        this.state = adapter_1.AdapterState.READY;
+        this.state = remote_presence_utils_1.AdapterState.READY;
         this.palettes = {};
         this._lastTimestamp = '';
         this._reconnectCounter = 0;
@@ -50,8 +50,8 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
             state: null,
             details: this.trackName,
             timestamps: {
-                start: new Date(this.start),
-                end: new Date(this.end)
+                start: new Date(this.start).toISOString(),
+                end: new Date(this.end).toISOString()
             },
             ['data']: {
                 palette: await this.palette(),
@@ -128,7 +128,7 @@ class SpotifyAdapter extends adapter_1.PresenceAdapter {
         this.client.on("paused", broadcast);
         this.client.on("stopped", broadcast);
         this.client.on("track", broadcast);
-        this.state = adapter_1.AdapterState.RUNNING;
+        this.state = remote_presence_utils_1.AdapterState.RUNNING;
     }
 }
 exports.SpotifyAdapter = SpotifyAdapter;

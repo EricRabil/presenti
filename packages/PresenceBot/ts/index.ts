@@ -1,5 +1,5 @@
 import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
-import { Presence } from "./adapter";
+import { Presence } from "remote-presence-utils";
 import { AdapterSupervisor } from "./AdapterSupervisor";
 import { RemoteAdapter } from "./adapters/RemoteAdapter";
 
@@ -117,6 +117,5 @@ export class PresenceService {
   }
 }
 
-export { RemoteClient as default } from "./RemoteClient";
 export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
 export { DiscordAdapter } from "./adapters/DiscordAdapter";
