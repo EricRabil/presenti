@@ -1,0 +1,29 @@
+{
+  "name": "remote-presence-utils",
+  "version": "1.0.0",
+  "description": "Utility functions and types for the Remote Presence API",
+  "main": "js/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/remote-presence-utils.git"
+  },
+  "keywords": [
+    "remote",
+    "presence",
+    "utils"
+  ],
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/EricRabil/remote-presence-utils/issues"
+  },
+  "homepage": "https://github.com/EricRabil/remote-presence-utils#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
+}
