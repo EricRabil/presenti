@@ -5,5 +5,6 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./socket");
 __export(require("./RemoteClient"));
+__export(require("./PresenceStream"));
 var RemoteClient_1 = require("./RemoteClient");
 exports.default = RemoteClient_1.RemoteClient;
