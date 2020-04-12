@@ -20,6 +20,7 @@ export interface PresenceStruct {
     } | null;
     type: 'PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING' | 'CUSTOM_STATUS';
     url: string | null;
+    data?: any;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {
