@@ -12,7 +12,7 @@ export interface PresenceStruct {
     } | null;
     createdTimestamp: number;
     details: string | null;
-    name: string;
+    name: string | null;
     state: string | null;
     timestamps: {
         start: string | null;
@@ -20,7 +20,25 @@ export interface PresenceStruct {
     } | null;
     type: 'PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING' | 'CUSTOM_STATUS';
     url: string | null;
-    data?: any;
+    data?: {
+        [key: string]: any;
+    };
+}
+export interface PresentiPresenceStruct extends PresenceStruct {
+    assets: {
+        largeImage: string | null;
+        largeText: string | null;
+        smallImage: null;
+        smallText: null;
+        smallTexts: (string | null)[];
+    } | null;
+    url: null;
+    data?: {
+        largeTextLink?: string | null;
+        smallTextLink?: null;
+        smallTextLinks?: (string | null)[];
+        imageLink?: string | null;
+    };
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {
