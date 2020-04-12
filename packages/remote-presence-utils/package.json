@@ -1,6 +1,6 @@
 {
   "name": "remote-presence-utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Utility functions and types for the Remote Presence API",
   "main": "js/index.js",
   "scripts": {
