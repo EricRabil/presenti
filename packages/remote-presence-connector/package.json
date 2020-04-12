@@ -1,0 +1,34 @@
+{
+  "name": "remote-presence-connector",
+  "version": "1.0.0",
+  "description": "Utility library that allows you to use the Remote Presence API in Presenti",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/remote-presence-connector.git"
+  },
+  "keywords": [
+    "remote",
+    "presence",
+    "api"
+  ],
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/EricRabil/remote-presence-connector/issues"
+  },
+  "homepage": "https://github.com/EricRabil/remote-presence-connector#readme",
+  "peerDependencies": {
+    "@clusterws/cws": "^1.6.0"
+  },
+  "dependencies": {
+    "remote-presence-utils": "^1.0.0",
+    "ws": "^7.2.3"
+  },
+  "devDependencies": {
+    "@types/ws": "^7.2.3"
+  }
+}
