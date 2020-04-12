@@ -2,17 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const remote_presence_utils_1 = require("remote-presence-utils");
 const remote_presence_utils_2 = require("remote-presence-utils");
-// nodejs, try cws, fallback to ws
-if (typeof WebSocket === 'undefined' && global) {
-    let wsLib;
-    try {
-        wsLib = require('@clusterws/cws').WebSocket;
-    }
-    catch {
-        wsLib = require('ws');
-    }
-    global.WebSocket = wsLib;
-}
 /**
  * Connects to a PresenceServer and allows you to funnel presence updates through it
  */

@@ -1,18 +1,6 @@
 import { Presence, PresenceAdapter, AdapterState, Evented } from "remote-presence-utils";
 import { isRemotePayload, PayloadType, RemotePayload } from "remote-presence-utils";
 
-// nodejs, try cws, fallback to ws
-
-if (typeof WebSocket === 'undefined' && global) {
-  let wsLib;
-  try {
-    wsLib = require('@clusterws/cws').WebSocket;
-  } catch {
-    wsLib = require('ws');
-  }
-  (global as any).WebSocket = wsLib;
-}
-
 export interface RemoteClientOptions {
   url: string;
   token: string;
