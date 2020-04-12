@@ -3,7 +3,7 @@ import { isRemotePayload, PayloadType, RemotePayload } from "remote-presence-uti
 
 // nodejs, try cws, fallback to ws
 
-if (global) {
+if (typeof WebSocket === 'undefined' && global) {
   let wsLib;
   try {
     wsLib = require('@clusterws/cws').WebSocket;
@@ -11,7 +11,7 @@ if (global) {
     wsLib = require('ws');
   }
   (global as any).WebSocket = wsLib;
-} 
+}
 
 export interface RemoteClientOptions {
   url: string;
