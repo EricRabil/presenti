@@ -64,7 +64,7 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
         } : undefined;
     }
     get start() {
-        return parseInt(this.client.playerState.timestamp);
+        return Date.now() - parseInt(this.client.playerState.position_as_of_timestamp);
     }
     get end() {
         return this.start + this.track.duration_ms;

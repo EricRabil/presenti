@@ -63,7 +63,7 @@ export class SpotifyAdapter extends PresenceAdapter {
   }
 
   get start() {
-    return parseInt(this.client.playerState.timestamp);
+    return Date.now() - parseInt(this.client.playerState.position_as_of_timestamp);
   }
 
   get end() {
