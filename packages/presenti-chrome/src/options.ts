@@ -2,11 +2,11 @@ import * as $ from 'jquery';
 
 // Saves options to chrome.storage.sync.
 function save_options() {
-  var color = $('#color').val();
-  var likesColor = $('#like').prop('checked');
+  var remoteEndpoint = $('#endpoint').val();
+  var remoteToken = $('#token').val();
   chrome.storage.sync.set({
-    favoriteColor: color,
-    likesColor: likesColor
+    remoteEndpoint,
+    remoteToken
   }, function() {
     // Update status to let user know options were saved.
     var status = $('#status');
@@ -22,11 +22,11 @@ function save_options() {
 function restore_options() {
   // Use default value color = 'red' and likesColor = true.
   chrome.storage.sync.get({
-    favoriteColor: 'red',
-    likesColor: true
-  }, function(items: {favoriteColor, likesColor}) {
-    $('#color').val(items.favoriteColor);
-    $('#like').prop('checked', items.likesColor);
+    remoteEndpoint: 'ws://127.0.0.1:8138/remote',
+    remoteToken: null
+  }, function(items: {remoteEndpoint, remoteToken}) {
+    $('#endpoint').val(items.remoteEndpoint);
+    $('#token').val(items.remoteToken);
   });
 }
 
