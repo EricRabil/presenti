@@ -1,6 +1,6 @@
 import { Presence, AdapterState } from "./types";
 
-class Evented {
+export class Evented {
   _listeners: Record<string, Function[]> = {};
 
   on(event: string, listener: Function): this {

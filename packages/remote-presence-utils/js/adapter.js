@@ -27,6 +27,7 @@ class Evented {
         return true;
     }
 }
+exports.Evented = Evented;
 class PresenceAdapter extends Evented {
 }
 exports.PresenceAdapter = PresenceAdapter;

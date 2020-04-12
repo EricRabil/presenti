@@ -1,5 +1,5 @@
 import { Presence, AdapterState } from "./types";
-declare class Evented {
+export declare class Evented {
     _listeners: Record<string, Function[]>;
     on(event: string, listener: Function): this;
     off(event: string, listener: Function): this;
@@ -16,4 +16,3 @@ export declare abstract class PresenceAdapter extends Evented {
     abstract run(): Promise<void>;
     abstract activity(): Promise<Presence>;
 }
-export {};
