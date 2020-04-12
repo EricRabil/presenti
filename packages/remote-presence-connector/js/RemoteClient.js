@@ -106,8 +106,8 @@ class RemoteClient extends remote_presence_utils_1.Evented {
             this.emit("close");
             if ((this.options.reconnect === false) || this._killed)
                 return;
-            console.debug('Disconnected from the server, attempting a reconnection in 5000ms');
-            setTimeout(() => this._buildSocket());
+            console.log('Disconnected from the server, attempting a reconnection in 5000ms');
+            setTimeout(() => this._buildSocket(), 5000);
         };
     }
     /**
