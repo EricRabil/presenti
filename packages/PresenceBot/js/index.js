@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uWebSockets_js_1 = require("uWebSockets.js");
 const AdapterSupervisor_1 = require("./AdapterSupervisor");
 const RemoteAdapter_1 = require("./adapters/RemoteAdapter");
+const RESTAdapter_1 = require("./adapters/RESTAdapter");
 /**
  * Tracks global and scoped (per-user presence)
  */
@@ -69,6 +70,7 @@ class PresenceService {
      */
     registerAdapters() {
         this.supervisor.register(new RemoteAdapter_1.RemoteAdapter(this.app, this.userQuery));
+        this.supervisor.register(new RESTAdapter_1.RESTAdapter(this.app, this.userQuery));
     }
     /**
      * Dispatches the latest presence state to the given selector

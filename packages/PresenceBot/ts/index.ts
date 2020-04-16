@@ -2,6 +2,7 @@ import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
 import { Presence } from "remote-presence-utils";
 import { AdapterSupervisor } from "./AdapterSupervisor";
 import { RemoteAdapter } from "./adapters/RemoteAdapter";
+import { RESTAdapter } from "./adapters/RESTAdapter";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -74,6 +75,7 @@ export class PresenceService {
    */
   registerAdapters() {
     this.supervisor.register(new RemoteAdapter(this.app, this.userQuery))
+    this.supervisor.register(new RESTAdapter(this.app, this.userQuery));
   }
 
   /**

@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const remote_presence_utils_1 = require("remote-presence-utils");
 const remote_presence_utils_2 = require("remote-presence-utils");
-const node_uuid_1 = __importDefault(require("node-uuid"));
+const uuid_1 = __importDefault(require("uuid"));
 const scoped_adapter_1 = require("../scoped-adapter");
 class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
     constructor(app, validate) {
@@ -21,7 +21,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         this.state = remote_presence_utils_1.AdapterState.READY;
         app.ws('/remote', {
             open: (ws, req) => {
-                const id = node_uuid_1.default.v4();
+                const id = uuid_1.default.v4();
                 // set a two-way map for the clients and their IDs
                 this.clients[id] = ws;
                 this.ids.set(ws, id);
