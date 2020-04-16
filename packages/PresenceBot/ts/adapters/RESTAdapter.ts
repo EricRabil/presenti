@@ -98,7 +98,8 @@ export class RESTAdapter extends ScopedPresenceAdapter {
         const sessionID = this.createSession(user);
 
         res.writeStatus(StatusCodes.OK).writeHeader(...Responses.JSON).end(JSON.stringify({
-          sessionID
+          sessionID,
+          expires: this.options.sessionExpiryMS
         }))
       }
 
