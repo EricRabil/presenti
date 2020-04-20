@@ -4,15 +4,9 @@ export interface PresenceStreamOptions {
     reconnectInterval?: number;
 }
 export declare interface PresenceStream {
-    on(event: "presence", listener: (data: {
-        activities: PresenceStruct[];
-        effective: number;
-    }) => any): this;
+    on(event: "presence", listener: (data: PresenceStruct[]) => any): this;
     on(event: string, listener: Function): this;
-    emit(event: "presence", presence: {
-        activities: PresenceStruct[];
-        effective: number;
-    }): boolean;
+    emit(event: "presence", presence: PresenceStruct[]): boolean;
     emit(event: string, ...args: any[]): boolean;
 }
 export declare class PresenceStream extends Evented {

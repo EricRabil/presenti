@@ -24,8 +24,8 @@ class PresenceStream extends remote_presence_utils_1.Evented {
             this.close();
         this.socket = new WebSocket(this.url);
         this.socket.onmessage = ({ data }) => {
-            const { activities, effective } = JSON.parse(data);
-            this.emit("presence", { activities, effective });
+            const { activities } = JSON.parse(data);
+            this.emit("presence", activities);
         };
         this.socket.onclose = () => {
             if (this._killed)
