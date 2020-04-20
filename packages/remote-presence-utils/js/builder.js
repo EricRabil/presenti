@@ -3,69 +3,45 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class PresentiPresenceBuilder {
     constructor() {
         this.presence = {
-            applicationID: null,
-            assets: {
-                largeImage: null,
-                largeText: null,
-                smallImage: null,
-                smallText: null,
-                smallTexts: []
-            },
-            createdTimestamp: 0,
-            details: null,
-            name: null,
-            state: null,
+            title: null,
+            largeText: null,
+            smallTexts: [],
+            image: null,
             timestamps: {
                 start: null,
                 end: null
             },
-            type: 'PLAYING',
-            url: null,
             data: {
-                largeTextLink: null,
-                smallTextLink: null,
-                smallTextLinks: [],
-                imageLink: null
+                gradient: {
+                    priority: null,
+                    enabled: false
+                }
             }
         };
     }
     toString() {
         return JSON.stringify(this.presence);
     }
-    id(id) {
-        this.presence.applicationID = id;
+    largeText(text, link) {
+        this.presence.largeText = { text, link };
         return this;
     }
-    largeImage(src, link = this.presence.data.imageLink) {
-        this.presence.assets.largeImage = src;
-        this.presence.data.imageLink = link;
+    smallText(text, link) {
+        this.presence.smallTexts.push({ text, link });
         return this;
     }
-    largeText(text, link = this.presence.data.largeTextLink) {
-        this.presence.assets.largeText = text;
-        this.presence.data.largeTextLink = link;
+    image(src, link) {
+        this.presence.image = { src, link };
         return this;
     }
-    text(text, link = null) {
-        const index = this.presence.assets.smallTexts.push(text) - 1;
-        this.presence.data.smallTextLinks[index] = link;
-        return this;
+    paused(state) {
+        this.presence.data.isPaused = state;
     }
-    created(timestamp) {
-        this.presence.createdTimestamp = timestamp;
-        return this;
-    }
-    details(details) {
-        this.presence.details = details;
-        return this;
-    }
-    name(name) {
-        this.presence.name = name;
-        return this;
-    }
-    state(state) {
-        this.presence.state = state;
-        return this;
+    gradient(setting, priority) {
+        this.presence.data.gradient = {
+            enabled: setting,
+            priority
+        };
     }
     start(time) {
         if (time instanceof Date)
@@ -81,10 +57,6 @@ class PresentiPresenceBuilder {
         else if (typeof time === "number")
             time = new Date(time).toISOString();
         this.presence.timestamps.end = time;
-        return this;
-    }
-    type(type) {
-        this.presence.type = type;
         return this;
     }
 }

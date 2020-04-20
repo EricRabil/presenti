@@ -2,7 +2,7 @@ export enum AdapterState {
   READY, RUNNING
 }
 
-export interface PresenceStruct {
+export interface LegacyPresenceStruct {
   applicationID: string | null;
   assets: {
     largeImage: string | null;
@@ -25,21 +25,40 @@ export interface PresenceStruct {
   };
 }
 
-export interface PresentiPresenceStruct extends PresenceStruct {
-  assets: {
-    largeImage: string | null;
-    largeText: string | null;
-    smallImage: null;
-    smallText: null;
-    smallTexts: (string | null)[];
-  } | null;
-  url: null;
+export type PresenceText = string | null | {
+  text: string;
+  link?: string | null;
+}
+
+export type PresenceImage = string | null | {
+  src: string;
+  link?: string | null;
+}
+
+export type PresenceTimeRange = {
+  start: string | null;
+  end: string | null;
+} | null;
+
+export enum MediaState {
+  PLAYING,
+  PAUSED
+}
+
+export interface PresenceStruct {
+  title?: string;
+  largeText?: PresenceText;
+  smallTexts?: PresenceText[];
+  image?: PresenceImage;
+  timestamps?: PresenceTimeRange;
   data?: {
-    largeTextLink?: string | null;
-    smallTextLink?: null;
-    smallTextLinks?: (string | null)[];
-    imageLink?: string | null;
-  };
+    gradient?: boolean | {
+      // use this to take precedence over other gradients, otherwise 0
+      priority?: number | null;
+      enabled: boolean;
+    } | null;
+    isPaused?: boolean | null;
+  } | null;
 }
 
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
@@ -60,7 +79,7 @@ export interface RemotePresencePayload {
 }
 
 export enum PayloadType {
-  PING, PONG, PRESENCE, IDENTIFY, GREETINGS
+  PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4
 }
 
 export function isRemotePayload(payload: any): payload is RemotePayload {

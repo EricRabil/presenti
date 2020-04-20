@@ -2,7 +2,7 @@ export declare enum AdapterState {
     READY = 0,
     RUNNING = 1
 }
-export interface PresenceStruct {
+export interface LegacyPresenceStruct {
     applicationID: string | null;
     assets: {
         largeImage: string | null;
@@ -24,21 +24,35 @@ export interface PresenceStruct {
         [key: string]: any;
     };
 }
-export interface PresentiPresenceStruct extends PresenceStruct {
-    assets: {
-        largeImage: string | null;
-        largeText: string | null;
-        smallImage: null;
-        smallText: null;
-        smallTexts: (string | null)[];
-    } | null;
-    url: null;
+export declare type PresenceText = string | null | {
+    text: string;
+    link?: string | null;
+};
+export declare type PresenceImage = string | null | {
+    src: string;
+    link?: string | null;
+};
+export declare type PresenceTimeRange = {
+    start: string | null;
+    end: string | null;
+} | null;
+export declare enum MediaState {
+    PLAYING = 0,
+    PAUSED = 1
+}
+export interface PresenceStruct {
+    title?: string;
+    largeText?: PresenceText;
+    smallTexts?: PresenceText[];
+    image?: PresenceImage;
+    timestamps?: PresenceTimeRange;
     data?: {
-        largeTextLink?: string | null;
-        smallTextLink?: null;
-        smallTextLinks?: (string | null)[];
-        imageLink?: string | null;
-    };
+        gradient?: boolean | {
+            priority?: number | null;
+            enabled: boolean;
+        } | null;
+        isPaused?: boolean | null;
+    } | null;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {

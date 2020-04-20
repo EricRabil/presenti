@@ -1,34 +1,24 @@
-import { Presence, PresenceStruct, PresentiPresenceStruct } from "./types";
+import { Presence, PresenceStruct } from "./types";
 
 export interface PresenceTransport {
   presence(presence: Presence[]): Promise<any>;
 }
 
 export class PresentiPresenceBuilder {
-  public presence: PresentiPresenceStruct = {
-    applicationID: null,
-    assets: {
-      largeImage: null,
-      largeText: null,
-      smallImage: null,
-      smallText: null,
-      smallTexts: []
-    },
-    createdTimestamp: 0,
-    details: null,
-    name: null,
-    state: null,
+  public presence: PresenceStruct = {
+    title: null!,
+    largeText: null,
+    smallTexts: [],
+    image: null,
     timestamps: {
       start: null,
       end: null
     },
-    type: 'PLAYING',
-    url: null,
     data: {
-      largeTextLink: null,
-      smallTextLink: null,
-      smallTextLinks: [],
-      imageLink: null
+      gradient: {
+        priority: null,
+        enabled: false
+      }
     }
   }
 
@@ -36,47 +26,30 @@ export class PresentiPresenceBuilder {
     return JSON.stringify(this.presence);
   }
 
-  id(id: string | null) {
-    this.presence.applicationID = id;
+  largeText(text: string, link?: string | null) {
+    this.presence.largeText = { text, link };
     return this;
   }
 
-  largeImage(src: string | null, link: string | null = this.presence.data!.imageLink!) {
-    this.presence.assets!.largeImage = src;
-    this.presence.data!.imageLink = link;
+  smallText(text: string, link?: string | null) {
+    this.presence.smallTexts!.push({ text, link });
     return this;
   }
 
-  largeText(text: string | null, link: string | null = this.presence.data!.largeTextLink!) {
-    this.presence.assets!.largeText = text;
-    this.presence.data!.largeTextLink = link;
+  image(src: string, link?: string | null) {
+    this.presence.image = { src, link };
     return this;
   }
 
-  text(text: string | null, link: string | null = null) {
-    const index = this.presence.assets!.smallTexts!.push(text) - 1;
-    this.presence.data!.smallTextLinks![index] = link;
-    return this;
+  paused(state: boolean) {
+    this.presence!.data!.isPaused = state;
   }
 
-  created(timestamp: number) {
-    this.presence.createdTimestamp = timestamp;
-    return this;
-  }
-
-  details(details: string | null) {
-    this.presence.details = details;
-    return this;
-  }
-
-  name(name: string | null) {
-    this.presence.name = name;
-    return this;
-  }
-
-  state(state: string | null) {
-    this.presence.state = state;
-    return this;
+  gradient(setting: boolean, priority?: number | null) {
+    this.presence.data!.gradient = {
+      enabled: setting,
+      priority
+    };
   }
   
   start(time: Date | number | string) {
@@ -90,11 +63,6 @@ export class PresentiPresenceBuilder {
     if (time instanceof Date) time = time.toISOString()
     else if (typeof time === "number") time = new Date(time).toISOString()
     this.presence.timestamps!.end = time;
-    return this;
-  }
-
-  type(type: PresenceStruct['type']) {
-    this.presence.type = type;
     return this;
   }
 }
