@@ -36,8 +36,8 @@ export class PresenceBuilder {
     return this;
   }
 
-  image(src: string, link?: string | null) {
-    this.presence.image = { src, link };
+  image(src: string | null, link?: string | null) {
+    this.presence.image = src ? { src, link } : null;
     return this;
   }
 

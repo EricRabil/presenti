@@ -7,7 +7,7 @@ export declare class PresenceBuilder {
     toString(): string;
     largeText(text: string, link?: string | null): this;
     smallText(text: string, link?: string | null): this;
-    image(src: string, link?: string | null): this;
+    image(src: string | null, link?: string | null): this;
     paused(state: boolean): this;
     gradient(setting: boolean, priority?: number | null): this;
     title(title: string): this;

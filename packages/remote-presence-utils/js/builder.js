@@ -31,7 +31,7 @@ class PresenceBuilder {
         return this;
     }
     image(src, link) {
-        this.presence.image = { src, link };
+        this.presence.image = src ? { src, link } : null;
         return this;
     }
     paused(state) {
