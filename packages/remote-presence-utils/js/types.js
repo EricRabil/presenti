@@ -5,11 +5,6 @@ var AdapterState;
     AdapterState[AdapterState["READY"] = 0] = "READY";
     AdapterState[AdapterState["RUNNING"] = 1] = "RUNNING";
 })(AdapterState = exports.AdapterState || (exports.AdapterState = {}));
-var MediaState;
-(function (MediaState) {
-    MediaState[MediaState["PLAYING"] = 0] = "PLAYING";
-    MediaState[MediaState["PAUSED"] = 1] = "PAUSED";
-})(MediaState = exports.MediaState || (exports.MediaState = {}));
 var PayloadType;
 (function (PayloadType) {
     PayloadType[PayloadType["PING"] = 0] = "PING";

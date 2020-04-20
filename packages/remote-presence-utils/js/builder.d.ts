@@ -8,8 +8,9 @@ export declare class PresentiPresenceBuilder {
     largeText(text: string, link?: string | null): this;
     smallText(text: string, link?: string | null): this;
     image(src: string, link?: string | null): this;
-    paused(state: boolean): void;
-    gradient(setting: boolean, priority?: number | null): void;
+    paused(state: boolean): this;
+    gradient(setting: boolean, priority?: number | null): this;
+    title(title: string): this;
     start(time: Date | number | string): this;
     end(time: Date | number | string): this;
 }

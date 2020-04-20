@@ -36,12 +36,18 @@ class PresentiPresenceBuilder {
     }
     paused(state) {
         this.presence.data.isPaused = state;
+        return this;
     }
     gradient(setting, priority) {
         this.presence.data.gradient = {
             enabled: setting,
             priority
         };
+        return this;
+    }
+    title(title) {
+        this.presence.title = title;
+        return this;
     }
     start(time) {
         if (time instanceof Date)

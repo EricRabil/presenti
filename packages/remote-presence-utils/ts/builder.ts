@@ -43,6 +43,7 @@ export class PresentiPresenceBuilder {
 
   paused(state: boolean) {
     this.presence!.data!.isPaused = state;
+    return this;
   }
 
   gradient(setting: boolean, priority?: number | null) {
@@ -50,6 +51,12 @@ export class PresentiPresenceBuilder {
       enabled: setting,
       priority
     };
+    return this;
+  }
+
+  title(title: string) {
+    this.presence.title = title;
+    return this;
   }
   
   start(time: Date | number | string) {

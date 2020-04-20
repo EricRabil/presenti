@@ -36,10 +36,6 @@ export declare type PresenceTimeRange = {
     start: string | null;
     end: string | null;
 } | null;
-export declare enum MediaState {
-    PLAYING = 0,
-    PAUSED = 1
-}
 export interface PresenceStruct {
     title?: string;
     largeText?: PresenceText;
