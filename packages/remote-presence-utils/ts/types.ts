@@ -46,14 +46,12 @@ export interface PresenceStruct {
   smallTexts?: PresenceText[];
   image?: PresenceImage;
   timestamps?: PresenceTimeRange;
-  data?: {
-    gradient?: boolean | {
-      // use this to take precedence over other gradients, otherwise 0
-      priority?: number | null;
-      enabled: boolean;
-    } | null;
-    isPaused?: boolean | null;
+  gradient?: boolean | {
+    // use this to take precedence over other gradients, otherwise 0
+    priority?: number | null;
+    enabled: boolean;
   } | null;
+  isPaused?: boolean | null;
 }
 
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;

@@ -42,13 +42,11 @@ export interface PresenceStruct {
     smallTexts?: PresenceText[];
     image?: PresenceImage;
     timestamps?: PresenceTimeRange;
-    data?: {
-        gradient?: boolean | {
-            priority?: number | null;
-            enabled: boolean;
-        } | null;
-        isPaused?: boolean | null;
+    gradient?: boolean | {
+        priority?: number | null;
+        enabled: boolean;
     } | null;
+    isPaused?: boolean | null;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {

@@ -14,12 +14,11 @@ export class PresenceBuilder {
       start: null,
       end: null
     },
-    data: {
-      gradient: {
-        priority: null,
-        enabled: false
-      }
-    }
+    gradient: {
+      priority: null,
+      enabled: false
+    },
+    isPaused: null
   }
 
   toString() {
@@ -42,12 +41,12 @@ export class PresenceBuilder {
   }
 
   paused(state: boolean) {
-    this.presence!.data!.isPaused = state;
+    this.presence.isPaused = state;
     return this;
   }
 
   gradient(setting: boolean, priority?: number | null) {
-    this.presence.data!.gradient = {
+    this.presence.gradient = {
       enabled: setting,
       priority
     };
