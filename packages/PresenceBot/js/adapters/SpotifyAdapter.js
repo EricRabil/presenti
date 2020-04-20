@@ -37,37 +37,26 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
     }
     async activity() {
         if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata))
-            return undefined;
+            return;
         if (!this.track)
             return;
-        return this.playing ? {
-            name: SpotifyAdapter.NAME,
-            type: "LISTENING",
-            assets: {
-                largeImage: this.imageURL && this.imageURL.replace(':image', ''),
-                largeText: this.albumName
-            },
-            state: null,
-            details: this.trackName,
-            timestamps: {
-                start: new Date(this.start).toISOString(),
-                end: new Date(this.end).toISOString()
-            },
-            ['data']: {
-                palette: await this.palette(),
-                artists: this.artists,
-                albumLink: this.albumLink,
-                songLink: this.songLink,
-                artwork: this.imageURL && scdn(this.imageURL.split('spotify:')[1])
-            },
-            ['syncID']: this.client.track.uri.split(':track:')[1]
-        } : undefined;
+        return new remote_presence_utils_1.PresenceBuilder()
+            .title(SpotifyAdapter.NAME)
+            .image(this.imageURL ? scdn(this.imageURL.split(':')[1]) : null, this.songLink)
+            .largeText(this.trackName, this.songLink)
+            .smallText(`by ${this.artist.name}`, this.artist.external_urls.spotify)
+            .smallText(`on ${this.albumName}`, this.albumLink)
+            .gradient(true)
+            .duration(this.duration)
+            .position(this.position)
+            .paused(!this.playing)
+            .presence;
     }
-    get start() {
-        return Date.now() - parseInt(this.client.playerState.position_as_of_timestamp);
+    get duration() {
+        return this.track.duration_ms;
     }
-    get end() {
-        return this.start + this.track.duration_ms;
+    get position() {
+        return parseInt(this.client.playerState.position_as_of_timestamp);
     }
     get playing() {
         return this.client.playerState && (this.client.playerState.is_playing && !this.client.playerState.is_paused);
@@ -76,8 +65,8 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
         var _a;
         return (_a = (this.client.shallowTrack.metadata.image_xlarge_url || this.client.shallowTrack.metadata.image_large_url || this.client.shallowTrack.metadata.image_url || this.client.shallowTrack.metadata.image_small_url)) === null || _a === void 0 ? void 0 : _a.replace(':image', '');
     }
-    get artists() {
-        return this.track.artists.map(({ name, external_urls: { spotify: link } }) => ({ name, link }));
+    get artist() {
+        return this.client.track.artists[0];
     }
     get track() {
         return this.client.track;
@@ -125,11 +114,13 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
         });
         const broadcast = this.dispatch.bind(this);
         this.client.on("playing", broadcast);
+        this.client.on("resumed", broadcast);
         this.client.on("paused", broadcast);
         this.client.on("stopped", broadcast);
+        this.client.on("position", broadcast);
         this.client.on("track", broadcast);
         this.state = remote_presence_utils_1.AdapterState.RUNNING;
     }
 }
 exports.SpotifyAdapter = SpotifyAdapter;
-SpotifyAdapter.NAME = "Spotify";
+SpotifyAdapter.NAME = "Listening to Spotify";

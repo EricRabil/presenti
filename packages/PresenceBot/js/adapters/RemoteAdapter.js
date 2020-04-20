@@ -1,11 +1,15 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const remote_presence_utils_1 = require("remote-presence-utils");
 const remote_presence_utils_2 = require("remote-presence-utils");
-const uuid_1 = __importDefault(require("uuid"));
+const uuid = __importStar(require("uuid"));
 const scoped_adapter_1 = require("../scoped-adapter");
 class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
     constructor(app, validate) {
@@ -21,7 +25,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         this.state = remote_presence_utils_1.AdapterState.READY;
         app.ws('/remote', {
             open: (ws, req) => {
-                const id = uuid_1.default.v4();
+                const id = uuid.v4();
                 // set a two-way map for the clients and their IDs
                 this.clients[id] = ws;
                 this.ids.set(ws, id);

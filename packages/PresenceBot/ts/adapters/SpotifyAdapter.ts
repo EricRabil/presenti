@@ -1,5 +1,5 @@
 import Sactivity, { SpotifyClient } from "sactivity";
-import { PresenceAdapter, AdapterState } from "remote-presence-utils";
+import { PresenceAdapter, AdapterState, PresenceStruct, PresenceBuilder, Presence } from "remote-presence-utils";
 import { Activity } from "discord.js";
 import got from "got/dist/source";
 import splashy from "splashy";
@@ -14,7 +14,7 @@ export class SpotifyAdapter extends PresenceAdapter {
   client: SpotifyClient = null!;
   state: AdapterState = AdapterState.READY;
 
-  static readonly NAME = "Spotify";
+  static readonly NAME = "Listening to Spotify";
 
   constructor(public readonly cookies: string) {
     super();
@@ -35,39 +35,28 @@ export class SpotifyAdapter extends PresenceAdapter {
     return this.palettes[this.trackUID] = palette;
   }
 
-  async activity() {
-    if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata)) return undefined;
+  async activity(): Promise<Presence> {
+    if (!(this.client.playerState && this.client.playerState.track && this.client.playerState.track.metadata)) return;
     if (!this.track) return;
-    return this.playing ? {
-      name: SpotifyAdapter.NAME,
-      type: "LISTENING" as "LISTENING",
-      assets: {
-        largeImage: this.imageURL && this.imageURL.replace(':image', ''),
-        largeText: this.albumName
-      } as any,
-      state: null,
-      details: this.trackName,
-      timestamps: {
-        start: new Date(this.start).toISOString(),
-        end: new Date(this.end).toISOString()
-      },
-      ['data' as any]: {
-        palette: await this.palette(),
-        artists: this.artists,
-        albumLink: this.albumLink,
-        songLink: this.songLink,
-        artwork: this.imageURL && scdn(this.imageURL.split('spotify:')[1])
-      },
-      ['syncID' as any]: this.client.track.uri.split(':track:')[1]
-    } : undefined;
+    return new PresenceBuilder()
+                .title(SpotifyAdapter.NAME)
+                .image(this.imageURL ? scdn(this.imageURL.split(':')[1]) : null, this.songLink)
+                .largeText(this.trackName, this.songLink)
+                .smallText(`by ${this.artist.name}`, this.artist.external_urls.spotify)
+                .smallText(`on ${this.albumName}`, this.albumLink)
+                .gradient(true)
+                .duration(this.duration)
+                .position(this.position)
+                .paused(!this.playing)
+                .presence
   }
 
-  get start() {
-    return Date.now() - parseInt(this.client.playerState.position_as_of_timestamp);
+  get duration() {
+    return this.track.duration_ms;
   }
 
-  get end() {
-    return this.start + this.track.duration_ms;
+  get position() {
+    return parseInt(this.client.playerState.position_as_of_timestamp);
   }
 
   get playing() {
@@ -78,8 +67,8 @@ export class SpotifyAdapter extends PresenceAdapter {
     return (this.client.shallowTrack.metadata.image_xlarge_url || this.client.shallowTrack.metadata.image_large_url || this.client.shallowTrack.metadata.image_url || this.client.shallowTrack.metadata.image_small_url)?.replace(':image', '');
   }
 
-  get artists() {
-    return this.track.artists.map(({ name, external_urls: { spotify: link }}) => ({ name, link }));
+  get artist() {
+    return this.client.track.artists[0];
   }
 
   get track() {
@@ -140,8 +129,10 @@ export class SpotifyAdapter extends PresenceAdapter {
 
     const broadcast = this.dispatch.bind(this);
     this.client.on("playing", broadcast);
+    this.client.on("resumed", broadcast);
     this.client.on("paused", broadcast);
     this.client.on("stopped", broadcast);
+    this.client.on("position", broadcast);
     this.client.on("track", broadcast);
 
     this.state = AdapterState.RUNNING;

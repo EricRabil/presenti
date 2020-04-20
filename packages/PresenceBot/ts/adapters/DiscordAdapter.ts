@@ -1,4 +1,4 @@
-import { PresenceAdapter, AdapterState, Presence } from "remote-presence-utils";
+import { PresenceAdapter, AdapterState, Presence, PresenceStruct, PresenceBuilder } from "remote-presence-utils";
 import { Client, Activity } from "discord.js";
 
 export interface DiscordAdapterOptions {
@@ -35,7 +35,18 @@ export class DiscordAdapter extends PresenceAdapter {
     return this.client.users.resolve(this.options.user);
   }
 
-  async activity(): Promise<Presence> {
-    return this.user?.presence.activities.filter(activity => !this.options.overrides.includes(activity.name)) as any;
+  async activity(): Promise<PresenceStruct[]> {
+    return this.user?.presence.activities
+      .filter(activity => !this.options.overrides.includes(activity.name))
+      .map(activity => (
+        new PresenceBuilder()
+          .title(activity.name)
+          .largeText(activity.details || activity.assets?.largeText!)
+          .image(`https://cdn.discordapp.com/app-assets/${activity.applicationID}/${activity.assets?.largeImage}.png`)
+          .smallText(activity.state!)
+          .position(activity.timestamps?.start?.getTime()!)
+          .duration(activity.timestamps?.end?.getTime()! - Date.now())
+          .presence
+      )) || [];
   }
 }

@@ -1,7 +1,7 @@
 import { PresenceAdapter, Presence, AdapterState } from "remote-presence-utils";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import { PayloadType, isRemotePayload } from "remote-presence-utils";
-import uuid from "uuid";
+import * as uuid from "uuid";
 import { Activity } from "discord.js";
 import { ScopedPresenceAdapter } from "../scoped-adapter";
 

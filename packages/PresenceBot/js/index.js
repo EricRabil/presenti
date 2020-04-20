@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const uWebSockets_js_1 = require("uWebSockets.js");
+const remote_presence_utils_1 = require("remote-presence-utils");
 const AdapterSupervisor_1 = require("./AdapterSupervisor");
 const RemoteAdapter_1 = require("./adapters/RemoteAdapter");
 const RESTAdapter_1 = require("./adapters/RESTAdapter");
+const utils_1 = require("./utils");
 /**
  * Tracks global and scoped (per-user presence)
  */
@@ -15,6 +17,7 @@ class PresenceService {
         this.idMap = new Map();
         this.scopedPayloads = {};
         this.globalPayload = [];
+        this.shades = {};
         this.app = uWebSockets_js_1.App();
         this.supervisor = new AdapterSupervisor_1.AdapterSupervisor(this.app);
         this.supervisor.on("updated", ({ $selector }) => this.dispatch($selector));
@@ -25,6 +28,24 @@ class PresenceService {
                 ws.send(JSON.stringify({
                     activities: this.latest(id)
                 }));
+            },
+            message: (ws, msg) => {
+                const rawStr = Buffer.from(msg).toString('utf8');
+                var parsed;
+                try {
+                    parsed = JSON.parse(rawStr);
+                }
+                catch (e) {
+                    ws.close();
+                    return;
+                }
+                if (!remote_presence_utils_1.isRemotePayload(parsed))
+                    return;
+                switch (parsed.type) {
+                    case remote_presence_utils_1.PayloadType.PING:
+                        ws.send(JSON.stringify({ type: remote_presence_utils_1.PayloadType.PONG }));
+                        break;
+                }
             },
             close: (ws, code, message) => {
                 this.unmountClient(ws);
@@ -37,7 +58,7 @@ class PresenceService {
      * @param id scope id
      */
     latest(id) {
-        return this.globalPayload.concat(id ? this.scopedPayloads[id] : []);
+        return this.globalPayload.concat(id ? this.scopedPayloads[id] : []).filter(a => typeof a === "object" && a !== null);
     }
     /**
      * Allocates resources to a websocket with a scope ID
@@ -82,6 +103,18 @@ class PresenceService {
             return;
         this.scopedPayloads[selector] = await this.supervisor.scopedActivities(selector);
         this.globalPayload = await this.supervisor.globalActivities();
+        await Promise.all(this.latest(selector).map(async (presence) => {
+            var _a;
+            if (!presence || !presence.gradient)
+                return;
+            if (typeof presence.gradient === "object" && presence.gradient.enabled === false)
+                return;
+            const link = typeof presence.image === "string" ? presence.image : (_a = presence.image) === null || _a === void 0 ? void 0 : _a.src;
+            if (!link)
+                return;
+            presence.shades = this.shades[link] = (this.shades[link] || await utils_1.PresentiKit.generatePalette(link));
+            console.log(presence.shades);
+        }));
         const payload = JSON.stringify({
             activities: this.latest(selector)
         });

@@ -1,5 +1,5 @@
 import { WebSocket, TemplatedApp } from "uWebSockets.js";
-import { Presence } from "remote-presence-utils";
+import { PresenceStruct } from "remote-presence-utils";
 import { AdapterSupervisor } from "./AdapterSupervisor";
 /**
  * Tracks global and scoped (per-user presence)
@@ -11,14 +11,14 @@ export declare class PresenceService {
     app: TemplatedApp;
     clients: Record<string, WebSocket[]>;
     idMap: Map<WebSocket, string>;
-    scopedPayloads: Record<string, Presence[]>;
-    globalPayload: Presence[];
+    scopedPayloads: Record<string, Array<Partial<PresenceStruct>>>;
+    globalPayload: Array<Partial<PresenceStruct>>;
     constructor(port: number, userQuery: (token: string) => Promise<string | null>);
     /**
      * Merges latest global payload with the latest scoped payload
      * @param id scope id
      */
-    latest(id?: string): Presence[];
+    latest(id?: string): Array<Partial<PresenceStruct>>;
     /**
      * Allocates resources to a websocket with a scope ID
      * @param id scope ID
@@ -34,6 +34,7 @@ export declare class PresenceService {
      * Registers all adapters with the supervisor
      */
     registerAdapters(): void;
+    shades: Record<string, string[]>;
     /**
      * Dispatches the latest presence state to the given selector
      * @param selector selector to dispatch to

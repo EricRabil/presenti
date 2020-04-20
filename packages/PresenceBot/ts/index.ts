@@ -1,8 +1,9 @@
 import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
-import { Presence } from "remote-presence-utils";
+import { Presence, isRemotePayload, PayloadType, PresenceStruct } from "remote-presence-utils";
 import { AdapterSupervisor } from "./AdapterSupervisor";
 import { RemoteAdapter } from "./adapters/RemoteAdapter";
 import { RESTAdapter } from "./adapters/RESTAdapter";
+import { PresentiKit } from "./utils";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -12,8 +13,8 @@ export class PresenceService {
   app: TemplatedApp;
   clients: Record<string, WebSocket[]> = {};
   idMap: Map<WebSocket, string> = new Map();
-  scopedPayloads: Record<string, Presence[]> = {};
-  globalPayload: Presence[] = [];
+  scopedPayloads: Record<string, Array<Partial<PresenceStruct>>> = {};
+  globalPayload: Array<Partial<PresenceStruct>> = [];
 
   constructor(private port: number, private userQuery: (token: string) => Promise<string | null>) {
     this.app = App();
@@ -29,6 +30,23 @@ export class PresenceService {
           activities: this.latest(id)
         }));
       },
+      message: (ws, msg) => {
+        const rawStr = Buffer.from(msg).toString('utf8');
+        var parsed;
+        try {
+          parsed = JSON.parse(rawStr);
+        } catch (e) {
+          ws.close();
+          return;
+        }
+        if (!isRemotePayload(parsed)) return;
+
+        switch (parsed.type) {
+          case PayloadType.PING:
+            ws.send(JSON.stringify({type: PayloadType.PONG}));
+            break;
+        }
+      },
       close: (ws, code, message) => {
         this.unmountClient(ws);
       }
@@ -41,8 +59,8 @@ export class PresenceService {
    * Merges latest global payload with the latest scoped payload
    * @param id scope id
    */
-  latest(id?: string) {
-    return this.globalPayload.concat(id ? this.scopedPayloads[id] : []);
+  latest(id?: string): Array<Partial<PresenceStruct>> {
+    return this.globalPayload.concat(id ? this.scopedPayloads[id] : []).filter(a => typeof a === "object" && a !== null);
   }
 
   /**
@@ -78,6 +96,8 @@ export class PresenceService {
     this.supervisor.register(new RESTAdapter(this.app, this.userQuery));
   }
 
+  shades: Record<string, string[]> = {};
+
   /**
    * Dispatches the latest presence state to the given selector
    * @param selector selector to dispatch to
@@ -87,6 +107,15 @@ export class PresenceService {
     if (!clients || clients.length === 0) return;
     this.scopedPayloads[selector] = await this.supervisor.scopedActivities(selector);
     this.globalPayload = await this.supervisor.globalActivities();
+
+    await Promise.all(this.latest(selector).map(async presence => {
+      if (!presence || !presence.gradient) return;
+      if (typeof presence.gradient === "object" && presence.gradient.enabled === false) return;
+      const link = typeof presence.image === "string" ? presence.image : presence.image?.src;
+      if (!link) return;
+      presence.shades = this.shades[link] = (this.shades[link] || await PresentiKit.generatePalette(link));
+      console.log(presence.shades);
+    }));
 
     const payload = JSON.stringify({
       activities: this.latest(selector)

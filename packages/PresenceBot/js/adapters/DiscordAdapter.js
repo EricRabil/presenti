@@ -27,7 +27,17 @@ class DiscordAdapter extends remote_presence_utils_1.PresenceAdapter {
     }
     async activity() {
         var _a;
-        return (_a = this.user) === null || _a === void 0 ? void 0 : _a.presence.activities.filter(activity => !this.options.overrides.includes(activity.name));
+        return ((_a = this.user) === null || _a === void 0 ? void 0 : _a.presence.activities.filter(activity => !this.options.overrides.includes(activity.name)).map(activity => {
+            var _a, _b, _c, _d, _e, _f;
+            return (new remote_presence_utils_1.PresenceBuilder()
+                .title(activity.name)
+                .largeText(activity.details || ((_a = activity.assets) === null || _a === void 0 ? void 0 : _a.largeText))
+                .image(`https://cdn.discordapp.com/app-assets/${activity.applicationID}/${(_b = activity.assets) === null || _b === void 0 ? void 0 : _b.largeImage}.png`)
+                .smallText(activity.state)
+                .position((_d = (_c = activity.timestamps) === null || _c === void 0 ? void 0 : _c.start) === null || _d === void 0 ? void 0 : _d.getTime())
+                .duration(((_f = (_e = activity.timestamps) === null || _e === void 0 ? void 0 : _e.end) === null || _f === void 0 ? void 0 : _f.getTime()) - Date.now())
+                .presence);
+        })) || [];
     }
 }
 exports.DiscordAdapter = DiscordAdapter;

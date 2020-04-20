@@ -28,7 +28,7 @@
     "discord.js": "^12.1.1",
     "fs-extra": "^9.0.0",
     "got": "^10.7.0",
-    "remote-presence-utils": "^1.0.1",
+    "remote-presence-utils": "github:EricRabil/remote-presence-utils",
     "sactivity": "^1.0.1",
     "splashy": "^5.0.2",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.3.0",

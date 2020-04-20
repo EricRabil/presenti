@@ -37,3 +37,15 @@ export function readRequest(res: HttpResponse): Promise<any> {
     res.onAborted(reject);
   })
 }
+
+import got from "got";
+import splashy from "splashy";
+
+export namespace PresentiKit {
+  export async function generatePalette(imageURL: string): Promise<string[]> {
+    const body = await got(imageURL).buffer();
+    const palette = await splashy(body);
+    console.log(imageURL);
+    return palette;
+  }
+}

@@ -22,7 +22,7 @@ const Responses = {
 };
 ;
 const error = (message) => JSON.stringify({ error: message });
-const clean = (str) => str === null || str === void 0 ? void 0 : str.replace(/(\r\n|\n|\r)/gm, "");
+const clean = (str) => { var _a; return (_a = str) === null || _a === void 0 ? void 0 : _a.replace(/(\r\n|\n|\r)/gm, ""); };
 function handler(exec) {
     return (res, req) => {
         res.onAborted(() => {
