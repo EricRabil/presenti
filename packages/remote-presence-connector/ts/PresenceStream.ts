@@ -1,4 +1,4 @@
-import { Evented, PresenceStruct } from "remote-presence-utils";
+import { Evented, PresenceStruct, PayloadType } from "remote-presence-utils";
 
 export interface PresenceStreamOptions {
   url?: string;
@@ -36,8 +36,15 @@ export class PresenceStream extends Evented {
 
     this.socket = new WebSocket(this.url);
     this.socket.onmessage = ({ data }) => {
-      const { activities } = JSON.parse(data);
-      this.emit("presence", activities);
+      const payload = JSON.parse(data);
+      switch (payload.type) {
+        case PayloadType.PONG:
+          setTimeout(() => this.ping(), 30 * 1000);
+          break;
+        default:
+          const { activities } = JSON.parse(data);
+          this.emit("presence", activities);
+      }
     }
     this.socket.onclose = () => {
       if (this._killed) return;
@@ -45,6 +52,11 @@ export class PresenceStream extends Evented {
       console.debug(`Socket disconnected from the server. Reconnecting in ${this.options.reconnectInterval}ms`);
       setTimeout(() => this.connect(), this.options.reconnectInterval);
     }
+    this.socket.onopen = () => this.ping();
+  }
+
+  ping() {
+    this.socket?.send(JSON.stringify({ type: PayloadType.PING }));
   }
 
   get url() {

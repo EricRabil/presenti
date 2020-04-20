@@ -24,8 +24,15 @@ class PresenceStream extends remote_presence_utils_1.Evented {
             this.close();
         this.socket = new WebSocket(this.url);
         this.socket.onmessage = ({ data }) => {
-            const { activities } = JSON.parse(data);
-            this.emit("presence", activities);
+            const payload = JSON.parse(data);
+            switch (payload.type) {
+                case remote_presence_utils_1.PayloadType.PONG:
+                    setTimeout(() => this.ping(), 30 * 1000);
+                    break;
+                default:
+                    const { activities } = JSON.parse(data);
+                    this.emit("presence", activities);
+            }
         };
         this.socket.onclose = () => {
             if (this._killed)
@@ -35,6 +42,11 @@ class PresenceStream extends remote_presence_utils_1.Evented {
             console.debug(`Socket disconnected from the server. Reconnecting in ${this.options.reconnectInterval}ms`);
             setTimeout(() => this.connect(), this.options.reconnectInterval);
         };
+        this.socket.onopen = () => this.ping();
+    }
+    ping() {
+        var _a;
+        (_a = this.socket) === null || _a === void 0 ? void 0 : _a.send(JSON.stringify({ type: remote_presence_utils_1.PayloadType.PING }));
     }
     get url() {
         return `${this.options.url}${this.scope}`;

@@ -19,5 +19,6 @@ export declare class PresenceStream extends Evented {
     private _killed;
     close(): void;
     connect(): void;
+    ping(): void;
     get url(): string;
 }
