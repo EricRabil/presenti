@@ -51,6 +51,7 @@ export interface PresenceStruct {
     priority?: number | null;
     enabled: boolean;
   } | null;
+  shades?: string[];
   isPaused?: boolean | null;
 }
 

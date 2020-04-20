@@ -46,6 +46,7 @@ export interface PresenceStruct {
         priority?: number | null;
         enabled: boolean;
     } | null;
+    shades?: string[];
     isPaused?: boolean | null;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
