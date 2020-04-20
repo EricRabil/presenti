@@ -15,7 +15,8 @@ class PresenceBuilder {
                 priority: null,
                 enabled: false
             },
-            isPaused: null
+            isPaused: null,
+            effective: Date.now()
         };
     }
     toString() {

@@ -48,6 +48,7 @@ export interface PresenceStruct {
     } | null;
     shades?: string[];
     isPaused?: boolean | null;
+    effective: number;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {

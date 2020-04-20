@@ -53,6 +53,7 @@ export interface PresenceStruct {
   } | null;
   shades?: string[];
   isPaused?: boolean | null;
+  effective: number;
 }
 
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
