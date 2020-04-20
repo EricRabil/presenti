@@ -8,8 +8,8 @@ class PresenceBuilder {
             smallTexts: [],
             image: null,
             timestamps: {
-                start: null,
-                end: null
+                duration: null,
+                position: null
             },
             gradient: {
                 priority: null,
@@ -48,20 +48,12 @@ class PresenceBuilder {
         this.presence.title = title;
         return this;
     }
-    start(time) {
-        if (time instanceof Date)
-            time = time.toISOString();
-        else if (typeof time === "number")
-            time = new Date(time).toISOString();
-        this.presence.timestamps.start = time;
+    duration(duration) {
+        this.presence.timestamps.duration = duration;
         return this;
     }
-    end(time) {
-        if (time instanceof Date)
-            time = time.toISOString();
-        else if (typeof time === "number")
-            time = new Date(time).toISOString();
-        this.presence.timestamps.end = time;
+    position(position) {
+        this.presence.timestamps.position = position;
         return this;
     }
 }

@@ -11,8 +11,8 @@ export class PresenceBuilder {
     smallTexts: [],
     image: null,
     timestamps: {
-      start: null,
-      end: null
+      duration: null,
+      position: null
     },
     gradient: {
       priority: null,
@@ -58,17 +58,13 @@ export class PresenceBuilder {
     return this;
   }
   
-  start(time: Date | number | string) {
-    if (time instanceof Date) time = time.toISOString()
-    else if (typeof time === "number") time = new Date(time).toISOString()
-    this.presence.timestamps!.start = time;
+  duration(duration: number | null) {
+    this.presence.timestamps!.duration = duration;
     return this;
   }
 
-  end(time: Date | number | string) {
-    if (time instanceof Date) time = time.toISOString()
-    else if (typeof time === "number") time = new Date(time).toISOString()
-    this.presence.timestamps!.end = time;
+  position(position: number | null) {
+    this.presence.timestamps!.position = position;
     return this;
   }
 }
