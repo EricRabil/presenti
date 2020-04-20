@@ -6,10 +6,10 @@ export interface PresenceStreamOptions {
 }
 
 export declare interface PresenceStream {
-  on(event: "presence", listener: (presence: PresenceStruct[]) => any): this;
+  on(event: "presence", listener: (data: {presence: PresenceStruct[], effective: number}) => any): this;
   on(event: string, listener: Function): this;
 
-  emit(event: "presence", presence: PresenceStruct[]): boolean;
+  emit(event: "presence", presence: {presence: PresenceStruct[], effective: number}): boolean;
   emit(event: string, ...args: any[]): boolean;
 }
 
@@ -36,8 +36,8 @@ export class PresenceStream extends Evented {
 
     this.socket = new WebSocket(this.url);
     this.socket.onmessage = ({ data }) => {
-      const { activities } = JSON.parse(data);
-      this.emit("presence", activities);
+      const { activities, effective } = JSON.parse(data);
+      this.emit("presence", { activities, effective });
     }
     this.socket.onclose = () => {
       if (this._killed) return;
