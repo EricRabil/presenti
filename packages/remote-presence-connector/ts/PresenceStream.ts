@@ -6,10 +6,10 @@ export interface PresenceStreamOptions {
 }
 
 export declare interface PresenceStream {
-  on(event: "presence", listener: (data: {presence: PresenceStruct[], effective: number}) => any): this;
+  on(event: "presence", listener: (data: {activities: PresenceStruct[], effective: number}) => any): this;
   on(event: string, listener: Function): this;
 
-  emit(event: "presence", presence: {presence: PresenceStruct[], effective: number}): boolean;
+  emit(event: "presence", presence: {activities: PresenceStruct[], effective: number}): boolean;
   emit(event: string, ...args: any[]): boolean;
 }
 
