@@ -2,7 +2,7 @@ import { Presence, PresenceStruct } from "./types";
 export interface PresenceTransport {
     presence(presence: Presence[]): Promise<any>;
 }
-export declare class PresentiPresenceBuilder {
+export declare class PresenceBuilder {
     presence: PresenceStruct;
     toString(): string;
     largeText(text: string, link?: string | null): this;

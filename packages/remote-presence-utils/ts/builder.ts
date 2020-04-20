@@ -4,7 +4,7 @@ export interface PresenceTransport {
   presence(presence: Presence[]): Promise<any>;
 }
 
-export class PresentiPresenceBuilder {
+export class PresenceBuilder {
   public presence: PresenceStruct = {
     title: null!,
     largeText: null,

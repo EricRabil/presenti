@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class PresentiPresenceBuilder {
+class PresenceBuilder {
     constructor() {
         this.presence = {
             title: null,
@@ -66,4 +66,4 @@ class PresentiPresenceBuilder {
         return this;
     }
 }
-exports.PresentiPresenceBuilder = PresentiPresenceBuilder;
+exports.PresenceBuilder = PresenceBuilder;
