@@ -11,6 +11,6 @@ export declare class PresenceBuilder {
     paused(state: boolean): this;
     gradient(setting: boolean, priority?: number | null): this;
     title(title: string): this;
-    duration(duration: number | null): this;
-    position(position: number | null): this;
+    start(start: number | null): this;
+    stop(stop: number | null): this;
 }

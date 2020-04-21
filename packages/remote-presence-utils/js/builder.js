@@ -8,8 +8,8 @@ class PresenceBuilder {
             smallTexts: [],
             image: null,
             timestamps: {
-                duration: null,
-                position: null
+                start: null,
+                stop: null
             },
             gradient: {
                 priority: null,
@@ -49,12 +49,12 @@ class PresenceBuilder {
         this.presence.title = title;
         return this;
     }
-    duration(duration) {
-        this.presence.timestamps.duration = duration;
+    start(start) {
+        this.presence.timestamps.start = start;
         return this;
     }
-    position(position) {
-        this.presence.timestamps.position = position;
+    stop(stop) {
+        this.presence.timestamps.stop = stop;
         return this;
     }
 }

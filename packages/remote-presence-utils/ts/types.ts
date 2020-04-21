@@ -36,8 +36,8 @@ export type PresenceImage = string | null | {
 }
 
 export type PresenceTimeRange = {
-  duration: number | null;
-  position: number | null;
+  start: number | null;
+  stop: number | null;
 } | null;
 
 export interface PresenceStruct {

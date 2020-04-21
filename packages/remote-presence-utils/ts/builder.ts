@@ -11,8 +11,8 @@ export class PresenceBuilder {
     smallTexts: [],
     image: null,
     timestamps: {
-      duration: null,
-      position: null
+      start: null,
+      stop: null
     },
     gradient: {
       priority: null,
@@ -59,13 +59,13 @@ export class PresenceBuilder {
     return this;
   }
   
-  duration(duration: number | null) {
-    this.presence.timestamps!.duration = duration;
+  start(start: number | null) {
+    this.presence.timestamps!.start = start;
     return this;
   }
 
-  position(position: number | null) {
-    this.presence.timestamps!.position = position;
+  stop(stop: number | null) {
+    this.presence.timestamps!.stop = stop;
     return this;
   }
 }
