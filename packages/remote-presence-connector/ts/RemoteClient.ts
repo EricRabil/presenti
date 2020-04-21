@@ -110,7 +110,8 @@ export class RemoteClient extends Evented {
     }
 
     // message handling
-    this.socket.onmessage = ({ data }) => {
+    this.socket.onmessage = (data) => {
+      data = typeof data === "string" ? data : data.data;
       var payload;
       try {
         payload = JSON.parse(data.toString());
