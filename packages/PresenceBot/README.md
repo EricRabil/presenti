@@ -39,7 +39,7 @@ Subscribing to a presence is fairly straightforward. Simply open a connection to
 Where host is the address to your server, and name is the name tied to the token.
 
 Presence updates look like this, and are also sent upon connection:
-```json
+```json5
 {
   "activities": [
     {
