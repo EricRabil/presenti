@@ -98,7 +98,7 @@ Call this endpoint with a valid token to open a new presence session. The sessio
 Call this endpoint to update the presence state for the session. Calling this endpoint doubles as a session refresh, resetting the time until session expiration.
 
 *Example Request*
-```json
+```json5
 {
   "presences": [
     {
@@ -141,7 +141,7 @@ Call this endpoint to update the presence state for the session. Calling this en
 ```
 
 This is how that would be rendered
-[![Rendered Presence]](docs/rendered.png)
+![Rendered Presence](docs/rendered.png)
 
 *Example Response*
 ```json
@@ -206,7 +206,7 @@ Though not required, these can help prevent a connection time-out and unnecessar
 ```
 
 ##### Presence Update
-```json
+```json5
 {
   "type":2,
   "data": [
@@ -246,7 +246,7 @@ Though not required, these can help prevent a connection time-out and unnecessar
 ```
 
 This is how that would be rendered
-[![Rendered Presence]](docs/rendered.png)
+![Rendered Presence](docs/rendered.png)
 
 ## Pre-requisites
 - Node 12
