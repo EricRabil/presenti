@@ -43,31 +43,43 @@ Presence updates look like this, and are also sent upon connection:
 {
   "activities": [
     {
-      "applicationID": "presenti",
-      "assets": {
-        "largeImage": "https://pbs.twimg.com/media/EVf-eJiWkAEqgNG?format=jpg&name=small",
-        "largeText": "Go To Town",
-        "smallTexts": [
-          "Doja Cat"
-        ]
+      "title": "Listening to Spotify",
+      "largeText": {
+          "text": "Issues/Hold On",
+          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
       },
-      "name": "YouTube",
+      "smallTexts": [
+          {
+              "text": "by Teyana Taylor",
+              "link": "https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a"
+          },
+          {
+              "text": "on K.T.S.E.",
+              "link": "https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU"
+          }
+      ],
+      "image": {
+          "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
+          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+      },
+      // unix timestamp representing start/stop of media, omit for no timer
       "timestamps": {
-        "start": "2020-04-16T03:52:21.173Z",
-        "end": "2020-04-16T03:52:28.823Z"
+          "start": 1587431026177,
+          "stop": 1587431296243
       },
-      "type": "WATCHING",
-      "data": {
-        "largeTextLink": "https://www.youtube.com/watch?v=TLiGA_wrNp0",
-        "smallTextLinks": [
-          "https://www.youtube.com/channel/UCzpl23pGTHVYqvKsgY0A-_w"
-        ],
-        "imageLink": "https://www.youtube.com/watch?v=TLiGA_wrNp0"
-      }
+      "gradient": {
+          "enabled": true
+      },
+      "isPaused": true,
+      "effective": 1587420294386
     }
   ]
 }
 ```
+
+This is how that would be rendered
+
+![Rendered Presence](docs/rendered.png)
 
 These are the only messages that will be sent by the server. If the connection closes, simply re-open the connection. There is no authentication necessary for this endpoint.
 
@@ -141,6 +153,7 @@ Call this endpoint to update the presence state for the session. Calling this en
 ```
 
 This is how that would be rendered
+
 ![Rendered Presence](docs/rendered.png)
 
 *Example Response*
@@ -246,6 +259,7 @@ Though not required, these can help prevent a connection time-out and unnecessar
 ```
 
 This is how that would be rendered
+
 ![Rendered Presence](docs/rendered.png)
 
 ## Pre-requisites
