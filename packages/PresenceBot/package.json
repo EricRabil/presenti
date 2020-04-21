@@ -29,7 +29,7 @@
     "fs-extra": "^9.0.0",
     "got": "^10.7.0",
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
-    "sactivity": "^1.0.1",
+    "sactivity": "^1.0.2",
     "splashy": "^5.0.2",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.3.0",
     "uuid": "^7.0.3"
