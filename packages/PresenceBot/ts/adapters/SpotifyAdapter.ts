@@ -45,18 +45,18 @@ export class SpotifyAdapter extends PresenceAdapter {
                 .smallText(`by ${this.artist.name}`, this.artist.external_urls.spotify)
                 .smallText(`on ${this.albumName}`, this.albumLink)
                 .gradient(true)
-                .duration(this.duration)
-                .position(this.position)
+                .start(this.start)
+                .stop(this.stop)
                 .paused(!this.playing)
                 .presence
   }
 
-  get duration() {
-    return this.track.duration_ms;
+  get start() {
+    return Date.now() - parseInt(this.client.playerState.position_as_of_timestamp);
   }
 
-  get position() {
-    return parseInt(this.client.playerState.position_as_of_timestamp);
+  get stop() {
+    return this.start + this.track.duration_ms;
   }
 
   get playing() {

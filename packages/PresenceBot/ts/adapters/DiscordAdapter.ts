@@ -70,13 +70,14 @@ export class DiscordAdapter extends PresenceAdapter {
     return this.user?.presence.activities
       .filter(activity => !this.options.overrides.includes(activity.name))
       .map(activity => (
+        console.log(activity),
         new PresenceBuilder()
           .title(activity.name)
           .largeText(activity.details || activity.assets?.largeText!)
           .image((activity.assets?.largeImage || activity.assets?.smallImage) ? `https://cdn.discordapp.com/app-assets/${activity.applicationID}/${activity.assets?.largeImage || activity.assets?.smallImage}.png` : `https://cdn.discordapp.com/app-icons/${activity.applicationID}/${this.iconRegistry[activity.applicationID!].icon}.webp?size=256&keep_aspect_ratio=false`)
           .smallText(activity.state!)
-          .position(activity.timestamps?.start?.getTime()!)
-          .duration(activity.timestamps?.end?.getTime()! - Date.now())
+          .start(activity.timestamps?.start?.getTime()!)
+          .stop(activity.timestamps?.end?.getTime()!)
           .presence
       )) || [];
   }
