@@ -107,8 +107,5 @@ dist
 config.json
 *.code-workspace
 
-# PresenceBot compilation
-js
-
 # Mac shit
 .DS_Store
