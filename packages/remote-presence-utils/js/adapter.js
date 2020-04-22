@@ -23,7 +23,7 @@ class Evented {
     emit(event, ...args) {
         if (!this._listeners[event] || this._listeners[event].length === 0)
             return false;
-        this._listeners[event].forEach(listener => listener(...args));
+        this._listeners[event].forEach(listener => listener.apply(this, args));
         return true;
     }
 }

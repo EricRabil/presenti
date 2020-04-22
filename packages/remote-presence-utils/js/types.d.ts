@@ -2,28 +2,6 @@ export declare enum AdapterState {
     READY = 0,
     RUNNING = 1
 }
-export interface LegacyPresenceStruct {
-    applicationID: string | null;
-    assets: {
-        largeImage: string | null;
-        largeText: string | null;
-        smallImage: string | null;
-        smallText: string | null;
-    } | null;
-    createdTimestamp: number;
-    details: string | null;
-    name: string | null;
-    state: string | null;
-    timestamps: {
-        start: string | null;
-        end: string | null;
-    } | null;
-    type: 'PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING' | 'CUSTOM_STATUS';
-    url: string | null;
-    data?: {
-        [key: string]: any;
-    };
-}
 export declare type PresenceText = string | null | {
     text: string;
     link?: string | null;
@@ -48,7 +26,6 @@ export interface PresenceStruct {
     } | null;
     shades?: string[];
     isPaused?: boolean | null;
-    effective: number;
 }
 export declare type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 export interface RemoteAdapterOptions {
@@ -69,6 +46,3 @@ export declare enum PayloadType {
     GREETINGS = 4
 }
 export declare function isRemotePayload(payload: any): payload is RemotePayload;
-export interface PresenceUpdateEvent {
-    $selector: string;
-}

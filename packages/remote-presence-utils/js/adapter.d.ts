@@ -6,9 +6,9 @@ export declare class Evented {
     emit(event: string, ...args: any[]): boolean;
 }
 export declare interface PresenceAdapter {
-    on(event: 'presence', listener: () => any): this;
+    on(event: 'updated', listener: () => any): this;
     on(event: string, listener: Function): this;
-    emit(event: 'presence'): boolean;
+    emit(event: 'updated'): boolean;
     emit(event: string | symbol, ...args: any[]): boolean;
 }
 export declare abstract class PresenceAdapter extends Evented {

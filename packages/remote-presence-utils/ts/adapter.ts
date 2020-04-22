@@ -19,16 +19,16 @@ export class Evented {
 
   emit(event: string, ...args: any[]): boolean {
     if (!this._listeners[event] || this._listeners[event].length === 0) return false;
-    this._listeners[event].forEach(listener => listener(...args));
+    this._listeners[event].forEach(listener => listener.apply(this, args));
     return true;
   }
 }
 
 export declare interface PresenceAdapter {
-  on(event: 'presence', listener: () => any): this;
+  on(event: 'updated', listener: () => any): this;
   on(event: string, listener: Function): this;
 
-  emit(event: 'presence'): boolean;
+  emit(event: 'updated'): boolean;
   emit(event: string | symbol, ...args: any[]): boolean;
 }
 
