@@ -30,8 +30,9 @@ class PresenceStream extends remote_presence_utils_1.Evented {
                     setTimeout(() => this.ping(), 30 * 1000);
                     break;
                 default:
-                    const { activities } = JSON.parse(data);
-                    this.emit("presence", activities);
+                    const { presences, state } = JSON.parse(data);
+                    this.emit("presence", presences);
+                    this.emit("state", state);
             }
         };
         this.socket.onclose = () => {

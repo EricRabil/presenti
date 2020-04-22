@@ -5,8 +5,10 @@ export interface PresenceStreamOptions {
 }
 export declare interface PresenceStream {
     on(event: "presence", listener: (data: PresenceStruct[]) => any): this;
+    on(event: "state", listener: (state: Record<string, any>) => any): this;
     on(event: string, listener: Function): this;
     emit(event: "presence", presence: PresenceStruct[]): boolean;
+    emit(event: "state", state: Record<string, any>): boolean;
     emit(event: string, ...args: any[]): boolean;
 }
 export declare class PresenceStream extends Evented {

@@ -25,7 +25,7 @@
     "@clusterws/cws": "^1.6.0"
   },
   "dependencies": {
-    "remote-presence-utils": "^1.0.4",
+    "remote-presence-utils": "github:EricRabil/remote-presence-utils",
     "ws": "^7.2.3"
   },
   "devDependencies": {
