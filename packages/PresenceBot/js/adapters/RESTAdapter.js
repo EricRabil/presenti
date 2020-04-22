@@ -7,7 +7,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const scoped_adapter_1 = require("../scoped-adapter");
+const scoped_adapter_1 = require("../structs/scoped-adapter");
 const remote_presence_utils_1 = require("remote-presence-utils");
 const uuid = __importStar(require("uuid"));
 const utils_1 = require("../utils");
@@ -97,7 +97,7 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                     res.writeStatus(StatusCodes.BAD_REQ).writeHeader(...Responses.JSON).end(error("Malformed body data."));
                 }
                 this.presences[sessionID] = body.presences;
-                this.emit("presence", user);
+                this.emit("updated", user);
                 res.writeStatus(StatusCodes.OK).writeHeader(...Responses.JSON).end(JSON.stringify({ ok: true }));
             };
             res.onAborted(() => {
@@ -132,7 +132,7 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         this.clearExpiry(session);
         delete this.sessionIndex[session];
         delete this.presences[session];
-        this.emit("presence", user);
+        this.emit("updated", user);
     }
     /**
      * Clears the expiration timeout for a session

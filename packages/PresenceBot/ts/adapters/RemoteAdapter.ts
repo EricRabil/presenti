@@ -3,7 +3,7 @@ import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import { PayloadType, isRemotePayload } from "remote-presence-utils";
 import * as uuid from "uuid";
 import { Activity } from "discord.js";
-import { ScopedPresenceAdapter } from "../scoped-adapter";
+import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
 
 export class RemoteAdapter extends ScopedPresenceAdapter {
   clients: Record<string, WebSocket> = {};
@@ -62,7 +62,7 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
             if (!parsed.data) break;
             if (!Array.isArray(parsed.data)) parsed.data = [parsed.data];
             this.presences[id] = parsed.data;
-            this.emit("presence", authenticated);
+            this.emit("updated", authenticated);
             break;
           case PayloadType.IDENTIFY:
             // close if already authenticated >:(
@@ -94,7 +94,7 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
         delete this.clients[id];
         delete this.presences[id];
         this.ids.delete(ws);
-        this.emit("presence", authenticated);
+        this.emit("updated", authenticated);
       }
     })
   }

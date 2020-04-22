@@ -97,7 +97,7 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
         if (this.client.playerState.timestamp === this._lastTimestamp)
             return;
         this._lastTimestamp = this.client.playerState.timestamp;
-        this.emit("presence");
+        this.emit("updated");
     }
     async rebuildSpotifyClient() {
         this.client = await this.activitySupervisor.connect();

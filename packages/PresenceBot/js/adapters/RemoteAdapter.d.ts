@@ -1,7 +1,7 @@
 import { Presence, AdapterState } from "remote-presence-utils";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import { Activity } from "discord.js";
-import { ScopedPresenceAdapter } from "../scoped-adapter";
+import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
 export declare class RemoteAdapter extends ScopedPresenceAdapter {
     private validate;
     clients: Record<string, WebSocket>;

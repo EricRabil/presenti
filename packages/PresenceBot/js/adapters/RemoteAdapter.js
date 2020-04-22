@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const remote_presence_utils_1 = require("remote-presence-utils");
 const remote_presence_utils_2 = require("remote-presence-utils");
 const uuid = __importStar(require("uuid"));
-const scoped_adapter_1 = require("../scoped-adapter");
+const scoped_adapter_1 = require("../structs/scoped-adapter");
 class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
     constructor(app, validate) {
         super();
@@ -70,7 +70,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                         if (!Array.isArray(parsed.data))
                             parsed.data = [parsed.data];
                         this.presences[id] = parsed.data;
-                        this.emit("presence", authenticated);
+                        this.emit("updated", authenticated);
                         break;
                     case remote_presence_utils_2.PayloadType.IDENTIFY:
                         // close if already authenticated >:(
@@ -103,7 +103,7 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                 delete this.clients[id];
                 delete this.presences[id];
                 this.ids.delete(ws);
-                this.emit("presence", authenticated);
+                this.emit("updated", authenticated);
             }
         });
     }

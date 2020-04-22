@@ -1,4 +1,4 @@
-import { ScopedPresenceAdapter } from "../scoped-adapter";
+import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
 import { AdapterState, PresenceStruct } from "remote-presence-utils";
 import { TemplatedApp } from "uWebSockets.js";
 export interface RESTAdapterOptions {

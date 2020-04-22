@@ -40,6 +40,7 @@ export function readRequest(res: HttpResponse): Promise<any> {
 
 import got from "got";
 import splashy from "splashy";
+import { AdapterState, Evented } from "remote-presence-utils";
 
 export namespace PresentiKit {
   export async function generatePalette(imageURL: string): Promise<string[]> {
@@ -48,4 +49,15 @@ export namespace PresentiKit {
     console.log(imageURL);
     return palette;
   }
+}
+
+export interface AdapterStruct extends Evented {
+  on(event: "updated", listener: (scope?: string) => any): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+
+  emit(event: "updated", scope?: string): boolean;
+  emit(event: string | symbol, ...args: any[]): boolean;
+
+  readonly state: AdapterState;
+  run(): Promise<void>;
 }

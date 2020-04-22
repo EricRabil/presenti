@@ -1,4 +1,4 @@
-import { ScopedPresenceAdapter } from "../scoped-adapter";
+import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
 import { Presence, AdapterState, PresenceStruct } from "remote-presence-utils";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import * as uuid from "uuid";
@@ -120,7 +120,7 @@ export class RESTAdapter extends ScopedPresenceAdapter {
         }
 
         this.presences[sessionID] = body.presences;
-        this.emit("presence", user);
+        this.emit("updated", user);
 
         res.writeStatus(StatusCodes.OK).writeHeader(...Responses.JSON).end(JSON.stringify({ ok: true }));
       };
@@ -167,7 +167,7 @@ export class RESTAdapter extends ScopedPresenceAdapter {
     delete this.sessionIndex[session];
     delete this.presences[session];
 
-    this.emit("presence", user);
+    this.emit("updated", user);
   }
 
   /**

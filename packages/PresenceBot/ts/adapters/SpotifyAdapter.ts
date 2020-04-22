@@ -108,7 +108,7 @@ export class SpotifyAdapter extends PresenceAdapter {
   async dispatch() {
     if (this.client.playerState.timestamp === this._lastTimestamp) return;
     this._lastTimestamp = this.client.playerState.timestamp;
-    this.emit("presence");
+    this.emit("updated");
   }
 
   _reconnectCounter = 0;
