@@ -86,10 +86,6 @@ export class RESTAdapter extends ScopedPresenceAdapter {
 
         const user = await validate(token);
 
-        console.log({
-          token, user
-        })
-
         if (!user) {
           res.writeStatus(StatusCodes.UNAUTHORIZED).writeHeader(...Responses.JSON).end(error("Invalid token."));
           return;
@@ -115,7 +111,6 @@ export class RESTAdapter extends ScopedPresenceAdapter {
         const { body, sessionID, user } = sessionData;
 
         if (!body || !("presences" in body) || !Array.isArray(body.presences)) {
-          console.log({ body });
           res.writeStatus(StatusCodes.BAD_REQ).writeHeader(...Responses.JSON).end(error("Malformed body data."));
         }
 
@@ -191,12 +186,6 @@ export class RESTAdapter extends ScopedPresenceAdapter {
 
   async activityForUser(id: string) {
     const activities = Object.entries(this.sessionIndex).filter(([, user]) => user === id).map(([session]) => this.presences[session]).reduce((a, c) => a.concat(c), []);
-    console.log({
-      activities,
-      sessionIndex: this.sessionIndex,
-      presences: this.presences,
-      id
-    });
     return activities;
   }
 

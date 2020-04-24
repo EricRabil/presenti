@@ -52,7 +52,6 @@ var PresentiKit;
     async function generatePalette(imageURL) {
         const body = await got_1.default(imageURL).buffer();
         const palette = await splashy_1.default(body);
-        console.log(imageURL);
         return palette;
     }
     PresentiKit.generatePalette = generatePalette;

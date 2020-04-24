@@ -70,9 +70,6 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                     return;
                 }
                 const user = await validate(token);
-                console.log({
-                    token, user
-                });
                 if (!user) {
                     res.writeStatus(StatusCodes.UNAUTHORIZED).writeHeader(...Responses.JSON).end(error("Invalid token."));
                     return;
@@ -93,7 +90,6 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                     return;
                 const { body, sessionID, user } = sessionData;
                 if (!body || !("presences" in body) || !Array.isArray(body.presences)) {
-                    console.log({ body });
                     res.writeStatus(StatusCodes.BAD_REQ).writeHeader(...Responses.JSON).end(error("Malformed body data."));
                 }
                 this.presences[sessionID] = body.presences;
@@ -154,12 +150,6 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
     }
     async activityForUser(id) {
         const activities = Object.entries(this.sessionIndex).filter(([, user]) => user === id).map(([session]) => this.presences[session]).reduce((a, c) => a.concat(c), []);
-        console.log({
-            activities,
-            sessionIndex: this.sessionIndex,
-            presences: this.presences,
-            id
-        });
         return activities;
     }
     async run() {

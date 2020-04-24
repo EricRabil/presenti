@@ -42,9 +42,9 @@ export class GradientState extends StateAdapter {
   /**
    * How long between color rotations
    */
-  static readonly TRANSITION_TIME = 14000;
-  static readonly GREETINGS_TRANSITION = 5000;
-  static readonly TRANSITION_GAP = 2500;
+  static readonly TRANSITION_TIME = 16000;
+  static readonly GREETINGS_TRANSITION = 2000;
+  static readonly TRANSITION_GAP = 500;
   static shadeCache: Record<string, string[]> = {};
 
   constructor() {
@@ -55,22 +55,32 @@ export class GradientState extends StateAdapter {
     this.state = AdapterState.RUNNING;
   }
 
+  _wasPausedTable: Record<string, boolean> = {};
   /**
    * Returns the background state of a given scope
    * @param scope scope to query background state for
    */
   async data(scope: string, newSocket: boolean = false) {
-    const { currentShade: color, same: sameShades } = (await this.shadesForScope(scope)) || {};
+    const { currentShade: color, same: sameShades, presencePaused } = (await this.shadesForScope(scope)) || {};
 
     if (!color) return {};
 
     // this will respawn the interval if it changed, or start the interval if this hasnt been watched yet.
     if (!sameShades) this.resetRotationTimer(scope);
 
+    var transition =  (sameShades && !newSocket) ? GradientState.TRANSITION_TIME : GradientState.GREETINGS_TRANSITION;
+
+    const wasPaused = this._wasPausedTable[scope];
+    if (!presencePaused && wasPaused) {
+      transition = GradientState.GREETINGS_TRANSITION;
+    }
+    this._wasPausedTable[scope] = !!presencePaused;
+
     return {
       gradient: {
         color,
-        transition: (sameShades && !newSocket) ? GradientState.TRANSITION_TIME : GradientState.GREETINGS_TRANSITION
+        transition,
+        paused: presencePaused
       }
     };
   }
@@ -79,8 +89,9 @@ export class GradientState extends StateAdapter {
    * Returns data regarding the color shades for a given scope
    * @param scope scope to query for gradient shades
    */
-  async shadesForScope(scope: string): Promise<{shades: string[], currentShade: string, same: boolean} | undefined> {
-    const shades = await GradientState.shadeForPresence(await GradientState.gradientActivityForScope(scope));
+  async shadesForScope(scope: string): Promise<{shades: string[], currentShade: string, same: boolean, presencePaused: boolean} | undefined> {
+    const presence = await GradientState.gradientActivityForScope(scope);
+    const shades = await GradientState.shadeForPresence(presence);
     if (!shades) {
       delete this.shades[scope];
       delete this.rotationMap[scope];
@@ -95,7 +106,7 @@ export class GradientState extends StateAdapter {
       this.rotationMap[scope] = 0;
     }
 
-    return { shades, currentShade: this.shades[scope][this.rotationMap[scope]], same };
+    return { shades, currentShade: this.shades[scope][this.rotationMap[scope]], same, presencePaused: !!presence.isPaused };
   }
 
   /**

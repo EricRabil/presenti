@@ -56,7 +56,7 @@ export class DiscordAdapter extends PresenceAdapter {
       const id = presence.user?.id || presence.member?.id || (presence as any)['userID'];
       if (!id) return;
       if (this.options.user !== id) return;
-      this.emit("presence");
+      this.emit("updated");
     });
 
     this.state = AdapterState.RUNNING;
@@ -70,7 +70,6 @@ export class DiscordAdapter extends PresenceAdapter {
     return this.user?.presence.activities
       .filter(activity => !this.options.overrides.includes(activity.name))
       .map(activity => (
-        console.log(activity),
         new PresenceBuilder()
           .title(activity.name)
           .largeText(activity.details || activity.assets?.largeText!)

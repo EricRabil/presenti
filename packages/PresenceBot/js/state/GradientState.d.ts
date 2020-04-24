@@ -29,12 +29,13 @@ export declare class GradientState extends StateAdapter {
     /**
      * How long between color rotations
      */
-    static readonly TRANSITION_TIME = 14000;
-    static readonly GREETINGS_TRANSITION = 5000;
-    static readonly TRANSITION_GAP = 2500;
+    static readonly TRANSITION_TIME = 16000;
+    static readonly GREETINGS_TRANSITION = 2000;
+    static readonly TRANSITION_GAP = 500;
     static shadeCache: Record<string, string[]>;
     constructor();
     run(): Promise<void>;
+    _wasPausedTable: Record<string, boolean>;
     /**
      * Returns the background state of a given scope
      * @param scope scope to query background state for
@@ -45,6 +46,7 @@ export declare class GradientState extends StateAdapter {
         gradient: {
             color: string;
             transition: number;
+            paused: boolean | undefined;
         };
     }>;
     /**
@@ -55,6 +57,7 @@ export declare class GradientState extends StateAdapter {
         shades: string[];
         currentShade: string;
         same: boolean;
+        presencePaused: boolean;
     } | undefined>;
     /**
      * Re-schedules a color rotation, cancelling the previous one if scheduled

@@ -67,7 +67,6 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
           case PayloadType.IDENTIFY:
             // close if already authenticated >:(
             if (authenticated) {
-              console.log('fuck');
               ws.close();
               break;
             }
@@ -75,7 +74,6 @@ export class RemoteAdapter extends ScopedPresenceAdapter {
             const user = await this.validate(token);
             // close if we couldnt validate the token
             if (!user) {
-              console.log('die');
               ws.close();
               break;
             }
