@@ -58,7 +58,7 @@ export class RemoteClient extends Evented {
       throw new Error("Cannot register an adapter more than once.");
     }
     this.adapters.push(
-      adapter.on("presence", this.sendLatestPresence.bind(this))
+      adapter.on("updated", this.sendLatestPresence.bind(this))
     );
   }
 
@@ -130,6 +130,7 @@ export class RemoteClient extends Evented {
           this.emit("ready");
           this._retryCounter = 0;
           this.deferredPing();
+          console.log('Connected to the server.');
           break;
         // on pong, schedule the next ping
         case PayloadType.PONG:

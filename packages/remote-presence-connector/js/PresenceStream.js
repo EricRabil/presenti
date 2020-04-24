@@ -22,6 +22,7 @@ class PresenceStream extends remote_presence_utils_1.Evented {
     connect() {
         if (this.socket)
             this.close();
+        this._killed = false;
         this.socket = new WebSocket(this.url);
         this.socket.onmessage = ({ data }) => {
             const payload = JSON.parse(data);
@@ -43,7 +44,7 @@ class PresenceStream extends remote_presence_utils_1.Evented {
             console.debug(`Socket disconnected from the server. Reconnecting in ${this.options.reconnectInterval}ms`);
             setTimeout(() => this.connect(), this.options.reconnectInterval);
         };
-        this.socket.onopen = () => this.ping();
+        this.socket.onopen = () => (console.log('Connected to the Presenti API'), this.ping());
     }
     ping() {
         var _a;

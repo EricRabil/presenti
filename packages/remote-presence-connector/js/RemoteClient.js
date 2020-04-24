@@ -32,7 +32,7 @@ class RemoteClient extends remote_presence_utils_1.Evented {
         if (this.adapters.includes(adapter)) {
             throw new Error("Cannot register an adapter more than once.");
         }
-        this.adapters.push(adapter.on("presence", this.sendLatestPresence.bind(this)));
+        this.adapters.push(adapter.on("updated", this.sendLatestPresence.bind(this)));
     }
     /**
      * Sends the latest presence data to the server
@@ -84,6 +84,7 @@ class RemoteClient extends remote_presence_utils_1.Evented {
                     this.emit("ready");
                     this._retryCounter = 0;
                     this.deferredPing();
+                    console.log('Connected to the server.');
                     break;
                 // on pong, schedule the next ping
                 case remote_presence_utils_2.PayloadType.PONG:
