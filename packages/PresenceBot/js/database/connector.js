@@ -44,8 +44,11 @@ class Database {
             ],
             username: username,
             password: password,
-            ssl: false,
-            synchronize: true
+            synchronize: true,
+            extra: {
+                ssl: true
+            },
+            ssl: true
         });
     }
     get host() {
