@@ -43,8 +43,9 @@ class RemoteClient extends remote_presence_utils_1.Evented {
     /**
      * Starts the RemoteClient
      */
-    run() {
-        this.initialize().then(() => this._buildSocket());
+    async run() {
+        await this.initialize();
+        return this._buildSocket();
     }
     /**
      * Registers a PresenceAdapter to the client
@@ -72,11 +73,12 @@ class RemoteClient extends remote_presence_utils_1.Evented {
     _buildSocket() {
         this._retryCounter++;
         this._killed = false;
+        this.ready = false;
         if (this.options.reconnect && this._retryCounter > this.options.reconnectGiveUp) {
             this.log.error(`Failed to reconnect to the server after ${this.options.reconnectGiveUp} tries.`);
             return;
         }
-        this.socket = new WebSocket(this.options.url);
+        this.socket = new WebSocket(`ws${this.options.host}/remote`);
         // authentication on socket open
         this.socket.onopen = () => {
             this.send({
@@ -167,6 +169,38 @@ class RemoteClient extends remote_presence_utils_1.Evented {
      */
     updatePresenceForScope(data) {
         return this.send({ type: remote_presence_utils_2.PayloadType.PRESENCE_FIRST_PARTY, data });
+    }
+    /**
+     * Validates a link code for a user. Requires first-party token.
+     * @param scope scope to verify
+     * @param code code to test
+     */
+    async validateCode(scope, code) {
+        try {
+            const r = await fetch(`${this.ajaxBase}${remote_presence_utils_2.API_ROUTES.LINK_CODE}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'authorization': this.options.token
+                },
+                body: JSON.stringify({
+                    scope,
+                    code
+                })
+            }).then(res => res.json());
+            console.log(r);
+            return !!r.valid;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    get socketEndpoint() {
+        return `ws${this.options.host}/remote`;
+    }
+    get ajaxBase() {
+        return `http${this.options.host}`;
     }
     /**
      * Sends a packet to the server

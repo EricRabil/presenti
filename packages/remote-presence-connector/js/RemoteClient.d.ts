@@ -2,7 +2,8 @@ import { Presence, PresenceAdapter, Evented } from "remote-presence-utils";
 import { RemotePayload, FirstPartyPresenceData } from "remote-presence-utils";
 import winston from "winston";
 export interface RemoteClientOptions {
-    url: string;
+    /** Format of "://localhost:8138", "s://api.ericrabil.com" */
+    host: string;
     token: string;
     reconnect?: boolean;
     reconnectGiveUp?: number;
@@ -33,7 +34,7 @@ export declare class RemoteClient extends Evented {
     /**
      * Starts the RemoteClient
      */
-    run(): void;
+    run(): Promise<void>;
     /**
      * Registers a PresenceAdapter to the client
      * @param adapter adapter to register
@@ -70,6 +71,14 @@ export declare class RemoteClient extends Evented {
      * @param data presence update dto
      */
     updatePresenceForScope(data: FirstPartyPresenceData): void;
+    /**
+     * Validates a link code for a user. Requires first-party token.
+     * @param scope scope to verify
+     * @param code code to test
+     */
+    validateCode(scope: string, code: string): Promise<boolean>;
+    get socketEndpoint(): string;
+    get ajaxBase(): string;
     /**
      * Sends a packet to the server
      * @param payload data

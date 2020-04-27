@@ -9,3 +9,6 @@ if (typeof WebSocket === 'undefined' && global) {
     }
     global.WebSocket = wsLib;
 }
+if (typeof fetch === 'undefined' && global) {
+    global.fetch = require("node-fetch");
+}

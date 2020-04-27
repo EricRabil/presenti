@@ -1,9 +1,10 @@
 import { Presence, PresenceAdapter, AdapterState, Evented } from "remote-presence-utils";
-import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData } from "remote-presence-utils";
+import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES } from "remote-presence-utils";
 import winston from "winston";
 
 export interface RemoteClientOptions {
-  url: string;
+  /** Format of "://localhost:8138", "s://api.ericrabil.com" */
+  host: string;
   token: string;
   reconnect?: boolean;
   reconnectGiveUp?: number;
@@ -71,8 +72,9 @@ export class RemoteClient extends Evented {
   /**
    * Starts the RemoteClient
    */
-  run() {
-    this.initialize().then(() => this._buildSocket());
+  async run() {
+    await this.initialize();
+    return this._buildSocket();
   }
 
   /**
@@ -120,13 +122,14 @@ export class RemoteClient extends Evented {
   private _buildSocket() {
     this._retryCounter++;
     this._killed = false;
+    this.ready = false;
 
     if (this.options.reconnect && this._retryCounter > this.options.reconnectGiveUp!) {
       this.log.error(`Failed to reconnect to the server after ${this.options.reconnectGiveUp} tries.`);
       return;
     }
 
-    this.socket = new WebSocket(this.options.url);
+    this.socket = new WebSocket(`ws${this.options.host}/remote`);
 
     // authentication on socket open
     this.socket.onopen = () => {
@@ -221,6 +224,40 @@ export class RemoteClient extends Evented {
    */
   updatePresenceForScope(data: FirstPartyPresenceData) {
     return this.send({ type: PayloadType.PRESENCE_FIRST_PARTY, data });
+  }
+
+  /**
+   * Validates a link code for a user. Requires first-party token.
+   * @param scope scope to verify
+   * @param code code to test
+   */
+  async validateCode(scope: string, code: string) {
+    try {
+      const r = await fetch(`${this.ajaxBase}${API_ROUTES.LINK_CODE}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'authorization': this.options.token
+        },
+        body: JSON.stringify({
+          scope,
+          code
+        })
+      }).then(res => res.json());
+      console.log(r);
+      return !!r.valid;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  get socketEndpoint() {
+    return `ws${this.options.host}/remote`;
+  }
+
+  get ajaxBase() {
+    return `http${this.options.host}`;
   }
 
   /**

@@ -25,6 +25,7 @@
     "@clusterws/cws": "^1.6.0"
   },
   "dependencies": {
+    "node-fetch": "^2.6.0",
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
     "winston": "^3.2.1",
     "ws": "^7.2.3"
