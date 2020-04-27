@@ -12,7 +12,7 @@ import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middlew
 import { API_ROUTES } from "remote-presence-utils";
 
 export default class Frontend extends RestAPIBase {
-  static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "frontend");
+  static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "views");
   static readonly STATIC_DIRECTORY = path.resolve(__dirname, "..", "..", "assets");
   static readonly PRESENTI_ASSET_DIRECTORY = path.resolve(__dirname, "..", "..", "node_modules", "presenti-renderer", "dist");
 
