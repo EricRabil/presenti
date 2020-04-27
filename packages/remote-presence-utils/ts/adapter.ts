@@ -1,7 +1,13 @@
 import { Presence, AdapterState } from "./types";
 
-export class Evented {
-  _listeners: Record<string, Function[]> = {};
+export interface IEvented {
+  on(event: string, listener: Function): this;
+  off(event: string, listener: Function): this;
+  emit(event: string, ...args: any[]): boolean;
+}
+
+export class Evented implements IEvented {
+  private _listeners: Record<string, Function[]> = {};
 
   on(event: string, listener: Function): this {
     if (!this._listeners[event]) this._listeners[event] = [];
@@ -33,7 +39,7 @@ export declare interface PresenceAdapter {
 }
 
 export abstract class PresenceAdapter extends Evented {
-  abstract readonly state: AdapterState;
-  abstract run(): Promise<void>;
-  abstract activity(): Promise<Presence>;
+  state: AdapterState = AdapterState.READY;
+  abstract run(): Promise<void> | void;
+  abstract activity(): Promise<Presence> | Presence;
 }

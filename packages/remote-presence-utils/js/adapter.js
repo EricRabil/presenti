@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const types_1 = require("./types");
 class Evented {
     constructor() {
         this._listeners = {};
@@ -29,5 +30,9 @@ class Evented {
 }
 exports.Evented = Evented;
 class PresenceAdapter extends Evented {
+    constructor() {
+        super(...arguments);
+        this.state = types_1.AdapterState.READY;
+    }
 }
 exports.PresenceAdapter = PresenceAdapter;
