@@ -6,7 +6,7 @@
   generator.addEventListener('click', async () => {
     if (generating) return;
     generating = true;
-    const { key } = await (await fetch('/panel/api/apikey')).json();
+    const { key } = await (await fetch('/api/apikey')).json();
     holder.innerText = key;
     generating = false;
   });
@@ -18,7 +18,7 @@
   linkCodeGenerator.addEventListener('click', async () => {
     if (linkCodeGenerating) return;
     linkCodeGenerating = true;
-    const { code } = await fetch('/panel/api/linkcode').then(r => r.json());
+    const { code } = await fetch('/api/linkcode').then(r => r.json());
     linkCodeHolder.innerText = code;
     linkCodeGenerating = false;
   });
