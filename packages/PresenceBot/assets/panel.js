@@ -28,11 +28,14 @@
    */
   const preview = document.getElementById('preview-frame');
 
-  iFrameResize({
-    sizeHeight: true,
-    sizeWidth: true,
-    widthCalculationMethod: 'rightMostElement'
-  }, preview);
+  function initializeIFrame() {
+    preview.contentDocument.body.appendChild(newStyle);
+    iFrameResize({
+      sizeHeight: true,
+      sizeWidth: true,
+      widthCalculationMethod: 'rightMostElement'
+    }, preview);
+  }
 
   const styleInjection = document.querySelector("link#presenti-injection");
   const newStyle = document.createElement("link");
@@ -40,10 +43,8 @@
   newStyle.href = styleInjection.href;
 
   if (preview.contentDocument.readyState === 'complete') {
-    preview.contentDocument.body.appendChild(newStyle);
+    preview.contentWindow.addEventListener('DOMContentLoaded', initializeIFrame);
   } else {
-    preview.onload = function() {
-      preview.contentDocument.body.appendChild(newStyle);
-    }
+    preview.onload = initializeIFrame;
   }
 })();
