@@ -16,7 +16,7 @@ export default class PresentiAPI extends RestAPIBase {
   }
 
   buildStack(middleware: RequestHandler[], headers: string[] = []) {
-    return super.buildStack(middleware, headers.concat('authorization'));
+    return super.buildStack(middleware, headers.concat('authorization', 'host'));
   }
 
   @Route(API_ROUTES.GENERATE_LINK_CODE, "get", UserLoader(), IdentityGuard, DenyFirstPartyGuard)
@@ -50,5 +50,10 @@ export default class PresentiAPI extends RestAPIBase {
     const key = await res.user!.apiKey();
 
     res.json({ key });
+  }
+
+  @Route(API_ROUTES.DISCORD_AUTH, "get", UserLoader(), IdentityGuard)
+  async redirectToDiscord(req: PBRequest, res: PBResponse) {
+    res.json({ host: req.getHeader('host') })
   }
 }
