@@ -68,6 +68,7 @@ export default class DiscordStatus extends Vue {
   presenceState: PresenceState = {};
   stream: PresenceStream = null!;
   effective: number = Date.now();
+  state: any = null;
   
   @Prop()
   url: string;
@@ -81,19 +82,12 @@ export default class DiscordStatus extends Vue {
 
   respawnSocket () {
     this.stream = new PresenceStream(this.scope, { url: this.url })
-    this.stream.on('presence', (activities) => { this.presences = activities })
-    this.stream.on('state', (state) => { this.presenceState = state })
-    this.stream.connect()
-  }
-
-  mounted () {
-    this.$watch('presence', presence => {
-      window.postMessage(JSON.stringify({presence}), '*');
-    });
-
-    this.$watch('state', state => {
-      window.postMessage(JSON.stringify({state}), '*');
+    this.stream.on('presence', (activities) => {
+      window.parent.postMessage(JSON.stringify({presence: activities}), location.origin);
+      Vue.set(this, "presences", activities)
     })
+    this.stream.on('state', (state) => { Vue.set(this, "state", state) })
+    this.stream.connect()
   }
 }
 </script>
