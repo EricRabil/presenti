@@ -19,6 +19,8 @@ var API_ROUTES;
     API_ROUTES["LINK_CODE"] = "/api/linkcode/validate";
     API_ROUTES["GENERATE_LINK_CODE"] = "/api/linkcode";
     API_ROUTES["API_KEY"] = "/api/apikey";
+    API_ROUTES["DISCORD_AUTH"] = "/api/oauth/discord";
+    API_ROUTES["DISCORD_AUTH_CALLBACK"] = "/api/oauth/discord/callback";
 })(API_ROUTES = exports.API_ROUTES || (exports.API_ROUTES = {}));
 function isRemotePayload(payload) {
     return "type" in payload;
