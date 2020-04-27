@@ -39,11 +39,33 @@ export interface RemotePresencePayload {
     type: PayloadType.PRESENCE;
     data: Presence[];
 }
+export interface FirstPartyPresenceData {
+    scope: string;
+    presence: Array<Partial<PresenceStruct> | undefined>;
+}
+export interface FirstPartyPresencePayload {
+    type: PayloadType.PRESENCE_FIRST_PARTY;
+    data: FirstPartyPresenceData;
+}
+export interface IdentifyPayload {
+    type: PayloadType.IDENTIFY;
+    data: string;
+}
+export interface PingPayload {
+    type: PayloadType.PING;
+}
+export interface PongPayload {
+    type: PayloadType.PONG;
+}
+export interface GreetingsPayload {
+    type: PayloadType.GREETINGS;
+}
 export declare enum PayloadType {
     PING = 0,
     PONG = 1,
     PRESENCE = 2,
     IDENTIFY = 3,
-    GREETINGS = 4
+    GREETINGS = 4,
+    PRESENCE_FIRST_PARTY = 5
 }
 export declare function isRemotePayload(payload: any): payload is RemotePayload;

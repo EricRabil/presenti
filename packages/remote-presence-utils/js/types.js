@@ -12,6 +12,7 @@ var PayloadType;
     PayloadType[PayloadType["PRESENCE"] = 2] = "PRESENCE";
     PayloadType[PayloadType["IDENTIFY"] = 3] = "IDENTIFY";
     PayloadType[PayloadType["GREETINGS"] = 4] = "GREETINGS";
+    PayloadType[PayloadType["PRESENCE_FIRST_PARTY"] = 5] = "PRESENCE_FIRST_PARTY";
 })(PayloadType = exports.PayloadType || (exports.PayloadType = {}));
 function isRemotePayload(payload) {
     return "type" in payload;
