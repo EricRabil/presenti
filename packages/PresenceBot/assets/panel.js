@@ -42,5 +42,10 @@
   newStyle.rel = "stylesheet";
   newStyle.href = styleInjection.href;
   
-  preview.contentWindow.addEventListener("load", initializeIFrame);
+  let initialized = false;
+  window.onmessage = function(message) {
+    if (initialized) return;
+    initialized = true;
+    this.setTimeout(initializeIFrame);
+  };
 })();

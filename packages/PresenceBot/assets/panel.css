@@ -30,3 +30,7 @@ h1, h2, h3, h4, h5, h6, p {
 .site-inner p {
   margin: 1em 0;
 }
+
+iframe#preview-frame {
+  width: 100%;
+}
