@@ -44,6 +44,7 @@ class Database {
             ],
             username: username,
             password: password,
+            ssl: false,
             synchronize: true
         });
     }
