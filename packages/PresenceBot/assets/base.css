@@ -204,3 +204,9 @@ h3 {
   font-size: 18.72px;
   font-weight: 700;
 }
+
+pre {
+  font-family: monospace;
+  white-space: pre;
+  font-size: 0.9em;
+}
