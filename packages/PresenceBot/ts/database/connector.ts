@@ -46,7 +46,9 @@ export class Database {
       password: password!,
       synchronize: true,
       extra: {
-        ssl: true
+        ssl: {
+          rejectUnauthorized: false
+        }
       },
       ssl: true
     })
