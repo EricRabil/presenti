@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
+    "winston": "^3.2.1",
     "ws": "^7.2.3"
   },
   "devDependencies": {

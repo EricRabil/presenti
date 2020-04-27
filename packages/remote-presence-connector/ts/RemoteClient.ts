@@ -1,10 +1,14 @@
 import { Presence, PresenceAdapter, AdapterState, Evented } from "remote-presence-utils";
-import { isRemotePayload, PayloadType, RemotePayload } from "remote-presence-utils";
+import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData } from "remote-presence-utils";
+import winston from "winston";
 
 export interface RemoteClientOptions {
   url: string;
   token: string;
   reconnect?: boolean;
+  reconnectGiveUp?: number;
+  reconnectInterval?: number;
+  logging?: boolean;
 }
 
 export declare interface RemoteClient {
@@ -26,10 +30,32 @@ export class RemoteClient extends Evented {
   socket: WebSocket;
   ready: boolean = false;
   adapters: PresenceAdapter[] = [];
+  log: winston.Logger;
 
   constructor(private options: RemoteClientOptions) {
     super();
-    this.socket = new WebSocket(options.url);
+    this.options.reconnectInterval = options.reconnectInterval || 5000;
+    this.log = winston.createLogger({
+      levels: {
+        emerg: 0,
+        alert: 1,
+        crit: 2,
+        error: 3,
+        warn: 4,
+        notice: 5,
+        info: 6,
+        debug: 7
+      },
+      transports: options.logging ? [
+        new winston.transports.Console({
+          level: "debug",
+          format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple()
+          )
+        })
+      ] : []
+    });
   }
 
   private initialize() {
@@ -95,8 +121,9 @@ export class RemoteClient extends Evented {
     this._retryCounter++;
     this._killed = false;
 
-    if (this._retryCounter > 5) {
-      throw new Error('Failed to reconnect to the server after five tries.');
+    if (this.options.reconnect && this._retryCounter > this.options.reconnectGiveUp!) {
+      this.log.error(`Failed to reconnect to the server after ${this.options.reconnectGiveUp} tries.`);
+      return;
     }
 
     this.socket = new WebSocket(this.options.url);
@@ -116,7 +143,7 @@ export class RemoteClient extends Evented {
       try {
         payload = JSON.parse(data.toString());
       } catch (e) {
-        console.debug('Failed to parse server payload', {
+        this.log.debug('Failed to parse server payload', {
           e,
           data
         });
@@ -130,7 +157,7 @@ export class RemoteClient extends Evented {
           this.emit("ready");
           this._retryCounter = 0;
           this.deferredPing();
-          console.log('Connected to the server.');
+          this.log.info('Connected to the server.');
           break;
         // on pong, schedule the next ping
         case PayloadType.PONG:
@@ -139,12 +166,16 @@ export class RemoteClient extends Evented {
       }
     }
 
+    this.socket.onerror = e => {
+      this.log.error(`Socket errored! ${(e as any).error?.code}`, (e as any).error?.code ? '' : e);
+    }
+
     // run reconnect loop unless we were force-killed or options specify no reconnect
     this.socket.onclose = () => {
       this.emit("close");
       if ((this.options.reconnect === false) || this._killed) return;
-      console.log('Disconnected from the server, attempting a reconnection in 5000ms');
-      setTimeout(() => this._buildSocket(), 5000);
+      this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
+      setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
     }
   }
 
@@ -166,9 +197,18 @@ export class RemoteClient extends Evented {
    * Sends a presence update packet
    * @param data presence data
    */
-  presence(data: Presence[]) {
+  presence(data: Presence[] = []) {
     this.emit("presence", data);
     return this.send({ type: PayloadType.PRESENCE, data });
+  }
+  
+  /**
+   * Updates the presence for a given scope. Requires first-party token.
+   * Calling this endpoint without a first-party token will terminate the connection.
+   * @param data presence update dto
+   */
+  updatePresenceForScope(data: FirstPartyPresenceData) {
+    return this.send({ type: PayloadType.PRESENCE_FIRST_PARTY, data });
   }
 
   /**
