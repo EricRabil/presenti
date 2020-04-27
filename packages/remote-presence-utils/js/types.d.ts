@@ -68,4 +68,11 @@ export declare enum PayloadType {
     GREETINGS = 4,
     PRESENCE_FIRST_PARTY = 5
 }
+export declare enum API_ROUTES {
+    LINK_CODE = "/api/linkcode/validate",
+    GENERATE_LINK_CODE = "/api/linkcode",
+    API_KEY = "/api/apikey",
+    DISCORD_AUTH = "/api/oauth/discord",
+    DISCORD_AUTH_CALLBACK = "/api/oauth/discord/callback"
+}
 export declare function isRemotePayload(payload: any): payload is RemotePayload;

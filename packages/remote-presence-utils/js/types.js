@@ -14,6 +14,12 @@ var PayloadType;
     PayloadType[PayloadType["GREETINGS"] = 4] = "GREETINGS";
     PayloadType[PayloadType["PRESENCE_FIRST_PARTY"] = 5] = "PRESENCE_FIRST_PARTY";
 })(PayloadType = exports.PayloadType || (exports.PayloadType = {}));
+var API_ROUTES;
+(function (API_ROUTES) {
+    API_ROUTES["LINK_CODE"] = "/api/linkcode/validate";
+    API_ROUTES["GENERATE_LINK_CODE"] = "/api/linkcode";
+    API_ROUTES["API_KEY"] = "/api/apikey";
+})(API_ROUTES = exports.API_ROUTES || (exports.API_ROUTES = {}));
 function isRemotePayload(payload) {
     return "type" in payload;
 }

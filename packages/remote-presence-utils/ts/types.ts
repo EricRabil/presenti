@@ -81,6 +81,12 @@ export enum PayloadType {
   PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4, PRESENCE_FIRST_PARTY = 5
 }
 
+export enum API_ROUTES {
+  LINK_CODE = "/api/linkcode/validate",
+  GENERATE_LINK_CODE = "/api/linkcode",
+  API_KEY = "/api/apikey"
+}
+
 export function isRemotePayload(payload: any): payload is RemotePayload {
   return "type" in payload;
 }
