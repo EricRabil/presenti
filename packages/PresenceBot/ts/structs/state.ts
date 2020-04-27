@@ -25,4 +25,5 @@ export abstract class StateAdapter extends Evented {
    * @param newSocket whether this data is being pulled for initial socket connection
    */
   abstract data(scope: string, newSocket?: boolean): Promise<object>;
+  abstract datas(): Promise<Record<string, object>>;
 }

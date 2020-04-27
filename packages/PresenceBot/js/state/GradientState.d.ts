@@ -20,9 +20,6 @@ export declare class GradientState extends StateAdapter {
     rotationMap: {
         [scope: string]: number;
     };
-    states: {
-        [scope: string]: BackgroundData;
-    };
     rotationTimers: {
         [scope: string]: ReturnType<typeof setInterval>;
     };
@@ -49,6 +46,7 @@ export declare class GradientState extends StateAdapter {
             paused: boolean | undefined;
         };
     }>;
+    datas(): Promise<{}>;
     /**
      * Returns data regarding the color shades for a given scope
      * @param scope scope to query for gradient shades

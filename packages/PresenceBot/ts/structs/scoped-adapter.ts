@@ -1,4 +1,5 @@
 import { PresenceAdapter, Presence } from "remote-presence-utils";
+import { PresenceDictionary } from "../utils/presence-magic";
 
 export declare interface ScopedPresenceAdapter {
   on(event: 'updated', listener: (id: string) => any): this;
@@ -9,5 +10,13 @@ export declare interface ScopedPresenceAdapter {
 }
 
 export abstract class ScopedPresenceAdapter extends PresenceAdapter {
-  abstract activityForUser(id: string): Promise<Presence>;
+  abstract activityForUser(id: string): Promise<Presence> | Presence;
+  abstract activities(): Promise<PresenceDictionary> | PresenceDictionary;
+
+  /**
+   * It doesn't make sense to return a mono-array of all presences for scoped adapters.
+   */
+  activity(): Promise<never[]> | never[] {
+    return [];
+  }
 }

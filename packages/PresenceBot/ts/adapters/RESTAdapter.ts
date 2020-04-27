@@ -3,15 +3,18 @@ import { Presence, AdapterState, PresenceStruct } from "remote-presence-utils";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import * as uuid from "uuid";
 import { readRequest } from "../utils";
+import { FIRST_PARTY_SCOPE } from "../structs/socket-api-adapter";
+import { PresenceDictionary } from "../utils/presence-magic";
 
-enum StatusCodes {
+export enum StatusCodes {
   BAD_REQ = '400 Bad Request',
   UNAUTHORIZED = '401 Unauthorized',
   OK = '200 OK'
 }
 
-const Responses: Record<string, [string, string]> = {
-  JSON: ['Content-Type', 'application/json']
+export const Responses: Record<string, [string, string]> = {
+  JSON: ['Content-Type', 'application/json'],
+  HTML: ['Content-Type', 'text/html']
 }
 
 export interface RESTAdapterOptions {
@@ -21,10 +24,42 @@ export interface RESTAdapterOptions {
 const error = (message: string) => JSON.stringify({ error: message });
 const clean = (str: string | null) => str?.replace(/(\r\n|\n|\r)/gm, "");
 
-function handler(exec: (res: HttpResponse, req: HttpRequest) => any): typeof exec {
+export function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: string[] = []): typeof exec {
   return (res, req) => {
     res.onAborted(() => {
+      if (res.stream) {
+        res.stream.destroy();
+      }
+      res.aborted = true;
+    });
 
+    res._reqHeaders = {};
+    headers.forEach(h => {
+      res._reqHeaders[h] = req.getHeader(h);
+    });
+
+    res._reqUrl = req.getUrl();
+    res._reqQuery = req.getQuery();
+
+    res._data = [];
+    res._readable = false;
+    res._readListeners = [];
+
+    res.onReadable = function(cb: Function) {
+      if (this._readable) {
+        cb();
+      } else {
+        this._readListeners.push(cb);
+      }
+    }
+
+    res.onData((chunk, last) => {
+      res._data.push(chunk);
+
+      if (last) {
+        res._readable = true;
+        res._readListeners.forEach((listener: Function) => listener());
+      }
     });
 
     exec(res, req);
@@ -42,7 +77,7 @@ export class RESTAdapter extends ScopedPresenceAdapter {
   presences: Record<string, Array<Partial<PresenceStruct>>> = {};
   state: AdapterState = AdapterState.READY;
 
-  constructor(app: TemplatedApp, private validate: (token: string) => Promise<string | null>, public readonly options: RESTAdapterOptions = {}) {
+  constructor(app: TemplatedApp, private validate: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>, public readonly options: RESTAdapterOptions = {}) {
     super();
 
     if (!options.sessionExpiryMS) options.sessionExpiryMS = RESTAdapter.DEFAULT_EXPIRY_MS;
@@ -91,6 +126,13 @@ export class RESTAdapter extends ScopedPresenceAdapter {
           return;
         }
 
+        if (user === FIRST_PARTY_SCOPE) {
+          res.writeStatus(StatusCodes.BAD_REQ).writeHeader(...Responses.JSON).end(JSON.stringify({
+            msg: "First party clients cannot use this endpoint."
+          }));
+          return;
+        }
+
         const sessionID = this.createSession(user);
 
         res.writeStatus(StatusCodes.OK).writeHeader(...Responses.JSON).end(JSON.stringify({
@@ -134,7 +176,7 @@ export class RESTAdapter extends ScopedPresenceAdapter {
       this.scheduleExpiry(sessionID);
 
       res.writeStatus(StatusCodes.OK).writeHeader(...Responses.JSON).end(JSON.stringify({ ok: true }));
-    })); 
+    }));
   }
 
   /**
@@ -189,11 +231,16 @@ export class RESTAdapter extends ScopedPresenceAdapter {
     return activities;
   }
 
+  async activities() {
+    const activities = await Promise.all(Object.values(this.sessionIndex).filter((u,i,a) => a.indexOf(u) === i).map(async u => ({ user: u, presence: await this.activityForUser(u) })));
+    return activities.reduce((acc, {user, presence}) => Object.assign(acc, { [user]: presence }), {} as PresenceDictionary);
+  }
+
   async run(): Promise<void> {
     this.state = AdapterState.RUNNING;
   }
 
-  async activity() {
-    return Object.values(this.presences).reduce((a, c) => a.concat(c), []);
+  activity() {
+    return [];
   }
 }

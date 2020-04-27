@@ -1,5 +1,8 @@
+import "reflect-metadata";
 import { WebSocket, TemplatedApp } from "uWebSockets.js";
+import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
 import { MasterSupervisor } from "./MasterSupervisor";
+import { FIRST_PARTY_SCOPE } from "./structs/socket-api-adapter";
 /**
  * Tracks global and scoped (per-user presence)
  */
@@ -12,7 +15,9 @@ export declare class PresenceService {
     idMap: Map<WebSocket, string>;
     scopedPayloads: Record<string, Record<string, any>>;
     globalPayload: Record<string, any>;
-    constructor(port: number, userQuery: (token: string) => Promise<string | null>);
+    adapterSupervisor: AdapterSupervisor;
+    log: import("winston").Logger;
+    constructor(port: number, userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>);
     /**
      * Allocates resources to a websocket with a scope ID
      * @param id scope ID

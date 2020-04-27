@@ -1,4 +1,4 @@
-import { AdapterStruct } from "../utils";
+import { AdapterStruct, log } from "../utils";
 import { EventEmitter } from "events";
 import { AdapterState, Evented } from "remote-presence-utils";
 
@@ -16,6 +16,7 @@ export declare interface Supervisor<T extends AdapterStruct> {
 export abstract class Supervisor<T extends AdapterStruct> extends Evented {
   adapters: T[] = [];
   state: AdapterState = AdapterState.READY;
+  log = log.child({ name: "Supervisor" })
 
   register(adapter: T) {
     if (this.adapters.includes(adapter)) {
@@ -35,5 +36,6 @@ export abstract class Supervisor<T extends AdapterStruct> extends Evented {
   }
 
   abstract scopedData(scope: string, newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
+  abstract scopedDatas(): Promise<Record<string, Record<string, Record<string, any>>>>;
   abstract globalData(newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
 }

@@ -1,4 +1,4 @@
-import { Presence, AdapterState } from "remote-presence-utils";
+import { AdapterState } from "remote-presence-utils";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import { Activity } from "discord.js";
 import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
@@ -15,12 +15,9 @@ export declare class RemoteAdapter extends ScopedPresenceAdapter {
     state: AdapterState;
     run(): Promise<void>;
     /**
-     * Returns all presence packets
-     */
-    activity(): Promise<Presence>;
-    /**
      * Returns presence packets for a specific user
      * @param id id to query
      */
     activityForUser(id: string): Promise<any>;
+    activities(): Promise<{}>;
 }

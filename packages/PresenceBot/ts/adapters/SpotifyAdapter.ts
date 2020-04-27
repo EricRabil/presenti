@@ -48,6 +48,7 @@ export class SpotifyAdapter extends PresenceAdapter {
                 .start(this.start)
                 .stop(this.stop)
                 .paused(!this.playing)
+                .id("com.ericrabil.spotify.internal")
                 .presence
   }
 

@@ -24,7 +24,6 @@ class GradientState extends state_1.StateAdapter {
         this.state = remote_presence_utils_1.AdapterState.READY;
         this.shades = {};
         this.rotationMap = {};
-        this.states = {};
         this.rotationTimers = {};
         this._wasPausedTable = {};
     }
@@ -55,6 +54,10 @@ class GradientState extends state_1.StateAdapter {
                 paused: presencePaused
             }
         };
+    }
+    async datas() {
+        const states = Promise.all(Object.keys(this.rotationMap).map(async (scope) => ({ scope, state: await this.data(scope) })));
+        return (await states).reduce((acc, { scope, state }) => Object.assign(acc, { [scope]: state }), {});
     }
     /**
      * Returns data regarding the color shades for a given scope

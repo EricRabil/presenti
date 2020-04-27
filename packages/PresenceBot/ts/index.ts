@@ -1,12 +1,16 @@
+import "reflect-metadata";
 import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
 import { Presence, isRemotePayload, PayloadType, PresenceStruct } from "remote-presence-utils";
 import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
-import { RemoteAdapter } from "./adapters/RemoteAdapter";
 import { RESTAdapter } from "./adapters/RESTAdapter";
-import { PresentiKit } from "./utils";
+import { PresentiKit, log } from "./utils";
 import { MasterSupervisor } from "./MasterSupervisor";
 import { StateSupervisor } from "./supervisors/StateSupervisor";
 import { GradientState } from "./state/GradientState";
+import { RemoteAdatpterV2 } from "./adapters/RemoteAdapterV2";
+import { FIRST_PARTY_SCOPE } from "./structs/socket-api-adapter";
+import { CONFIG } from "./Configuration";
+import { DiscordAdapter } from "./adapters/DiscordAdapter";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -18,8 +22,10 @@ export class PresenceService {
   idMap: Map<WebSocket, string> = new Map();
   scopedPayloads: Record<string, Record<string, any>> = {};
   globalPayload: Record<string, any> = {};
+  adapterSupervisor: AdapterSupervisor;
+  log = log.child({ name: "Presenti" });
 
-  constructor(private port: number, private userQuery: (token: string) => Promise<string | null>) {
+  constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();
     this.supervisor = new MasterSupervisor();
     this.supervisor.on("updated", (scope) => this.dispatch(scope));
@@ -85,10 +91,11 @@ export class PresenceService {
    * Registers all adapters with the supervisor
    */
   registerAdapters() {
-    const adapterSupervisor = new AdapterSupervisor(this.app);
+    const adapterSupervisor = this.adapterSupervisor = new AdapterSupervisor(this.app);
 
-    adapterSupervisor.register(new RemoteAdapter(this.app, this.userQuery))
+    adapterSupervisor.register(new RemoteAdatpterV2(this.app));
     adapterSupervisor.register(new RESTAdapter(this.app, this.userQuery));
+    if (CONFIG.discord) adapterSupervisor.register(new DiscordAdapter(CONFIG.discord));
 
     this.supervisor.register(adapterSupervisor);
   }
@@ -140,6 +147,10 @@ export class PresenceService {
    */
   async run() {
     await this.supervisor.run();
+    
+    this.scopedPayloads = await this.supervisor.scopedDatas();
+    this.log.debug(`Bootstrapped Presenti with ${Object.keys(this.scopedPayloads).length} payloads to serve`);
+
     await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
   }
 }

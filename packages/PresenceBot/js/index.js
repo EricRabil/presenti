@@ -1,13 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("reflect-metadata");
 const uWebSockets_js_1 = require("uWebSockets.js");
 const remote_presence_utils_1 = require("remote-presence-utils");
 const AdapterSupervisor_1 = require("./supervisors/AdapterSupervisor");
-const RemoteAdapter_1 = require("./adapters/RemoteAdapter");
 const RESTAdapter_1 = require("./adapters/RESTAdapter");
+const utils_1 = require("./utils");
 const MasterSupervisor_1 = require("./MasterSupervisor");
 const StateSupervisor_1 = require("./supervisors/StateSupervisor");
 const GradientState_1 = require("./state/GradientState");
+const RemoteAdapterV2_1 = require("./adapters/RemoteAdapterV2");
+const Configuration_1 = require("./Configuration");
+const DiscordAdapter_1 = require("./adapters/DiscordAdapter");
 /**
  * Tracks global and scoped (per-user presence)
  */
@@ -20,6 +24,7 @@ class PresenceService {
         this.idMap = new Map();
         this.scopedPayloads = {};
         this.globalPayload = {};
+        this.log = utils_1.log.child({ name: "Presenti" });
         this.app = uWebSockets_js_1.App();
         this.supervisor = new MasterSupervisor_1.MasterSupervisor();
         this.supervisor.on("updated", (scope) => this.dispatch(scope));
@@ -84,9 +89,11 @@ class PresenceService {
      * Registers all adapters with the supervisor
      */
     registerAdapters() {
-        const adapterSupervisor = new AdapterSupervisor_1.AdapterSupervisor(this.app);
-        adapterSupervisor.register(new RemoteAdapter_1.RemoteAdapter(this.app, this.userQuery));
+        const adapterSupervisor = this.adapterSupervisor = new AdapterSupervisor_1.AdapterSupervisor(this.app);
+        adapterSupervisor.register(new RemoteAdapterV2_1.RemoteAdatpterV2(this.app));
         adapterSupervisor.register(new RESTAdapter_1.RESTAdapter(this.app, this.userQuery));
+        if (Configuration_1.CONFIG.discord)
+            adapterSupervisor.register(new DiscordAdapter_1.DiscordAdapter(Configuration_1.CONFIG.discord));
         this.supervisor.register(adapterSupervisor);
     }
     registerStates() {
@@ -126,11 +133,13 @@ class PresenceService {
      */
     async run() {
         await this.supervisor.run();
+        this.scopedPayloads = await this.supervisor.scopedDatas();
+        this.log.debug(`Bootstrapped Presenti with ${Object.keys(this.scopedPayloads).length} payloads to serve`);
         await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
     }
 }
 exports.PresenceService = PresenceService;
 var SpotifyAdapter_1 = require("./adapters/SpotifyAdapter");
 exports.SpotifyAdapter = SpotifyAdapter_1.SpotifyAdapter;
-var DiscordAdapter_1 = require("./adapters/DiscordAdapter");
-exports.DiscordAdapter = DiscordAdapter_1.DiscordAdapter;
+var DiscordAdapter_2 = require("./adapters/DiscordAdapter");
+exports.DiscordAdapter = DiscordAdapter_2.DiscordAdapter;

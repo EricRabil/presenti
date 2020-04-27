@@ -5,11 +5,28 @@ const Supervisor_1 = require("../structs/Supervisor");
  * Data namespace for Presence State
  */
 class StateSupervisor extends Supervisor_1.Supervisor {
+    constructor() {
+        super();
+        exports.SharedStateSupervisor = this;
+    }
     async scopedData(scope, newSocket = false) {
         const state = await this.scopedState(scope, newSocket);
         return {
             state
         };
+    }
+    async scopedDatas() {
+        const states = await Promise.all(this.adapters.map(adapter => adapter.datas()));
+        return Object.entries(states.reduce((acc, c) => {
+            Object.entries(c).forEach(([scope, state]) => {
+                if (acc[scope])
+                    acc[scope] = Object.assign(acc[scope], state);
+                else
+                    acc[scope] = state;
+                return acc;
+            });
+            return acc;
+        }, {})).reduce((acc, [scope, presences]) => Object.assign(acc, { [scope]: presences }), {});
     }
     async globalData(newSocket = false) {
         return {};

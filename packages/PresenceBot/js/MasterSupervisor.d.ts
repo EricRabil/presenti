@@ -4,5 +4,6 @@ import { Supervisor } from "./structs/Supervisor";
  */
 export declare class MasterSupervisor extends Supervisor<Supervisor<any>> {
     scopedData(scope: string, newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
+    scopedDatas(): Promise<Record<string, Record<string, Record<string, any>>>>;
     globalData(newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
 }

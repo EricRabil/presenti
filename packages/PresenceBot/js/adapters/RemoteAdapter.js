@@ -109,12 +109,6 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         this.state = remote_presence_utils_1.AdapterState.RUNNING;
     }
     /**
-     * Returns all presence packets
-     */
-    async activity() {
-        return Object.values(this.presences).filter(p => (!!p && Array.isArray(p))).reduce((a, c) => (a.concat(c)), []).filter(a => !!a);
-    }
-    /**
      * Returns presence packets for a specific user
      * @param id id to query
      */
@@ -122,6 +116,9 @@ class RemoteAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
         const socketIDs = Object.entries(this.authTable).filter(([socket, user]) => user === id).map(([socket]) => socket);
         const presences = socketIDs.map(socket => this.presences[socket]);
         return presences.map(list => list.filter(presence => !!presence)).reduce((a, c) => a.concat(c), []);
+    }
+    async activities() {
+        return {};
     }
 }
 exports.RemoteAdapter = RemoteAdapter;

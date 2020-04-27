@@ -1,9 +1,9 @@
-import { PresenceAdapter, AdapterState, PresenceStruct } from "remote-presence-utils";
-import { Client } from "discord.js";
+import { AdapterState, PresenceStruct } from "remote-presence-utils";
+import { Client, Activity } from "discord.js";
+import { StorageAdapter } from "./internal/StorageAdapter";
 export interface DiscordAdapterOptions {
     token: string;
-    user: string;
-    overrides: string[];
+    prefix: string;
 }
 interface Tagged {
     id: string;
@@ -36,14 +36,32 @@ interface DiscordIconMap {
     eulaId: string | null;
     slug: string | null;
 }
-export declare class DiscordAdapter extends PresenceAdapter {
+interface DiscordStorage {
+    scopeBindings: {
+        [scope: string]: string;
+    };
+}
+/**
+ * This cannot be piped remotely.
+ */
+export declare class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     readonly options: DiscordAdapterOptions;
     client: Client;
     iconRegistry: Record<string, DiscordIconMap>;
+    log: import("winston").Logger;
+    linkLocks: Record<string, ReturnType<typeof setTimeout>>;
+    linkLockWarns: Record<string, boolean | undefined>;
     constructor(options: DiscordAdapterOptions);
     state: AdapterState;
     run(): Promise<void>;
-    get user(): import("discord.js").User | null;
-    activity(): Promise<PresenceStruct[]>;
+    deferLinkLock(id: string): void;
+    discordPresences(scope: string): Promise<Activity[] | undefined>;
+    userExcludes(scope: string): Promise<string[]>;
+    activityForUser(scope: string): Promise<PresenceStruct[]>;
+    private convertActivities;
+    /**
+     * Returns all activities, useful for service initialization
+     */
+    activities(): Promise<Record<string, import("../utils/presence-magic").PresenceList>>;
 }
 export {};

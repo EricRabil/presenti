@@ -32,9 +32,6 @@ export class GradientState extends StateAdapter {
   rotationMap: {
     [scope: string]: number;
   } = {};
-  states: {
-    [scope: string]: BackgroundData;
-  } = {};
   rotationTimers: {
     [scope: string]: ReturnType<typeof setInterval>;
   } = {};
@@ -83,6 +80,11 @@ export class GradientState extends StateAdapter {
         paused: presencePaused
       }
     };
+  }
+
+  async datas() {
+    const states = Promise.all(Object.keys(this.rotationMap).map(async scope => ({ scope, state: await this.data(scope) })));
+    return (await states).reduce((acc, {scope, state}) => Object.assign(acc, {[scope]: state}), {});
   }
 
   /**

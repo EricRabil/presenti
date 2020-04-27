@@ -1,0 +1,27 @@
+.token-management, .preview {
+  margin: 50px 0;
+}
+
+.token-generator {
+  display: flex;
+  flex-flow: row;
+}
+
+.token-generator > input[type=button] {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.token-generator > .token-preview {
+  flex-grow: 1;
+  margin: 0;
+  padding: var(--spacing);
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  background-color: var(--bg-shallow-2);
+  overflow-x: scroll;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}

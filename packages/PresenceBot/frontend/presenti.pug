@@ -1,0 +1,21 @@
+html
+  head
+    title Presenti
+    meta(name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1,viewport-fit=cover')
+    if !noCSS
+      link(rel='preload' as='style' href='/p-assets/css/app.css')
+      link(rel='preload' as='style' href='/p-assets/css/chunk-vendors.css')
+      link(rel='preload' as='script' href='/p-assets/js/app.js')
+      link(rel='preload' as='script' href='/p-assets/js/chunk-vendors.js')
+      link(rel='stylesheet' href='/p-assets/css/chunk-vendors.css')
+      link(rel='stylesheet' href='/p-assets/css/app.css')
+  body
+    div#holder
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.2.10/iframeResizer.contentWindow.min.js')
+    script(src='/p-assets/js/chunk-vendors.js')
+    script(src='/p-assets/js/app.js')
+    if scope
+      script.
+        window.addEventListener('DOMContentLoaded', () => {
+          window.mountPresenti('#{scope}', '#{host}', '#holder');
+        });

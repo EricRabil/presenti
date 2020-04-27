@@ -1,0 +1,25 @@
+doctype html
+html(lang='en')
+  head
+    title Presenti
+    meta(name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1,viewport-fit=cover')
+    link(rel='stylesheet' href='/assets/base.css')
+    block styles
+  body
+    nav.site-nav
+      a.nav-brand(href='/') Presenti
+      div.nav-links
+        if user
+          div.dropdown-holder
+            a.dropdown-label(href='#' data-dropdown-target='#user-dropdown') #{user.userID}
+              span.dropdown-chevy &#8250;
+            div#user-dropdown.dropdown-inner(style='display:none;')
+              a(href='/changepw') Change Password
+              a(href='/logout') Logout
+        else
+          a(href='/login') Login
+    div.site-inner
+      block content
+    block footer
+    script(src='/assets/base.js')
+    block scripts

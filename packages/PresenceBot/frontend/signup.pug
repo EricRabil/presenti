@@ -1,0 +1,16 @@
+extends layout.pug
+
+block styles
+  link(rel='stylesheet' href='/assets/login.css')
+
+block content
+  div.form-holder
+    form.login-form(method='POST' action='/signup')
+      if error
+        div.error-message #{error}
+      div.input-set
+        input(type='text' autocomplete="username" placeholder='User ID' name='id' aria-label='User ID')
+        input(type='password' autocomplete="new-password" placeholder='Password' name='password' aria-label='Password')
+
+      button(type='submit' aria-label='Sign Up') Sign Up
+      a(href='/login') Already have an account?

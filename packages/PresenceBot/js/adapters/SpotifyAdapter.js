@@ -50,6 +50,7 @@ class SpotifyAdapter extends remote_presence_utils_1.PresenceAdapter {
             .start(this.start)
             .stop(this.stop)
             .paused(!this.playing)
+            .id("com.ericrabil.spotify.internal")
             .presence;
     }
     get start() {
