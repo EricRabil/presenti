@@ -50,7 +50,7 @@ export namespace PresenceMagic {
     return new Proxy({} as any as T, {
       get(target: T, prop: keyof T, receiver: Function) {
         if (!target[prop]) {
-          Reflect.set(target, prop, createArrayProxy(changed.bind(null, prop as string)));
+          Reflect.set(target, prop, createArrayProxy(() => changed(prop as string)));
         }
 
         return target[prop];

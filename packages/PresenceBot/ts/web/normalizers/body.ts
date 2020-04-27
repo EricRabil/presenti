@@ -5,7 +5,7 @@
 import { Readable } from 'stream';
 import { PBRequest, PBResponse } from '../types';
 
-export default async (req: PBRequest, res: PBResponse) => {
+export default async function BodyNormalizer (req: PBRequest, res: PBResponse) {
   const stream = new Readable();
   stream._read = () => true;
   req.pipe = stream.pipe.bind(stream);
@@ -57,5 +57,5 @@ export default async (req: PBRequest, res: PBResponse) => {
     return undefined;
   }
 
-  return body;
+  return body as string;
 };

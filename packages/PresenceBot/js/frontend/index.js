@@ -11,63 +11,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
-const RESTAdapter_1 = require("../adapters/RESTAdapter");
-const utils_1 = require("./utils");
-const security_1 = require("../security");
-const middleware_1 = require("./middleware");
-const canned_responses_1 = require("./canned-responses");
-const entities_1 = require("../database/entities");
-const loaders_1 = require("./loaders");
 const Configuration_1 = require("../Configuration");
-function Route(path, method, ...middleware) {
-    return function (target, property, descriptor) {
-        Frontend.ROUTES.push({
-            path,
-            method,
-            property,
-            middleware
-        });
-    };
-}
-function Headers(...headers) {
-    return function (target, property, descriptor) {
-        const fn = target[property];
-        fn.headers = headers;
-    };
-}
-class MiddlewareTimeoutError extends Error {
-}
-exports.MiddlewareTimeoutError = MiddlewareTimeoutError;
-class Frontend {
+const entities_1 = require("../database/entities");
+const rest_api_base_1 = __importStar(require("../web/rest-api-base"));
+const shared_middleware_1 = require("../web/shared-middleware");
+const canned_responses_1 = require("./canned-responses");
+const loaders_1 = require("./loaders");
+const middleware_1 = require("./middleware");
+class Frontend extends rest_api_base_1.default {
     constructor(app) {
+        super(app, Frontend.VIEWS_DIRECTORY);
         this.app = app;
-        this.loadRoutes();
     }
     loadRoutes() {
-        Frontend.ROUTES.forEach(({ path, method, property, middleware }) => {
-            const { [property]: handler } = this;
-            middleware = middleware.concat(handler);
-            this.app[method](path, Frontend.buildStack(middleware, handler.headers || []));
-        });
-        this.app.any('/*', Frontend.buildHandler((req, res) => {
+        super.loadRoutes();
+        this.app.any('/*', this.buildHandler((req, res) => {
             canned_responses_1.notFound(res);
         }));
     }
-    static buildStack(middleware, headers = []) {
-        const loaders = [
-            loaders_1.UserLoader
-        ];
-        middleware = loaders.concat(middleware);
-        return RESTAdapter_1.handler(async (res, req) => {
-            const nRes = utils_1.wrapResponse(res, file => Frontend.resolve(file)), nReq = utils_1.wrapRequest(req, nRes);
-            await utils_1.runMiddleware(nReq, nRes, middleware);
-        }, ['content-type', 'cookie', 'authorization'].concat(headers || []));
-    }
-    static buildHandler(handler, headers = []) {
-        return this.buildStack([handler], headers);
+    buildStack(middleware, headers = []) {
+        return super.buildStack([loaders_1.UserLoader].concat(middleware), headers);
     }
     loginView(req, res) {
         res.render('login', { signup: Configuration_1.CONFIG.registration });
@@ -167,25 +140,6 @@ class Frontend {
         };
         res.render('presenti', options);
     }
-    async jwtTester(req, res) {
-        const search = new URLSearchParams(req.getQuery());
-        if (search.has('clear')) {
-            res.clearCookie('identity');
-            res.json({ bye: true });
-            return;
-        }
-        if (req.cookie('identity')) {
-            const id = await security_1.SecurityKit.validate(req.cookie('identity'));
-            res.json({ id });
-            return;
-        }
-        const token = await security_1.SecurityKit.token("eric", "letmein");
-        if (!token) {
-            return res.json({ ok: false });
-        }
-        res.setCookie('identity', token, { httpOnly: true });
-        res.json({ ok: true });
-    }
     async staticAsset(req, res) {
         const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
         const absolute = Frontend.resolveStatic(relative);
@@ -223,93 +177,86 @@ class Frontend {
 Frontend.VIEWS_DIRECTORY = path_1.default.resolve(__dirname, "..", "..", "frontend");
 Frontend.STATIC_DIRECTORY = path_1.default.resolve(__dirname, "..", "..", "assets");
 Frontend.PRESENTI_ASSET_DIRECTORY = path_1.default.resolve(__dirname, "..", "..", "node_modules", "presenti-renderer", "dist");
-Frontend.ROUTES = [];
 __decorate([
-    Route("/login", "get"),
+    rest_api_base_1.Route("/login", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "loginView", null);
 __decorate([
-    Route("/signup", "get"),
+    rest_api_base_1.Route("/signup", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "signupView", null);
 __decorate([
-    Route("/changepw", "get", middleware_1.IdentityGuardFrontend),
+    rest_api_base_1.Route("/changepw", "get", middleware_1.IdentityGuardFrontend),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "changePassword", null);
 __decorate([
-    Route("/changepw", "post", middleware_1.IdentityGuardFrontend, middleware_1.BodyParser),
+    rest_api_base_1.Route("/changepw", "post", middleware_1.IdentityGuardFrontend, shared_middleware_1.BodyParser),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "changePasswordComplete", null);
 __decorate([
-    Route("/signup", "post", middleware_1.BodyParser),
+    rest_api_base_1.Route("/signup", "post", shared_middleware_1.BodyParser),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "signupComplete", null);
 __decorate([
-    Route("/logout", "get"),
+    rest_api_base_1.Route("/logout", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "logout", null);
 __decorate([
-    Route("/login", "post", middleware_1.BodyParser),
+    rest_api_base_1.Route("/login", "post", shared_middleware_1.BodyParser),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "loginComplete", null);
 __decorate([
-    Route("/", "any"),
+    rest_api_base_1.Route("/", "any"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "rootHandler", null);
 __decorate([
-    Route("/panel", "get", middleware_1.IdentityGuardFrontend),
+    rest_api_base_1.Route("/panel", "get", middleware_1.IdentityGuardFrontend),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "panelView", null);
 __decorate([
-    Route("/panel/api/linkcode", "get", middleware_1.IdentityGuard),
+    rest_api_base_1.Route("/panel/api/linkcode", "get", middleware_1.IdentityGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "generateLinkCode", null);
 __decorate([
-    Route("/panel/api/apikey", "get", middleware_1.IdentityGuard),
+    rest_api_base_1.Route("/panel/api/apikey", "get", middleware_1.IdentityGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "generateAPIKey", null);
 __decorate([
-    Route("/p-assets/*", "get"),
+    rest_api_base_1.Route("/p-assets/*", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], Frontend.prototype, "presentiAssets", null);
 __decorate([
-    Route("/renderer", "get"),
+    rest_api_base_1.Route("/renderer", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], Frontend.prototype, "renderer", null);
 __decorate([
-    Route("/jwt", "get"),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], Frontend.prototype, "jwtTester", null);
-__decorate([
-    Route("/assets/*", "get"),
+    rest_api_base_1.Route("/assets/*", "get"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)

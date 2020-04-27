@@ -1,9 +1,7 @@
-import qs from "querystring";
-import { RequestHandler } from "./types";
-import { SecurityKit } from "../security";
-import { User } from "../database/entities";
-import { FIRST_PARTY_SCOPE } from "../structs/socket-api-adapter";
 import { CONFIG } from "../Configuration";
+import { SecurityKit } from "../security";
+import { FIRST_PARTY_SCOPE } from "../structs/socket-api-adapter";
+import { RequestHandler } from "../web/types";
 
 export const IdentityGuard: RequestHandler = async (req, res, next) => {
   if (!res.user) {
@@ -27,32 +25,5 @@ export const FirstPartyGuard: RequestHandler = async (req, res, next) => {
     res.writeStatus(403).json({ msg: "You are not authorized to access this endpoint." });
     return next(true);
   }
-  next();
-}
-
-function uintToString(uintArray: Uint8Array) {
-  var encodedString = String.fromCharCode.apply(null, uintArray as any),
-      decodedString = decodeURIComponent(escape(encodedString));
-  return decodedString;
-}
-
-export const BodyParser: RequestHandler = async (req, res, next) => {
-  const mime = req.getHeader('content-type');
-
-  const data = req.body;
-
-  console.log(data);
-
-  switch (mime) {
-    case 'application/x-www-form-urlencoded': {
-      req.body = qs.parse(data)
-      break;
-    }
-    case 'application/json': {
-      req.body = JSON.parse(data);
-      break;
-    }
-  }
-
   next();
 }

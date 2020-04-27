@@ -6,12 +6,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const scoped_adapter_1 = require("../structs/scoped-adapter");
 const remote_presence_utils_1 = require("remote-presence-utils");
 const uuid = __importStar(require("uuid"));
-const utils_1 = require("../utils");
 const socket_api_adapter_1 = require("../structs/socket-api-adapter");
+const body_1 = __importDefault(require("../web/normalizers/body"));
 var StatusCodes;
 (function (StatusCodes) {
     StatusCodes["BAD_REQ"] = "400 Bad Request";
@@ -39,24 +42,6 @@ function handler(exec, headers = []) {
         });
         res._reqUrl = req.getUrl();
         res._reqQuery = req.getQuery();
-        res._data = [];
-        res._readable = false;
-        res._readListeners = [];
-        res.onReadable = function (cb) {
-            if (this._readable) {
-                cb();
-            }
-            else {
-                this._readListeners.push(cb);
-            }
-        };
-        res.onData((chunk, last) => {
-            res._data.push(chunk);
-            if (last) {
-                res._readable = true;
-                res._readListeners.forEach((listener) => listener());
-            }
-        });
         exec(res, req);
     };
 }
@@ -85,7 +70,7 @@ class RESTAdapter extends scoped_adapter_1.ScopedPresenceAdapter {
                 res.writeStatus(StatusCodes.UNAUTHORIZED).writeHeader(...exports.Responses.JSON).end(error("Invalid session or token."));
                 return;
             }
-            const body = await utils_1.readRequest(res).catch(e => null);
+            let body = await body_1.default(req, res);
             return {
                 body,
                 user,

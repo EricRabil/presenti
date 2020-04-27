@@ -1,79 +1,34 @@
 import fs from "fs-extra";
 import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
-import { handler as handlerWrapper } from "../adapters/RESTAdapter";
-import { PBResponse, PBRequest, HTTPMethod, RequestHandler } from "./types";
-import { wrapRequest, wrapResponse, runMiddleware } from "./utils";
-import { SecurityKit } from "../security";
-import { IdentityGuard, IdentityGuardFrontend, BodyParser, FirstPartyGuard } from "./middleware";
-import { notFound } from "./canned-responses";
-import { User } from "../database/entities";
-import { UserLoader } from "./loaders";
 import { CONFIG } from "../Configuration";
+import { User } from "../database/entities";
+import RestAPIBase, { Route } from "../web/rest-api-base";
+import { BodyParser } from "../web/shared-middleware";
+import { PBRequest, PBResponse, RequestHandler } from "../web/types";
+import { notFound } from "./canned-responses";
+import { UserLoader } from "./loaders";
+import { IdentityGuard, IdentityGuardFrontend } from "./middleware";
 
-function Route(path: string, method: HTTPMethod, ...middleware: RequestHandler[]) {
-  return function (target: any, property: string, descriptor: PropertyDescriptor) {
-    Frontend.ROUTES.push({
-      path,
-      method,
-      property,
-      middleware
-    });
-  }
-}
-
-function Headers(...headers: string[]): any {
-  return function (target: any, property: string, descriptor: PropertyDecorator) {
-    const fn = target[property];
-    fn.headers = headers;
-  }
-}
-
-interface RouteData {
-  path: string;
-  method: HTTPMethod;
-  property: string;
-  middleware: RequestHandler[];
-}
-
-export class MiddlewareTimeoutError extends Error { }
-
-export default class Frontend {
+export default class Frontend extends RestAPIBase {
   static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "frontend");
   static readonly STATIC_DIRECTORY = path.resolve(__dirname, "..", "..", "assets");
   static readonly PRESENTI_ASSET_DIRECTORY = path.resolve(__dirname, "..", "..", "node_modules", "presenti-renderer", "dist");
-  static readonly ROUTES: RouteData[] = [];
 
   constructor(public readonly app: TemplatedApp) {
-    this.loadRoutes();
+    super(app, Frontend.VIEWS_DIRECTORY);
   }
 
   loadRoutes() {
-    Frontend.ROUTES.forEach(({ path, method, property, middleware }) => {
-      const { [property]: handler } = this as any;
-      middleware = middleware.concat(handler);
-      this.app[method](path, Frontend.buildStack(middleware, handler.headers || []));
-    });
+    super.loadRoutes();
 
-    this.app.any('/*', Frontend.buildHandler((req, res) => {
+    this.app.any('/*', this.buildHandler((req, res) => {
       notFound(res);
     }));
   }
 
-  static buildStack(middleware: RequestHandler[], headers: string[] = []) {
-    const loaders = [
-      UserLoader
-    ];
-    middleware = loaders.concat(middleware);
-    return handlerWrapper(async (res, req) => {
-      const nRes = wrapResponse(res, file => Frontend.resolve(file)), nReq = wrapRequest(req, nRes);
-
-      await runMiddleware(nReq, nRes, middleware);
-    }, ['content-type', 'cookie', 'authorization'].concat(headers || []))
-  }
-
-  static buildHandler(handler: RequestHandler, headers: string[] = []) {
-    return this.buildStack([handler], headers);
+  buildStack(middleware: RequestHandler[], headers: string[] = []) {
+    return super.buildStack([UserLoader].concat(middleware), headers);
   }
 
   @Route("/login", "get")
@@ -162,6 +117,7 @@ export default class Frontend {
       res.redirect('/login');
       return;
     }
+
     res.redirect('/panel');
   }
 
@@ -207,32 +163,6 @@ export default class Frontend {
       host: `ws${CONFIG.web.host}/presence/`
     }
     res.render('presenti', options);
-  }
-
-  @Route("/jwt", "get")
-  async jwtTester(req: PBRequest, res: PBResponse) {
-    const search = new URLSearchParams(req.getQuery());
-
-    if (search.has('clear')) {
-      res.clearCookie('identity');
-      res.json({ bye: true });
-      return;
-    }
-
-    if (req.cookie('identity')) {
-      const id = await SecurityKit.validate(req.cookie('identity')!);
-      res.json({ id });
-      return;
-    }
-
-    const token = await SecurityKit.token("eric", "letmein");
-
-    if (!token) {
-      return res.json({ ok: false });
-    }
-
-    res.setCookie('identity', token, { httpOnly: true });
-    res.json({ ok: true });
   }
 
   @Route("/assets/*", "get")

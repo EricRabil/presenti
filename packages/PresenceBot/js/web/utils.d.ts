@@ -5,5 +5,6 @@ export declare class MiddlewareTimeoutError extends Error {
 }
 export declare function toArrayBuffer(buffer: Buffer): ArrayBuffer;
 export declare function wrapRequest(req: HttpRequest, res: PBResponse): PBRequest;
+export declare const Responses: Record<string, [string, string]>;
 export declare function wrapResponse(res: HttpResponse, templateResolver?: (file: string) => string): PBResponse;
 export declare function runMiddleware(req: PBRequest, res: PBResponse, middleware: RequestHandler[]): Promise<void>;

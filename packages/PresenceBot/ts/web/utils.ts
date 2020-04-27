@@ -1,14 +1,14 @@
 import cookie from "cookie";
-import mime from "mime-types";
 import fs from "fs-extra";
-import { HttpRequest, HttpResponse } from "uWebSockets.js";
-import pug from "pug";
-import { PBRequest, PBResponse, RequestHandler } from "./types";
-import { Responses } from "../adapters/RESTAdapter";
-import Frontend, { MiddlewareTimeoutError } from ".";
 import { STATUS_CODES } from "http";
+import mime from "mime-types";
+import pug from "pug";
+import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { log } from "../utils";
 import body from "./normalizers/body";
+import { PBRequest, PBResponse, RequestHandler } from "./types";
+
+export class MiddlewareTimeoutError extends Error { }
 
 const version = require("../../package.json").version;
 
@@ -37,6 +37,11 @@ export function wrapRequest(req: HttpRequest, res: PBResponse): PBRequest {
   }
 
   return newRequest;
+}
+
+export const Responses: Record<string, [string, string]> = {
+  JSON: ['Content-Type', 'application/json'],
+  HTML: ['Content-Type', 'text/html']
 }
 
 export function wrapResponse(res: HttpResponse, templateResolver: (file: string) => string = file => file): PBResponse {

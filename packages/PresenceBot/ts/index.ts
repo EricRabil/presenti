@@ -1,16 +1,16 @@
 import "reflect-metadata";
-import { App, WebSocket, TemplatedApp } from "uWebSockets.js";
-import { Presence, isRemotePayload, PayloadType, PresenceStruct } from "remote-presence-utils";
-import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
-import { RESTAdapter } from "./adapters/RESTAdapter";
-import { PresentiKit, log } from "./utils";
-import { MasterSupervisor } from "./MasterSupervisor";
-import { StateSupervisor } from "./supervisors/StateSupervisor";
-import { GradientState } from "./state/GradientState";
-import { RemoteAdatpterV2 } from "./adapters/RemoteAdapterV2";
-import { FIRST_PARTY_SCOPE } from "./structs/socket-api-adapter";
-import { CONFIG } from "./Configuration";
+import { isRemotePayload, PayloadType } from "remote-presence-utils";
+import { App, TemplatedApp, WebSocket } from "uWebSockets.js";
 import { DiscordAdapter } from "./adapters/DiscordAdapter";
+import { RemoteAdatpterV2 } from "./adapters/RemoteAdapterV2";
+import { RESTAdapterV2 } from "./adapters/RESTAdapaterV2";
+import { CONFIG } from "./Configuration";
+import { MasterSupervisor } from "./MasterSupervisor";
+import { GradientState } from "./state/GradientState";
+import { FIRST_PARTY_SCOPE } from "./structs/socket-api-adapter";
+import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
+import { StateSupervisor } from "./supervisors/StateSupervisor";
+import { log } from "./utils";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -28,7 +28,7 @@ export class PresenceService {
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();
     this.supervisor = new MasterSupervisor();
-    this.supervisor.on("updated", (scope) => this.dispatch(scope));
+    this.supervisor.on("updated", (scope) => this.dispatch(scope, true));
 
     this.app.ws('/presence/:id', {
       open: async (ws, req) => {
@@ -94,7 +94,7 @@ export class PresenceService {
     const adapterSupervisor = this.adapterSupervisor = new AdapterSupervisor(this.app);
 
     adapterSupervisor.register(new RemoteAdatpterV2(this.app));
-    adapterSupervisor.register(new RESTAdapter(this.app, this.userQuery));
+    adapterSupervisor.register(new RESTAdapterV2(this.app));
     if (CONFIG.discord) adapterSupervisor.register(new DiscordAdapter(CONFIG.discord));
 
     this.supervisor.register(adapterSupervisor);
@@ -112,10 +112,10 @@ export class PresenceService {
    * Dispatches the latest presence state to the given selector
    * @param selector selector to dispatch to
    */
-  async dispatchToSelector(selector: string) {
+  async dispatchToSelector(selector: string, refresh: boolean = false) {
     const clients = this.clients[selector];
     if (!clients || clients.length === 0) return;
-    const payload = JSON.stringify(await this.payloadForSelector(selector));
+    const payload = JSON.stringify(await this.payloadForSelector(selector, false, refresh));
 
     await Promise.all(
       clients.map(client => (
@@ -124,9 +124,9 @@ export class PresenceService {
     );
   }
 
-  async payloadForSelector(selector: string, newSocket: boolean = false) {
-    this.scopedPayloads[selector] = await this.supervisor.scopedData(selector, newSocket);
-    this.globalPayload = await this.supervisor.globalData(newSocket);
+  async payloadForSelector(selector: string, newSocket: boolean = false, refresh: boolean  = false) {
+    if (!this.scopedPayloads[selector] || refresh) this.scopedPayloads[selector] = await this.supervisor.scopedData(selector, newSocket);
+    if (!this.globalPayload) this.globalPayload = await this.supervisor.globalData(newSocket);
 
     return Object.assign({}, this.globalPayload, this.scopedPayloads[selector]);
   }
@@ -135,11 +135,11 @@ export class PresenceService {
    * Dispatches to a set of selectors, or all connected users
    * @param selector selectors to dispatch to
    */
-  async dispatch(selector?: string | string[]) {
+  async dispatch(selector?: string | string[], refresh: boolean = false) {
     if (!selector) selector = Object.keys(this.clients);
     else if (!Array.isArray(selector)) selector = [selector];
 
-    return selector.map(sel => this.dispatchToSelector(sel));
+    return selector.map(sel => this.dispatchToSelector(sel, refresh));
   }
   
   /**
@@ -155,5 +155,5 @@ export class PresenceService {
   }
 }
 
-export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
 export { DiscordAdapter } from "./adapters/DiscordAdapter";
+export { SpotifyAdapter } from "./adapters/SpotifyAdapter";

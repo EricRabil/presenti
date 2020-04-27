@@ -48,7 +48,7 @@ var PresenceMagic;
         return new Proxy({}, {
             get(target, prop, receiver) {
                 if (!target[prop]) {
-                    Reflect.set(target, prop, createArrayProxy(changed.bind(null, prop)));
+                    Reflect.set(target, prop, createArrayProxy(() => changed(prop)));
                 }
                 return target[prop];
             },

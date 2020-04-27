@@ -1,4 +1,4 @@
-import { RequestHandler } from "./types";
+import { RequestHandler } from "../web/types";
 import { User } from "../database/entities";
 
 export const UserLoader: RequestHandler = async (req, res, next) => {

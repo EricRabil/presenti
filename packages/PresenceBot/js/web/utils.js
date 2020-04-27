@@ -4,11 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cookie_1 = __importDefault(require("cookie"));
-const mime_types_1 = __importDefault(require("mime-types"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
-const pug_1 = __importDefault(require("pug"));
-const RESTAdapter_1 = require("../adapters/RESTAdapter");
 const http_1 = require("http");
+const mime_types_1 = __importDefault(require("mime-types"));
+const pug_1 = __importDefault(require("pug"));
 const utils_1 = require("../utils");
 const body_1 = __importDefault(require("./normalizers/body"));
 class MiddlewareTimeoutError extends Error {
@@ -38,14 +37,18 @@ function wrapRequest(req, res) {
     return newRequest;
 }
 exports.wrapRequest = wrapRequest;
+exports.Responses = {
+    JSON: ['Content-Type', 'application/json'],
+    HTML: ['Content-Type', 'text/html']
+};
 function wrapResponse(res, templateResolver = file => file) {
     const newResponse = res;
     newResponse.render = async function (tpl, options) {
         options = Object.assign({}, options, { user: this.user });
-        res.writeHeader(...RESTAdapter_1.Responses.HTML).end(pug_1.default.renderFile(templateResolver(tpl), options));
+        res.writeHeader(...exports.Responses.HTML).end(pug_1.default.renderFile(templateResolver(tpl), options));
     };
     newResponse.json = async function (json) {
-        res.writeHeader(...RESTAdapter_1.Responses.JSON).end(JSON.stringify(json));
+        res.writeHeader(...exports.Responses.JSON).end(JSON.stringify(json));
     };
     newResponse.redirect = function (location) {
         this.writeStatus(302);

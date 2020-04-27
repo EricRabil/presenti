@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { WebSocket, TemplatedApp } from "uWebSockets.js";
-import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
+import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import { MasterSupervisor } from "./MasterSupervisor";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-adapter";
+import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
 /**
  * Tracks global and scoped (per-user presence)
  */
@@ -38,17 +38,17 @@ export declare class PresenceService {
      * Dispatches the latest presence state to the given selector
      * @param selector selector to dispatch to
      */
-    dispatchToSelector(selector: string): Promise<void>;
-    payloadForSelector(selector: string, newSocket?: boolean): Promise<Record<string, any>>;
+    dispatchToSelector(selector: string, refresh?: boolean): Promise<void>;
+    payloadForSelector(selector: string, newSocket?: boolean, refresh?: boolean): Promise<Record<string, any>>;
     /**
      * Dispatches to a set of selectors, or all connected users
      * @param selector selectors to dispatch to
      */
-    dispatch(selector?: string | string[]): Promise<Promise<void>[]>;
+    dispatch(selector?: string | string[], refresh?: boolean): Promise<Promise<void>[]>;
     /**
      * Starts the presence service
      */
     run(): Promise<void>;
 }
-export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
 export { DiscordAdapter } from "./adapters/DiscordAdapter";
+export { SpotifyAdapter } from "./adapters/SpotifyAdapter";
