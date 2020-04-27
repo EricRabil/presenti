@@ -50,6 +50,7 @@ export declare class RemoteClient extends Evented {
     private _retryCounter;
     private _killed;
     private _buildSocket;
+    terminationHandler(): void;
     /**
      * Pings after 30 seconds
      */

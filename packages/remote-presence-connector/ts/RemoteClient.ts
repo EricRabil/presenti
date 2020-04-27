@@ -166,17 +166,29 @@ export class RemoteClient extends Evented {
       }
     }
 
+    let dealtWith = false;
     this.socket.onerror = e => {
       this.log.error(`Socket errored! ${(e as any).error?.code}`, (e as any).error?.code ? '' : e);
+      if (!dealtWith) {
+        dealtWith = true;
+        this.terminationHandler();
+      }
     }
 
     // run reconnect loop unless we were force-killed or options specify no reconnect
     this.socket.onclose = () => {
       this.emit("close");
+      if (dealtWith) return;
+      dealtWith = true;
       if ((this.options.reconnect === false) || this._killed) return;
       this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
       setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
     }
+  }
+  
+  terminationHandler() {
+    this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
+    setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
   }
 
   /**

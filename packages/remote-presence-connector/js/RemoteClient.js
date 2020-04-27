@@ -115,18 +115,30 @@ class RemoteClient extends remote_presence_utils_1.Evented {
                     break;
             }
         };
+        let dealtWith = false;
         this.socket.onerror = e => {
             var _a, _b;
             this.log.error(`Socket errored! ${(_a = e.error) === null || _a === void 0 ? void 0 : _a.code}`, ((_b = e.error) === null || _b === void 0 ? void 0 : _b.code) ? '' : e);
+            if (!dealtWith) {
+                dealtWith = true;
+                this.terminationHandler();
+            }
         };
         // run reconnect loop unless we were force-killed or options specify no reconnect
         this.socket.onclose = () => {
             this.emit("close");
+            if (dealtWith)
+                return;
+            dealtWith = true;
             if ((this.options.reconnect === false) || this._killed)
                 return;
             this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
             setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
         };
+    }
+    terminationHandler() {
+        this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
+        setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
     }
     /**
      * Pings after 30 seconds
