@@ -1,6 +1,6 @@
 import { AdapterState, PresenceAdapter, PresenceStruct } from "remote-presence-utils";
 import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
-import { Supervisor } from "../structs/Supervisor";
+import { Supervisor } from "../structs/supervisor";
 import { log } from "../utils/logging";
 import { PresenceList } from "../utils/presence-magic";
 

@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import { isRemotePayload, PayloadType } from "remote-presence-utils";
 import { App, TemplatedApp, WebSocket } from "uWebSockets.js";
-import { RemoteAdatpterV2 } from "./adapters/presence/SocketAdapter";
-import { RESTAdapterV2 } from "./adapters/presence/RESTAdapter";
-import { MasterSupervisor } from "./supervisors/MasterSupervisor";
-import { GradientState } from "./adapters/state/GradientState";
+import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
+import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
+import { MasterSupervisor } from "./supervisors/master-supervisor";
+import { GradientState } from "./adapters/state/gradient-state";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
-import { AdapterSupervisor } from "./supervisors/AdapterSupervisor";
-import { StateSupervisor } from "./supervisors/StateSupervisor";
+import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
+import { StateSupervisor } from "./supervisors/state-supervisor";
 import { log } from "./utils/logging";
 
 /**

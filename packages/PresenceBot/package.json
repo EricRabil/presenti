@@ -2,7 +2,7 @@
   "name": "presenti",
   "version": "1.0.1",
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
-  "main": "js/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",

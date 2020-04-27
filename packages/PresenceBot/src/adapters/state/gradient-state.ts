@@ -1,6 +1,6 @@
 import { StateAdapter } from "../../structs/state";
 import { AdapterState, PresenceStruct } from "remote-presence-utils";
-import { SharedAdapterSupervisor } from "../../supervisors/AdapterSupervisor";
+import { SharedAdapterSupervisor } from "../../supervisors/adapter-supervisor";
 import { PresentiKit } from "../../utils/renderer";
 
 export interface BackgroundData {

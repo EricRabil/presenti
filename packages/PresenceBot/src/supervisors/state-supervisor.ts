@@ -1,6 +1,6 @@
 import { Evented } from "remote-presence-utils";
 import { StateAdapter } from "../structs/state";
-import { Supervisor } from "../structs/Supervisor";
+import { Supervisor } from "../structs/supervisor";
 
 export let SharedStateSupervisor: StateSupervisor;
 

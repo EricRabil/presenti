@@ -1,4 +1,4 @@
-import { Supervisor } from "../structs/Supervisor";
+import { Supervisor } from "../structs/supervisor";
 
 /**
  * Aggregates events from all supervisors and funnels them through this class
