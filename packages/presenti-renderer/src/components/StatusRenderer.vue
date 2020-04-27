@@ -88,11 +88,11 @@ export default class DiscordStatus extends Vue {
 
   mounted () {
     this.$watch('presence', presence => {
-      window.parent.postMessage(JSON.stringify({presence}), '*');
+      window.postMessage(JSON.stringify({presence}), '*');
     });
 
     this.$watch('state', state => {
-      window.parent.postMessage(JSON.stringify({state}), '*');
+      window.postMessage(JSON.stringify({state}), '*');
     })
   }
 }
