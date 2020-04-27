@@ -3,6 +3,8 @@ body {
   --root-max-width: 1200px;
   --nav-height: 50px;
 
+  font-size: 16px;
+
   --red: #9b4444;
   --blue: #44719b;
   --border-color: #2d3133;
@@ -102,6 +104,7 @@ form input {
   outline: none;
   background-color: var(--bg-shallow);
   color: var(--text);
+  margin: 0;
 }
 
 button[type=submit], input[type=button] {
@@ -110,6 +113,7 @@ button[type=submit], input[type=button] {
   border-style: solid;
   cursor: pointer;
   outline: none !important;
+  margin: 0;
 
   border-color: var(--border-color);
   background-color: var(--bg-shallow-alt);
@@ -189,4 +193,14 @@ div.dropdown-holder > a.dropdown-label > .dropdown-chevy {
   flex-flow: row;
   align-items: center;
   justify-content: center;
+}
+
+h1 {
+  font-size: 39px;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 18.72px;
+  font-weight: 700;
 }

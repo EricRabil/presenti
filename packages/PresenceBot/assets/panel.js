@@ -39,7 +39,11 @@
   newStyle.rel = "stylesheet";
   newStyle.href = styleInjection.href;
 
-  preview.onload = function() {
+  if (preview.contentDocument.readyState === 'complete') {
     preview.contentDocument.body.appendChild(newStyle);
+  } else {
+    preview.onload = function() {
+      preview.contentDocument.body.appendChild(newStyle);
+    }
   }
 })();
