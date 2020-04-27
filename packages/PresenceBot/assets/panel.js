@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', () => {
+(() => {
   const generator = document.getElementById('generate-token');
   const holder = document.getElementById('token-holder');
 
@@ -42,4 +42,4 @@ window.addEventListener('DOMContentLoaded', () => {
   preview.onload = function() {
     preview.contentDocument.body.appendChild(newStyle);
   }
-});
+})();

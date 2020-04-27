@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const querystring_1 = __importDefault(require("querystring"));
 const security_1 = require("../security");
 const socket_api_adapter_1 = require("../structs/socket-api-adapter");
+const Configuration_1 = require("../Configuration");
 exports.IdentityGuard = async (req, res, next) => {
     if (!res.user) {
         res.writeStatus(401).json({ e: 401, msg: "Invalid identity token." });
@@ -15,7 +16,7 @@ exports.IdentityGuard = async (req, res, next) => {
 };
 exports.IdentityGuardFrontend = async (req, res, next) => {
     if (!res.user) {
-        res.render('login', { error: 'You must be logged in to perform this action.' });
+        res.render('login', { error: 'You must be logged in to perform this action.', signup: Configuration_1.CONFIG.registration });
         return next(true);
     }
     next();

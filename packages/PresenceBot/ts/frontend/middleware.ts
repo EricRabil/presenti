@@ -3,6 +3,7 @@ import { RequestHandler } from "./types";
 import { SecurityKit } from "../security";
 import { User } from "../database/entities";
 import { FIRST_PARTY_SCOPE } from "../structs/socket-api-adapter";
+import { CONFIG } from "../Configuration";
 
 export const IdentityGuard: RequestHandler = async (req, res, next) => {
   if (!res.user) {
@@ -14,7 +15,7 @@ export const IdentityGuard: RequestHandler = async (req, res, next) => {
 
 export const IdentityGuardFrontend: RequestHandler = async (req, res, next) => {
   if (!res.user) {
-    res.render('login', { error: 'You must be logged in to perform this action.' });
+    res.render('login', { error: 'You must be logged in to perform this action.', signup: CONFIG.registration });
     return next(true);
   }
   next();

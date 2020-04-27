@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', () => {
+(() => {
   const dropdowns = Array.from(document.querySelectorAll('[data-dropdown-target]')).map(initiator => ({initiator, target: document.querySelector(initiator.getAttribute('data-dropdown-target'))}));
   
   /** @type {Element | null} */
@@ -40,4 +40,4 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
   })
-});
+})();
