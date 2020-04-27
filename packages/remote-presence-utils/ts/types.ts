@@ -18,6 +18,7 @@ export type PresenceTimeRange = {
 } | null;
 
 export interface PresenceStruct {
+  id?: string | null;
   title?: string;
   largeText?: PresenceText;
   smallTexts?: PresenceText[];

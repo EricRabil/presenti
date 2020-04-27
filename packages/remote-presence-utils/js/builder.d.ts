@@ -13,4 +13,5 @@ export declare class PresenceBuilder {
     title(title: string): this;
     start(start: number | null): this;
     stop(stop: number | null): this;
+    id(id: string | null): this;
 }

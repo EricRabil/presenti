@@ -15,7 +15,8 @@ class PresenceBuilder {
                 priority: null,
                 enabled: false
             },
-            isPaused: null
+            isPaused: null,
+            id: null,
         };
     }
     toString() {
@@ -54,6 +55,10 @@ class PresenceBuilder {
     }
     stop(stop) {
         this.presence.timestamps.stop = stop;
+        return this;
+    }
+    id(id) {
+        this.presence.id = id;
         return this;
     }
 }

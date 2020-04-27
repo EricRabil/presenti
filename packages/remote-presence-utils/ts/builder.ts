@@ -18,7 +18,8 @@ export class PresenceBuilder {
       priority: null,
       enabled: false
     },
-    isPaused: null
+    isPaused: null,
+    id: null,
   }
 
   toString() {
@@ -65,6 +66,11 @@ export class PresenceBuilder {
 
   stop(stop: number | null) {
     this.presence.timestamps!.stop = stop;
+    return this;
+  }
+
+  id(id: string | null) {
+    this.presence.id = id;
     return this;
   }
 }

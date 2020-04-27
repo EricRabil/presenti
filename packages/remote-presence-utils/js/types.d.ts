@@ -15,6 +15,7 @@ export declare type PresenceTimeRange = {
     stop: number | null;
 } | null;
 export interface PresenceStruct {
+    id?: string | null;
     title?: string;
     largeText?: PresenceText;
     smallTexts?: PresenceText[];
