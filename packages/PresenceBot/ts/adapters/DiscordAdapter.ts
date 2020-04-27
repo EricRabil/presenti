@@ -147,9 +147,9 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
           break;
         }
         case "help": {
-          const commands = ["link", "unlink", "link-state"];
+          const commands = ["link", "unlink", "link-state", "s-link", "s-approve"];
 
-          message.reply("")
+          message.reply(`\`\`\`md\n# Commands\n\n${commands.map(c => `- ${this.options.prefix}${c}`).join("\n")}\n\`\`\``);
         }
       }
     });

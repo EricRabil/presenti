@@ -103,8 +103,8 @@ class DiscordAdapter extends StorageAdapter_1.StorageAdapter {
                     break;
                 }
                 case "help": {
-                    const commands = ["link", "unlink", "link-state"];
-                    message.reply("");
+                    const commands = ["link", "unlink", "link-state", "s-link", "s-approve"];
+                    message.reply(`\`\`\`md\n# Commands\n\n${commands.map(c => `- ${this.options.prefix}${c}`).join("\n")}\n\`\`\``);
                 }
             }
         });
