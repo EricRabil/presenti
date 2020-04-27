@@ -41,10 +41,6 @@
   const newStyle = document.createElement("link");
   newStyle.rel = "stylesheet";
   newStyle.href = styleInjection.href;
-
-  if (preview.contentDocument.readyState === 'complete') {
-    preview.contentWindow.addEventListener('DOMContentLoaded', initializeIFrame);
-  } else {
-    preview.onload = initializeIFrame;
-  }
+  
+  preview.contentWindow.addEventListener("load", initializeIFrame);
 })();
