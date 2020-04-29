@@ -21,7 +21,14 @@ var API_ROUTES;
     API_ROUTES["API_KEY"] = "/api/apikey";
     API_ROUTES["DISCORD_AUTH"] = "/api/oauth/discord";
     API_ROUTES["DISCORD_AUTH_CALLBACK"] = "/api/oauth/discord/callback";
+    API_ROUTES["DISCORD_AUTH_UNLINK"] = "/api/oauth/unlink";
 })(API_ROUTES = exports.API_ROUTES || (exports.API_ROUTES = {}));
+var OAUTH_PLATFORM;
+(function (OAUTH_PLATFORM) {
+    OAUTH_PLATFORM["DISCORD"] = "DISCORD";
+    OAUTH_PLATFORM["SPOTIFY"] = "SPOTIFY";
+    OAUTH_PLATFORM["SPOTIFY_INTERNAL"] = "SPOTIFY_INTERNAL";
+})(OAUTH_PLATFORM = exports.OAUTH_PLATFORM || (exports.OAUTH_PLATFORM = {}));
 function isRemotePayload(payload) {
     return "type" in payload;
 }

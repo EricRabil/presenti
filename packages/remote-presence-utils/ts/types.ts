@@ -33,6 +33,13 @@ export interface PresenceStruct {
   isPaused?: boolean | null;
 }
 
+export interface PresentiUser {
+  uuid: string;
+  userID: string;
+  platforms: Record<OAUTH_PLATFORM, string> | null;
+  excludes: string[];
+}
+
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 
 
@@ -86,7 +93,14 @@ export enum API_ROUTES {
   GENERATE_LINK_CODE = "/api/linkcode",
   API_KEY = "/api/apikey",
   DISCORD_AUTH = "/api/oauth/discord",
-  DISCORD_AUTH_CALLBACK = "/api/oauth/discord/callback"
+  DISCORD_AUTH_CALLBACK = "/api/oauth/discord/callback",
+  DISCORD_AUTH_UNLINK = "/api/oauth/unlink"
+}
+
+export enum OAUTH_PLATFORM {
+  DISCORD = "DISCORD",
+  SPOTIFY = "SPOTIFY",
+  SPOTIFY_INTERNAL = "SPOTIFY_INTERNAL"
 }
 
 export function isRemotePayload(payload: any): payload is RemotePayload {

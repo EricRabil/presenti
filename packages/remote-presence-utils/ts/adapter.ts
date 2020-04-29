@@ -7,25 +7,27 @@ export interface IEvented {
 }
 
 export class Evented implements IEvented {
-  private _listeners: Record<string, Function[]> = {};
+  constructor() {
+    (this as any)._listeners = {};
+  }
 
   on(event: string, listener: Function): this {
-    if (!this._listeners[event]) this._listeners[event] = [];
-    if (this._listeners[event] && this._listeners[event].includes(listener)) return this;
-    this._listeners[event].push(listener);
+    if (!(this as any)._listeners[event]) (this as any)._listeners[event] = [];
+    if ((this as any)._listeners[event] && (this as any)._listeners[event].includes(listener)) return this;
+    (this as any)._listeners[event].push(listener);
     return this;
   }
 
   off(event: string, listener: Function): this {
-    if (!this._listeners[event] || !this._listeners[event].includes(listener)) return this;
-    this._listeners[event].splice(this._listeners[event].indexOf(listener), 1);
-    if (this._listeners[event].length === 0) delete this._listeners[event];
+    if (!(this as any)._listeners[event] || !(this as any)._listeners[event].includes(listener)) return this;
+    (this as any)._listeners[event].splice((this as any)._listeners[event].indexOf(listener), 1);
+    if ((this as any)._listeners[event].length === 0) delete (this as any)._listeners[event];
     return this;
   }
 
   emit(event: string, ...args: any[]): boolean {
-    if (!this._listeners[event] || this._listeners[event].length === 0) return false;
-    this._listeners[event].forEach(listener => listener.apply(this, args));
+    if (!(this as any)._listeners[event] || (this as any)._listeners[event].length === 0) return false;
+    (this as any)._listeners[event].forEach((listener: Function) => listener.apply(this, args));
     return true;
   }
 }

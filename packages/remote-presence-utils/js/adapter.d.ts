@@ -5,7 +5,7 @@ export interface IEvented {
     emit(event: string, ...args: any[]): boolean;
 }
 export declare class Evented implements IEvented {
-    private _listeners;
+    constructor();
     on(event: string, listener: Function): this;
     off(event: string, listener: Function): this;
     emit(event: string, ...args: any[]): boolean;
