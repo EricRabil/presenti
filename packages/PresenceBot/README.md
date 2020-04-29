@@ -1,28 +1,62 @@
-# PresenceBot
+# presenti
 Lightweight REST API for retrieving the presence of a set list of Discord users.
 
 ## Getting Started
-PresenceBot is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.
+Presenti is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.
 
-1. Clone the latest version of PresenceBot using `git clone https://github.com/EricRabil/PresenceBot.git`
+### Dependencies
+- PostgreSQL
+- Node >=12
+- TypeScript (only needed for development)
+- Discord (only needed if you want to have OAuth)
+
+1. Clone the latest version of presenti using `git clone https://github.com/EricRabil/presenti.git`
 2. Initialize the modules using `npm i`
-3. Initialize the service by running `node js/run.js`
-4. The service will generate a `config.json` file in the root of the `PresenceBot` directory - the default port is `8138`, and tokens are currently stored in this file. *I am planning on moving tokens to a database with a REST API for managing them.*
-    
-    1. In the users object of the `config.json` file, this is the schema:
-    ```json
-    {
-      "users": {
-        "token": "name"
-      }
+3. Initialize the service by running `npm run run`
+4. Presenti will ask you a few setup questions, like database credentials and other required details. It will then save the configuration file to `config.json` at the root of the project, and it will resemble this:
+
+```json
+{
+    "port": 8138,
+    "registration": false,
+    "discord": null,
+    "crypto": {
+        "jwtSecret": "<randomly generated secret>",
+        "firstPartyKey": "<randomly generated secret>"
+    },
+    "web": {
+        "host": "://localhost:8138"
+    },
+    "db": {
+        "host": "localhost",
+        "port": 5432,
+        "name": "presenti",
+        "username": "",
+        "password": ""
     }
-    ```
-    2. Choose a secure token (this is your responsibility) and enter a name for this "user" (or scope).
-    3. Save the file.
-5. Now that you've configured the service - here are some ways you can run it:
-    - `pm2 start js/run.js --name=presenti`
-    - `screen -S presenti "node js/run.js"`
-    - `node js/run.js`
+}
+```
+
+5. To setup Discord integration, replace
+```json
+{
+  "discord": null
+}
+```
+with
+```json
+{
+  "discord": {
+    "clientID": "<client id>",
+    "clientSecret": "<client secret>"
+  }
+}
+```
+
+6. To generate a first-party API key for modules like [presenti-additions](https://github.com/ericrabil/presenti-additions), run the following in the Presenti shell and copy the results (I will be adding an admin panel for this eventually):
+```js
+(Presenti) % await SecurityKit.firstPartyApiKey()
+```
 
 ## Streaming API
 

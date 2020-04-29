@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "run": "node --experimental-repl-await dist/run.js"
+    "run": "node --experimental-repl-await dist/run.js",
+    "docs": "typedoc --out docs src; touch docs/.nojekyll"
   },
   "repository": {
     "type": "git",
@@ -63,6 +64,7 @@
     "@types/uuid": "^7.0.2",
     "@types/winston": "^2.4.4",
     "@types/ws": "^7.2.3",
+    "typedoc": "^0.17.6",
     "typescript": "^3.8.3"
   }
 }

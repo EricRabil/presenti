@@ -64,39 +64,63 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#presencebot" id="presencebot" style="color: inherit; text-decoration: none;">
-					<h1>PresenceBot</h1>
+				<a href="#presenti" id="presenti" style="color: inherit; text-decoration: none;">
+					<h1>presenti</h1>
 				</a>
 				<p>Lightweight REST API for retrieving the presence of a set list of Discord users.</p>
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
 					<h2>Getting Started</h2>
 				</a>
-				<p>PresenceBot is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.</p>
+				<p>Presenti is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.</p>
+				<a href="#dependencies" id="dependencies" style="color: inherit; text-decoration: none;">
+					<h3>Dependencies</h3>
+				</a>
+				<ul>
+					<li>PostgreSQL</li>
+					<li>Node &gt;=12</li>
+					<li>TypeScript (only needed for development)</li>
+					<li>Discord (only needed if you want to have OAuth)</li>
+				</ul>
 				<ol>
-					<li><p>Clone the latest version of PresenceBot using <code>git clone https://github.com/EricRabil/PresenceBot.git</code></p>
-					</li>
-					<li><p>Initialize the modules using <code>npm i</code></p>
-					</li>
-					<li><p>Initialize the service by running <code>node js/run.js</code></p>
-					</li>
-					<li><p>The service will generate a <code>config.json</code> file in the root of the <code>PresenceBot</code> directory - the default port is <code>8138</code>, and tokens are currently stored in this file. <em>I am planning on moving tokens to a database with a REST API for managing them.</em></p>
-						<ol>
-							<li>In the users object of the <code>config.json</code> file, this is the schema:<pre><code class="language-json">{
-<span class="hljs-attr">"users"</span>: {
- <span class="hljs-attr">"token"</span>: <span class="hljs-string">"name"</span>
+					<li>Clone the latest version of presenti using <code>git clone https://github.com/EricRabil/presenti.git</code></li>
+					<li>Initialize the modules using <code>npm i</code></li>
+					<li>Initialize the service by running <code>npm run run</code></li>
+					<li>Presenti will ask you a few setup questions, like database credentials and other required details. It will then save the configuration file to <code>config.json</code> at the root of the project, and it will resemble this:</li>
+				</ol>
+				<pre><code class="language-json">{
+    <span class="hljs-attr">"port"</span>: <span class="hljs-number">8138</span>,
+    <span class="hljs-attr">"registration"</span>: <span class="hljs-literal">false</span>,
+    <span class="hljs-attr">"discord"</span>: <span class="hljs-literal">null</span>,
+    <span class="hljs-attr">"crypto"</span>: {
+        <span class="hljs-attr">"jwtSecret"</span>: <span class="hljs-string">"&lt;randomly generated secret&gt;"</span>,
+        <span class="hljs-attr">"firstPartyKey"</span>: <span class="hljs-string">"&lt;randomly generated secret&gt;"</span>
+    },
+    <span class="hljs-attr">"web"</span>: {
+        <span class="hljs-attr">"host"</span>: <span class="hljs-string">"://localhost:8138"</span>
+    },
+    <span class="hljs-attr">"db"</span>: {
+        <span class="hljs-attr">"host"</span>: <span class="hljs-string">"localhost"</span>,
+        <span class="hljs-attr">"port"</span>: <span class="hljs-number">5432</span>,
+        <span class="hljs-attr">"name"</span>: <span class="hljs-string">"presenti"</span>,
+        <span class="hljs-attr">"username"</span>: <span class="hljs-string">""</span>,
+        <span class="hljs-attr">"password"</span>: <span class="hljs-string">""</span>
+    }
+}</code></pre>
+				<ol start="5">
+					<li><p>To setup Discord integration, replace</p>
+						<pre><code class="language-json">{
+<span class="hljs-attr">"discord"</span>: <span class="hljs-literal">null</span>
+}</code></pre>
+						<p>with</p>
+						<pre><code class="language-json">{
+<span class="hljs-attr">"discord"</span>: {
+ <span class="hljs-attr">"clientID"</span>: <span class="hljs-string">"&lt;client id&gt;"</span>,
+ <span class="hljs-attr">"clientSecret"</span>: <span class="hljs-string">"&lt;client secret&gt;"</span>
 }
 }</code></pre>
-							</li>
-							<li>Choose a secure token (this is your responsibility) and enter a name for this &quot;user&quot; (or scope).</li>
-							<li>Save the file.</li>
-						</ol>
 					</li>
-					<li><p>Now that you&#39;ve configured the service - here are some ways you can run it:</p>
-						<ul>
-							<li><code>pm2 start js/run.js --name=presenti</code></li>
-							<li><code>screen -S presenti &quot;node js/run.js&quot;</code></li>
-							<li><code>node js/run.js</code></li>
-						</ul>
+					<li><p>To generate a first-party API key for modules like <a href="https://github.com/ericrabil/presenti-additions">presenti-additions</a>, run the following in the Presenti shell and copy the results (I will be adding an admin panel for this eventually):</p>
+						<pre><code class="language-js">(Presenti) % <span class="hljs-keyword">await</span> SecurityKit.firstPartyApiKey()</code></pre>
 					</li>
 				</ol>
 				<a href="#streaming-api" id="streaming-api" style="color: inherit; text-decoration: none;">
@@ -149,7 +173,7 @@
   ]
 }</code></pre>
 				<p>This is how that would be rendered</p>
-				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<p><img src="assets/rendered.png" alt="Rendered Presence"></p>
 				<p>These are the only messages that will be sent by the server. If the connection closes, simply re-open the connection. There is no authentication necessary for this endpoint.</p>
 				<a href="#presence-api" id="presence-api" style="color: inherit; text-decoration: none;">
 					<h2>Presence API</h2>
@@ -215,7 +239,7 @@
   ]
 }</code></pre>
 				<p>This is how that would be rendered</p>
-				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<p><img src="assets/rendered.png" alt="Rendered Presence"></p>
 				<p><em>Example Response</em></p>
 				<pre><code class="language-json">{
   <span class="hljs-attr">"ok"</span>: <span class="hljs-literal">true</span>
@@ -310,7 +334,7 @@
   ]
 }</code></pre>
 				<p>This is how that would be rendered</p>
-				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<p><img src="assets/rendered.png" alt="Rendered Presence"></p>
 				<a href="#pre-requisites" id="pre-requisites" style="color: inherit; text-decoration: none;">
 					<h2>Pre-requisites</h2>
 				</a>
