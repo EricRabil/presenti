@@ -6,7 +6,7 @@ export class Database {
   async connect() {
     await this.ensureConfig();
 
-    const { host, port, name: database, username, password } = this.config;
+    const { host, port, database, username, password } = this.config;
 
     return createConnection({
       type: "postgres",

@@ -19,7 +19,7 @@ export interface ConfigurationStruct {
   db: {
     host: string;
     port: number;
-    name: string;
+    database: string;
     username: string | null;
     password: string | null;
   };
@@ -38,7 +38,7 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
   db: {
     host: "127.0.0.1",
     port: 5432,
-    name: "presenti-additions",
+    database: "presenti-additions",
     username: null,
     password: null
   }
