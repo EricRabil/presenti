@@ -85,15 +85,15 @@ export class DiscordAPI {
       }
     }
 
-    if (typeof options.args === "number" && args.length < (options.args - 1)) {
-      return message.reply(Response("Syntax Error").items(`Syntax for '${command}'`, options.syntax || `${command} ${Array.from({ length: options.args }).map((_,i) => `arg${i}`)}`));
+    if (typeof options.args === "number" && args.length < options.args) {
+      return message.reply(Response("Syntax Error").items(`Syntax for '${this.service.discordAdapter.options.prefix}${command}'`, options.syntax ? `${this.service.discordAdapter.options.prefix}${options.syntax}` : `${this.service.discordAdapter.options.prefix}${command} ${Array.from({ length: options.args }).map((_,i) => `arg${i}`)}`));
     }
     
     if (typeof this[name] !== "function") return;
     (this[name] as unknown as Function)(message);
   }
 
-  @Command("promote")
+  @Command("promote", { args: 1, syntax: "promote {...user mentions}" })
   async promoteUser(message: Message) {
     if (message.author.id !== (await this.application()).owner?.id) {
       return message.reply("Sorry, only the bot owner can promote users.");
@@ -105,7 +105,7 @@ export class DiscordAPI {
     return message.reply(Response("The following users have been promoted").items(...mentions));
   }
 
-  @Command("demote")
+  @Command("demote", { args: 1, syntax: "demote {...user mentions}"})
   async denyUser(message: Message) {
     if (message.author.id !== (await this.application()).owner?.id) {
       return message.reply("Sorry, only the bot owner can demote users.");
@@ -117,7 +117,7 @@ export class DiscordAPI {
     return message.reply(Response("The following users have been demoted").items(...mentions));
   }
 
-  @Command("pipe-p-spotify")
+  @Command("pipe-p-spotify", { args: 1, syntax: "pipe-p-spotify {spotify cookies}"})
   async pipeSpotifyPresence(message: Message) {
     const scope = await this.loadProfileFromMessage(message);
     if (!scope) return;
