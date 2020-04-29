@@ -140,13 +140,13 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     const container = await this.container();
     const { excludes } = container.data;
 
-    return excludes[scope] || [];
+    return (excludes[scope] || []).concat("spotify");
   }
 
   async activityForUser(scope: string): Promise<PresenceStruct[]> {
     const presences = await this.discordPresences(scope);
     const excludes = await this.userExcludes(scope);
-    return presences?.filter(activity => !excludes.includes(activity.name))
+    return presences?.filter(activity => !excludes.includes(activity.name.toLowerCase()))
       .map(activity => (
         new PresenceBuilder()
           .title(activity.name)
@@ -160,21 +160,6 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
       )) || [];
   }
 
-  private convertActivities(snowflake: string) {
-    const presences = this.client.users.resolve(snowflake)?.presence.activities;
-    return presences?.map(activity => (
-      new PresenceBuilder()
-        .title(activity.name)
-        .largeText(activity.details || activity.assets?.largeText!)
-        .image((activity.assets?.largeImage || activity.assets?.smallImage) ? `https://cdn.discordapp.com/app-assets/${activity.applicationID}/${activity.assets?.largeImage || activity.assets?.smallImage}.png` : this.iconRegistry[activity.applicationID!]?.icon ? `https://cdn.discordapp.com/app-icons/${activity.applicationID}/${this.iconRegistry[activity.applicationID!].icon}.webp?size=256&keep_aspect_ratio=false` : null)
-        .smallText(activity.state!)
-        .start(activity.timestamps?.start?.getTime()!)
-        .stop(activity.timestamps?.end?.getTime()!)
-        .id(activity.applicationID)
-        .presence
-    )).filter(p => p.title?.toLowerCase() !== "spotify") || [];
-  }
-
   /**
    * Returns all activities, useful for service initialization
    */
@@ -182,7 +167,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     const container = await this.container();
     /** Maps a discord snowflake to all bound scopes */
     const snowflakes = Object.values(container.data.scopeBindings).filter((s, i, a) => a.indexOf(s) === i);
-    const activities = snowflakes.reduce((acc, snowflake) => Object.assign(acc, {[snowflake]: this.convertActivities(snowflake)}), {} as Record<string, PresenceStruct[]>);
+    const activities = snowflakes.reduce((acc, snowflake) => Object.assign(acc, {[snowflake]: this.activityForUser(this.pipeLedger[snowflake])}), {} as Record<string, PresenceStruct[]>);
 
     return Object.entries(container.data.scopeBindings).reduce((acc, [scope, snowflake]) => Object.assign(acc, {[scope]: activities[snowflake]}), {} as PresenceDictionary);
   }
