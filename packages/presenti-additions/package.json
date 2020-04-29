@@ -24,6 +24,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@clusterws/cws": "github:EricRabil/cWS",
     "chalk": "^4.0.0",
     "discord.js": "^12.2.0",
     "fs-extra": "^9.0.0",
