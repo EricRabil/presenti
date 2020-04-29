@@ -166,13 +166,13 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
       new PresenceBuilder()
         .title(activity.name)
         .largeText(activity.details || activity.assets?.largeText!)
-        .image((activity.assets?.largeImage || activity.assets?.smallImage) ? `https://cdn.discordapp.com/app-assets/${activity.applicationID}/${activity.assets?.largeImage || activity.assets?.smallImage}.png` : `https://cdn.discordapp.com/app-icons/${activity.applicationID}/${this.iconRegistry[activity.applicationID!].icon}.webp?size=256&keep_aspect_ratio=false`)
+        .image((activity.assets?.largeImage || activity.assets?.smallImage) ? `https://cdn.discordapp.com/app-assets/${activity.applicationID}/${activity.assets?.largeImage || activity.assets?.smallImage}.png` : this.iconRegistry[activity.applicationID!]?.icon ? `https://cdn.discordapp.com/app-icons/${activity.applicationID}/${this.iconRegistry[activity.applicationID!].icon}.webp?size=256&keep_aspect_ratio=false` : null)
         .smallText(activity.state!)
         .start(activity.timestamps?.start?.getTime()!)
         .stop(activity.timestamps?.end?.getTime()!)
         .id(activity.applicationID)
         .presence
-    )) || [];
+    )).filter(p => p.title?.toLowerCase() !== "spotify") || [];
   }
 
   /**
