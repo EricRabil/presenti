@@ -14,17 +14,23 @@ const { version } = require("../../../package.json");
 
 export class MiddlewareTimeoutError extends Error { }
 
+/** Metadata for a Route */
 export interface RouteData {
+  /** absolute path for the route */
   path: string;
+  /** request method for the route */
   method: HTTPMethod;
+  /** property on the class that represents the route */
   property: string;
+  /** any middleware to be called before handler execution */
   middleware: RequestHandler[];
 }
 
-export function toArrayBuffer(buffer: Buffer) {
+function toArrayBuffer(buffer: Buffer) {
   return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 }
 
+/** Headers for common responses */
 export const Responses: Record<string, [string, string]> = {
   JSON: ['Content-Type', 'application/json'],
   HTML: ['Content-Type', 'text/html']
@@ -150,6 +156,7 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
     return this;
   }
 
+  /** Shorthand for returning an API error */
   newResponse.error = function(error: string, code: number = 400) {
     return this.status(code).json({ error });
   }
@@ -190,6 +197,7 @@ export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PB
     try {
       const stop: any = await new Promise(async (resolve, reject) => {
         if (middleware.indexOf(fn) !== (middleware.length - 1)) {
+          /** Halts execution if a middleware takes longer than 2.5s */
           setTimeout(() => {
             if (didComplete) return;
             res.writeStatus(502).json({ error: "Execution timeout." });

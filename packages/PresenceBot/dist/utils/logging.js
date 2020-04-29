@@ -35,7 +35,7 @@ exports.log = winston_1.default.createLogger({
             format: winston_1.default.format.combine(winston_1.default.format.colorize(), winston_1.default.format((info, opts = {}) => {
                 if (info.name) {
                     info.level = `${info.level} ${chalk_1.default.magenta(info.name)}`;
-                    delete info.name;
+                    info.name = undefined;
                 }
                 return info;
             })(), winston_1.default.format.simple())

@@ -35,8 +35,11 @@ export interface PBResponse extends HttpResponse {
     status(status: number): PBResponse;
     /** Returns an error as the response with the given status code, 400 if omitted */
     error(message: string, status?: number): void;
+    /** Sets a cookie to be sent upon response end */
     setCookie(name: string, value: string, options?: CookieSerializeOptions): PBResponse;
+    /** Sets a cookie to be erased upon response end */
     clearCookie(name: string): PBResponse;
+    /** Cookies to be sent upon response end */
     cookieWrites: Record<string, string>;
     /** Return type overrides */
     /** Writes key and value to HTTP response. */

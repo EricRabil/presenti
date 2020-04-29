@@ -26,6 +26,7 @@ exports.Delete = BuildRouteShorthand("del");
 exports.Put = BuildRouteShorthand("put");
 exports.Any = BuildRouteShorthand("any");
 exports.Options = BuildRouteShorthand("options");
+/** set headers that the route will access */
 function Headers(...headers) {
     return function (target, property, descriptor) {
         const fn = target[property];
@@ -33,6 +34,11 @@ function Headers(...headers) {
     };
 }
 exports.Headers = Headers;
+/**
+ * Returns empty Route metadata
+ * @param path route path
+ * @param method request method
+ */
 function RouteDataShell(path, method = "any") {
     return {
         path,
@@ -42,6 +48,7 @@ function RouteDataShell(path, method = "any") {
     };
 }
 exports.RouteDataShell = RouteDataShell;
+/** synchronous handler for all requests - deals with use-after-free preventions and adds an onAborted handler */
 function handler(exec, headers = []) {
     return (res, req) => {
         res.onAborted(() => {

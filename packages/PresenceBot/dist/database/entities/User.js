@@ -13,16 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_async_1 = require("@otplib/core-async");
-const plugin_crypto_async_ronomon_1 = require("@otplib/plugin-crypto-async-ronomon");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const typeorm_1 = require("typeorm");
 const security_1 = require("../../utils/security");
 const OAuthLink_1 = require("./OAuthLink");
-const generator = new core_async_1.TOTPAsync({
-    step: 60,
-    createDigest: plugin_crypto_async_ronomon_1.createDigest
-});
 let User = User_1 = class User extends typeorm_1.BaseEntity {
     json(full = false) {
         return {
@@ -40,15 +34,6 @@ let User = User_1 = class User extends typeorm_1.BaseEntity {
     }
     async checkPassword(password) {
         return bcrypt_1.default.compare(password, this.passwordHash);
-    }
-    /**
-     * Returns a link code that expires after some time
-     */
-    async linkCode() {
-        return generator.generate(this.passwordHash);
-    }
-    async testLinkCode(code) {
-        return generator.check(code, this.passwordHash);
     }
     /**
      * These require a password because they are used to generate API keys.

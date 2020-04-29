@@ -80,6 +80,10 @@ export namespace PresenceMagic {
     });
   }
 
+  /**
+   * Creates a Proxy that condenses a bunch of Presence objects for a scope into a single presence list
+   * @param ledger ledger of scopes to their various scope objects
+   */
   export function createPresenceDictCondenser(ledger: Record<string, PresenceDictionary>): Record<string, PresenceList> {
     return new Proxy(ledger, {
       get(target, prop, receiver) {

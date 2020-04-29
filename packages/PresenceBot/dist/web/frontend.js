@@ -28,6 +28,7 @@ const shared_middleware_1 = require("../utils/web/shared-middleware");
 const canned_responses_1 = require("./canned-responses");
 const loaders_1 = require("./loaders");
 const middleware_1 = require("./middleware");
+/** Frontend routes */
 class Frontend extends rest_api_base_1.default {
     constructor(app) {
         super(app, Frontend.VIEWS_DIRECTORY);
@@ -42,17 +43,21 @@ class Frontend extends rest_api_base_1.default {
     buildStack(metadata, middleware, headers = []) {
         return super.buildStack(metadata, [loaders_1.UserLoader()].concat(middleware), headers.concat('authorization'));
     }
+    /** Renders the login page */
     loginView(req, res) {
         res.render('login', { signup: config_1.CONFIG.registration });
     }
+    /** Renders the signup page, if registration is enabled */
     signupView(req, res) {
         if (!config_1.CONFIG.registration)
             return canned_responses_1.notFound(res);
         res.render('signup');
     }
+    /** Renders the change password page, if the user is signed in */
     changePassword(req, res) {
         res.render('changepw');
     }
+    /** Called upon change password form submission, accepts "password" and "newPassword" in the form body */
     async changePasswordComplete(req, res) {
         const fail = (msg) => res.render('changepw', { error: msg });
         if (!req.body || !req.body.password || !req.body.newPassword) {
@@ -66,6 +71,7 @@ class Frontend extends rest_api_base_1.default {
         await res.user.save();
         res.render('changepw', { message: 'Your password has been changed. All existing tokens have been invalidated.' });
     }
+    /** Called upon signup form submission, accepts "id" and "password" in the form body */
     async signupComplete(req, res) {
         if (!config_1.CONFIG.registration)
             return canned_responses_1.notFound(res);
@@ -85,10 +91,12 @@ class Frontend extends rest_api_base_1.default {
         res.setCookie('identity', token, { httpOnly: true });
         res.redirect('/');
     }
+    /** Called to sign out the user */
     logout(req, res) {
         res.setCookie('identity', '', { maxAge: 0 });
         res.redirect('/');
     }
+    /** Called upon login form submission, accepts "id" and "password" in form submission */
     async loginComplete(req, res) {
         const fail = () => res.render('login', { error: 'Invalid credentials.' });
         if (!req.body || !req.body.id || !req.body.password) {
@@ -104,6 +112,7 @@ class Frontend extends rest_api_base_1.default {
         res.setCookie('identity', token, { httpOnly: true });
         res.redirect('/');
     }
+    /** Renders the panel if signed in, and the login page otherwise */
     rootHandler(req, res) {
         if (!res.user) {
             res.redirect('/login');
@@ -111,9 +120,11 @@ class Frontend extends rest_api_base_1.default {
         }
         res.redirect('/panel');
     }
+    /** Renders the panel home page */
     panelView(req, res) {
         res.render('panel');
     }
+    /** Serves assets for the presenti renderer */
     async presentiAssets(req, res) {
         const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
         const absolute = await Frontend.resolvePresenti(relative).catch(e => null);
@@ -122,6 +133,7 @@ class Frontend extends rest_api_base_1.default {
         }
         await res.file(absolute);
     }
+    /** Serves the page for the presenti renderer */
     renderer(req, res) {
         const params = new URLSearchParams(req.getQuery());
         const options = {
@@ -131,6 +143,7 @@ class Frontend extends rest_api_base_1.default {
         };
         res.render('presenti', options);
     }
+    /** Serves static assets for the panel */
     async staticAsset(req, res) {
         const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
         const absolute = Frontend.resolveStatic(relative);
@@ -139,17 +152,20 @@ class Frontend extends rest_api_base_1.default {
         }
         await res.file(absolute);
     }
+    /** Resolves template files */
     static resolve(file) {
         if (!file.endsWith('.pug'))
             file = `${file}.pug`;
         return path_1.default.resolve(Frontend.VIEWS_DIRECTORY, file);
     }
+    /** Resolves static assets */
     static resolveStatic(file) {
         const resolved = path_1.default.resolve(Frontend.STATIC_DIRECTORY, file);
         if (!resolved.startsWith(Frontend.STATIC_DIRECTORY))
             return null;
         return resolved;
     }
+    /** Resolves presenti-renderer assets */
     static async resolvePresenti(file) {
         let resolved = path_1.default.resolve(Frontend.PRESENTI_ASSET_DIRECTORY, file);
         if (!resolved.startsWith(Frontend.PRESENTI_ASSET_DIRECTORY))

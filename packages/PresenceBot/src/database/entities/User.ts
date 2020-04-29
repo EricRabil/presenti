@@ -1,14 +1,7 @@
-import { TOTPAsync } from "@otplib/core-async";
-import { createDigest } from "@otplib/plugin-crypto-async-ronomon";
 import bcrypt from "bcrypt";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { SecurityKit } from "../../utils/security";
 import { OAuthLink } from "./OAuthLink";
-
-const generator = new TOTPAsync({
-  step: 60,
-  createDigest
-});
 
 @Entity()
 export class User extends BaseEntity {
@@ -46,17 +39,6 @@ export class User extends BaseEntity {
 
   async checkPassword(password: string) {
     return bcrypt.compare(password, this.passwordHash);
-  }
-
-  /**
-   * Returns a link code that expires after some time
-   */
-  async linkCode() {
-    return generator.generate(this.passwordHash);
-  }
-
-  async testLinkCode(code: string) {
-    return generator.check(code, this.passwordHash);
   }
 
   /**

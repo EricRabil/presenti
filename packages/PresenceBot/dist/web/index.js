@@ -9,6 +9,10 @@ const oauth_api_1 = __importDefault(require("./api/oauth-api"));
 var WebRoutes;
 (function (WebRoutes) {
     var initialized = false;
+    /**
+     * Binds all API routes to the app
+     * @param app uws app
+     */
     function initialize(app) {
         if (initialized)
             return;

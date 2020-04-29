@@ -19,7 +19,7 @@ exports.MiddlewareTimeoutError = MiddlewareTimeoutError;
 function toArrayBuffer(buffer) {
     return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 }
-exports.toArrayBuffer = toArrayBuffer;
+/** Headers for common responses */
 exports.Responses = {
     JSON: ['Content-Type', 'application/json'],
     HTML: ['Content-Type', 'text/html']
@@ -129,6 +129,7 @@ function wrapResponse(res, templateResolver = file => file) {
         oldWriteStatus.call(this, status);
         return this;
     };
+    /** Shorthand for returning an API error */
     newResponse.error = function (error, code = 400) {
         return this.status(code).json({ error });
     };
@@ -163,6 +164,7 @@ async function runMiddleware(metadata, req, res, middleware) {
         try {
             const stop = await new Promise(async (resolve, reject) => {
                 if (middleware.indexOf(fn) !== (middleware.length - 1)) {
+                    /** Halts execution if a middleware takes longer than 2.5s */
                     setTimeout(() => {
                         if (didComplete)
                             return;

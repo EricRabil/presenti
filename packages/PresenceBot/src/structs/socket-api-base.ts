@@ -31,6 +31,7 @@ export const DenyAuthed = MetadataSetter("denyAuthed", true);
 export type PayloadHandler = (ws: WebSocket, data: any) => any;
 export const FIRST_PARTY_SCOPE = Symbol("FIRST_PARTY");
 
+/** Contextual wrapper for socket connections */
 export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
   static socketLog = log.child({ name: "SocketContext" })
   readonly id: string = uuid.v4();
@@ -42,6 +43,11 @@ export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
     this.ws.close();
   }
 
+  /**
+   * Sends a payload to the socket
+   * @param type payload type
+   * @param data data to send, null if empty
+   */
   send(type: PayloadType, data: any = null) {
     this.assertAlive();
     this.ws.send(JSON.stringify({ type, data }));
@@ -52,21 +58,25 @@ export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
     return SocketContext.socketLog;
   }
 
+  /** The scope this socket is connected to */
   get scope() {
     this.assertAlive();
     return this.adapter.sockets.get(this.ws)!;
   }
 
+  /** Whether the socket has authenticated with the server */
   get authenticated() {
     this.assertAlive();
     return this.adapter.isAuthenticated(this.ws);
   }
 
+  /** Whether the socket is a first-party connection */
   get firstParty() {
     this.assertAlive();
     return this.adapter.isFirstParty(this.ws);
   }
 
+  /** Whether the socket is closed */
   get dead(): boolean {
     return this.adapter.contexts.get(this.ws) !== this;
   }
@@ -88,7 +98,7 @@ const HandlerStructBase: HandlerStruct = {
   handler: null as any
 }
 
-export interface HandlerMetadata {
+interface HandlerMetadata {
   authed: boolean;
   denyAuthed: boolean;
   firstParty: boolean;

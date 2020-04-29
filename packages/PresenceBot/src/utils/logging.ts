@@ -34,7 +34,7 @@ export const log = winston.createLogger({
         winston.format((info, opts = {}) => {
           if (info.name) {
             info.level = `${info.level} ${chalk.magenta(info.name)}`;
-            delete info.name;
+            info.name = undefined;
           }
 
           return info;

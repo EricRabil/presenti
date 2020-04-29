@@ -45,6 +45,7 @@ exports.FirstParty = MetadataSetter("firstParty", true);
 exports.DenyFirstParty = MetadataSetter("denyFirstParty", true);
 exports.DenyAuthed = MetadataSetter("denyAuthed", true);
 exports.FIRST_PARTY_SCOPE = Symbol("FIRST_PARTY");
+/** Contextual wrapper for socket connections */
 class SocketContext {
     constructor(ws, adapter) {
         this.ws = ws;
@@ -54,6 +55,11 @@ class SocketContext {
     close() {
         this.ws.close();
     }
+    /**
+     * Sends a payload to the socket
+     * @param type payload type
+     * @param data data to send, null if empty
+     */
     send(type, data = null) {
         this.assertAlive();
         this.ws.send(JSON.stringify({ type, data }));
@@ -62,18 +68,22 @@ class SocketContext {
     get log() {
         return SocketContext.socketLog;
     }
+    /** The scope this socket is connected to */
     get scope() {
         this.assertAlive();
         return this.adapter.sockets.get(this.ws);
     }
+    /** Whether the socket has authenticated with the server */
     get authenticated() {
         this.assertAlive();
         return this.adapter.isAuthenticated(this.ws);
     }
+    /** Whether the socket is a first-party connection */
     get firstParty() {
         this.assertAlive();
         return this.adapter.isFirstParty(this.ws);
     }
+    /** Whether the socket is closed */
     get dead() {
         return this.adapter.contexts.get(this.ws) !== this;
     }

@@ -5,6 +5,10 @@ import PresentiOAuthAPI from "./api/oauth-api";
 
 export namespace WebRoutes {
   var initialized = false;
+  /**
+   * Binds all API routes to the app
+   * @param app uws app
+   */
   export function initialize(app: TemplatedApp) {
     if (initialized) return;
     const frontend = new Frontend(app);

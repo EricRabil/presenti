@@ -12,6 +12,7 @@ import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middlew
 import { API_ROUTES } from "remote-presence-utils";
 import { RouteData } from "../utils/web/utils";
 
+/** Frontend routes */
 export default class Frontend extends RestAPIBase {
   static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "views");
   static readonly STATIC_DIRECTORY = path.resolve(__dirname, "..", "..", "assets");
@@ -33,22 +34,26 @@ export default class Frontend extends RestAPIBase {
     return super.buildStack(metadata, [UserLoader()].concat(middleware), headers.concat('authorization'));
   }
 
+  /** Renders the login page */
   @Route("/login", "get")
   loginView(req: PBRequest, res: PBResponse) {
     res.render('login', { signup: CONFIG.registration });
   }
 
+  /** Renders the signup page, if registration is enabled */
   @Route("/signup", "get")
   signupView(req: PBRequest, res: PBResponse) {
     if (!CONFIG.registration) return notFound(res);
     res.render('signup');
   }
 
+  /** Renders the change password page, if the user is signed in */
   @Route("/changepw", "get", IdentityGuardFrontend)
   changePassword(req: PBRequest, res: PBResponse) {
     res.render('changepw');
   }
 
+  /** Called upon change password form submission, accepts "password" and "newPassword" in the form body */
   @Route("/changepw", "post", IdentityGuardFrontend, BodyParser)
   async changePasswordComplete(req: PBRequest, res: PBResponse) {
     const fail = (msg: string) => res.render('changepw', { error: msg });
@@ -67,6 +72,7 @@ export default class Frontend extends RestAPIBase {
     res.render('changepw', { message: 'Your password has been changed. All existing tokens have been invalidated.' });
   }
 
+  /** Called upon signup form submission, accepts "id" and "password" in the form body */
   @Route("/signup", "post", BodyParser)
   async signupComplete(req: PBRequest, res: PBResponse) {
     if (!CONFIG.registration) return notFound(res);
@@ -89,12 +95,14 @@ export default class Frontend extends RestAPIBase {
     res.redirect('/');
   }
 
+  /** Called to sign out the user */
   @Route("/logout", "get")
   logout(req: PBRequest, res: PBResponse) {
     res.setCookie('identity', '', { maxAge: 0 });
     res.redirect('/');
   }
 
+  /** Called upon login form submission, accepts "id" and "password" in form submission */
   @Route("/login", "post", BodyParser)
   async loginComplete(req: PBRequest, res: PBResponse) {
     const fail = () => res.render('login', { error: 'Invalid credentials.' });
@@ -113,6 +121,7 @@ export default class Frontend extends RestAPIBase {
     res.redirect('/');
   }
 
+  /** Renders the panel if signed in, and the login page otherwise */
   @Route("/", "any")
   rootHandler(req: PBRequest, res: PBResponse) {
     if (!res.user) {
@@ -123,11 +132,13 @@ export default class Frontend extends RestAPIBase {
     res.redirect('/panel');
   }
 
+  /** Renders the panel home page */
   @Route("/panel", "get", IdentityGuardFrontend)
   panelView(req: PBRequest, res: PBResponse) {
     res.render('panel');
   }
 
+  /** Serves assets for the presenti renderer */
   @Route("/p-assets/*", "get")
   async presentiAssets(req: PBRequest, res: PBResponse) {
     const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
@@ -140,6 +151,7 @@ export default class Frontend extends RestAPIBase {
     await res.file(absolute);
   }
 
+  /** Serves the page for the presenti renderer */
   @Route("/renderer", "get")
   renderer(req: PBRequest, res: PBResponse) {
     const params = new URLSearchParams(req.getQuery());
@@ -151,6 +163,7 @@ export default class Frontend extends RestAPIBase {
     res.render('presenti', options);
   }
 
+  /** Serves static assets for the panel */
   @Route("/assets/*", "get")
   async staticAsset(req: PBRequest, res: PBResponse) {
     const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
@@ -163,17 +176,20 @@ export default class Frontend extends RestAPIBase {
     await res.file(absolute);
   }
 
+  /** Resolves template files */
   static resolve(file: string) {
     if (!file.endsWith('.pug')) file = `${file}.pug`;
     return path.resolve(Frontend.VIEWS_DIRECTORY, file);
   }
 
+  /** Resolves static assets */
   static resolveStatic(file: string) {
     const resolved = path.resolve(Frontend.STATIC_DIRECTORY, file);
     if (!resolved.startsWith(Frontend.STATIC_DIRECTORY)) return null;
     return resolved;
   }
 
+  /** Resolves presenti-renderer assets */
   static async resolvePresenti(file: string) {
     let resolved = path.resolve(Frontend.PRESENTI_ASSET_DIRECTORY, file);
     if (!resolved.startsWith(Frontend.PRESENTI_ASSET_DIRECTORY)) return null;

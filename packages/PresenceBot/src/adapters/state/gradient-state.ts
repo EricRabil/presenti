@@ -95,8 +95,8 @@ export class GradientState extends StateAdapter {
     const presence = await GradientState.gradientActivityForScope(scope);
     const shades = await GradientState.shadeForPresence(presence);
     if (!shades) {
-      delete this.shades[scope];
-      delete this.rotationMap[scope];
+      this.shades[scope] = undefined!;
+      this.rotationMap[scope] = undefined!;
       return;
     }
 

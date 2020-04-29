@@ -116,6 +116,7 @@ export namespace SecurityKit {
     return null;
   }
 
+  /** Returns the UUID associated with a token, or null */
   export async function validate(token: string): Promise<string | null> {
     return verify(token).then(data => (data || {}).uuid);
   }

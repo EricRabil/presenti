@@ -181,8 +181,8 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
     this.log.debug("Destroying session", { sessionID: session, user: this.sessionIndex[session] });
 
     this.clearExpiry(session);
-    delete this.sessionIndex[session];
-    delete this.presenceLedger[session];
+    this.sessionIndex[session] = undefined!;
+    this.presenceLedger[session] = undefined!;
   }
   
   /**

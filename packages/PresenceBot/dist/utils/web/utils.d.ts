@@ -1,15 +1,19 @@
-/// <reference types="node" />
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 export declare class MiddlewareTimeoutError extends Error {
 }
+/** Metadata for a Route */
 export interface RouteData {
+    /** absolute path for the route */
     path: string;
+    /** request method for the route */
     method: HTTPMethod;
+    /** property on the class that represents the route */
     property: string;
+    /** any middleware to be called before handler execution */
     middleware: RequestHandler[];
 }
-export declare function toArrayBuffer(buffer: Buffer): ArrayBuffer;
+/** Headers for common responses */
 export declare const Responses: Record<string, [string, string]>;
 /** Adds functions to an HttpRequest to meet the PBRequest specification */
 export declare function wrapRequest(req: HttpRequest, res: PBResponse): PBRequest;

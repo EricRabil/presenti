@@ -16,11 +16,6 @@ export declare class User extends BaseEntity {
     setPassword(password: string): Promise<void>;
     checkPassword(password: string): Promise<boolean>;
     /**
-     * Returns a link code that expires after some time
-     */
-    linkCode(): Promise<string>;
-    testLinkCode(code: string): Promise<boolean>;
-    /**
      * These require a password because they are used to generate API keys.
      * @param password password
      */

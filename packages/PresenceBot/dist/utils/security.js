@@ -119,6 +119,7 @@ var SecurityKit;
         return null;
     }
     SecurityKit.validateApiKey = validateApiKey;
+    /** Returns the UUID associated with a token, or null */
     async function validate(token) {
         return verify(token).then(data => (data || {}).uuid);
     }

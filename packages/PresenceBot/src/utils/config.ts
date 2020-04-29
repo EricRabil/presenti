@@ -1,6 +1,5 @@
 import fs from "fs-extra";
 import path from "path";
-import inquirer from "inquirer";
 import { log } from "./logging";
 
 export interface ConfigurationStruct {

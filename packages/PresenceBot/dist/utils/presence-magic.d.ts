@@ -14,5 +14,9 @@ export declare namespace PresenceMagic {
      * @param evented
      */
     function createPresenceProxy<T extends Record<string, object>>(changed: (scope: string) => any): T;
+    /**
+     * Creates a Proxy that condenses a bunch of Presence objects for a scope into a single presence list
+     * @param ledger ledger of scopes to their various scope objects
+     */
     function createPresenceDictCondenser(ledger: Record<string, PresenceDictionary>): Record<string, PresenceList>;
 }

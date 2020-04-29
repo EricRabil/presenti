@@ -25,6 +25,7 @@ export const Put = BuildRouteShorthand("put");
 export const Any = BuildRouteShorthand("any");
 export const Options = BuildRouteShorthand("options");
 
+/** set headers that the route will access */
 export function Headers(...headers: string[]): any {
   return function (target: any, property: string, descriptor: PropertyDecorator) {
     const fn = target[property];
@@ -32,6 +33,11 @@ export function Headers(...headers: string[]): any {
   }
 }
 
+/**
+ * Returns empty Route metadata
+ * @param path route path
+ * @param method request method
+ */
 export function RouteDataShell(path: string, method: HTTPMethod = "any"): RouteData {
   return {
     path,
@@ -41,6 +47,7 @@ export function RouteDataShell(path: string, method: HTTPMethod = "any"): RouteD
   }
 }
 
+/** synchronous handler for all requests - deals with use-after-free preventions and adds an onAborted handler */
 function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: string[] = []): typeof exec {
   return (res, req) => {
     res.onAborted(() => {

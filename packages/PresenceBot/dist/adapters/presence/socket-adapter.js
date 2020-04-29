@@ -51,11 +51,11 @@ class RemoteAdatpterV2 extends socket_api_base_1.SocketAPIAdapter {
         var scopes = [];
         if (wasFirstParty && this.firstPartyPresenceLedger[id]) {
             scopes = Object.keys(this.firstPartyPresenceLedger[id]);
-            delete this.firstPartyPresenceLedger[id];
+            this.firstPartyPresenceLedger[id] = undefined;
         }
         else if (this.thirdPartyPresenceLedger[id]) {
             scopes = Object.keys(this.thirdPartyPresenceLedger[id]);
-            delete this.thirdPartyPresenceLedger[id];
+            this.thirdPartyPresenceLedger[id] = undefined;
         }
         scopes.forEach(scope => this.emit("updated", scope));
     }

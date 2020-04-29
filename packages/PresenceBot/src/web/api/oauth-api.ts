@@ -14,17 +14,20 @@ import { OAuthLink } from "../../database/entities/OAuthLink";
 const DISCORD_REDIRECT = (host: string) => `http://${host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;
 
+/** API for linking with OAuth services */
 @API("/api/oauth")
 @GlobalGuards(UserLoader(), IdentityGuard, DenyFirstPartyGuard)
 export default class PresentiOAuthAPI extends PresentiAPIFoundation {
   log = log.child({ name: "OAuthAPI-REST" })
 
+  /** Initialize Discord OAuth flow */
   @Get("/discord")
   async redirectToDiscord(req: PBRequest, res: PBResponse) {
     if (this.disableDiscordAPIs) return notFoundAPI(res);
     res.redirect(DISCORD_CALLBACK(req.getHeader('host')));
   }
 
+  /** Unlink from Discord */
   @Get("/discord/unlink")
   async unlinkDiscord(req: PBRequest, res: PBResponse) {
     if (this.disableDiscordAPIs) return notFoundAPI(res);
@@ -37,11 +40,17 @@ export default class PresentiOAuthAPI extends PresentiAPIFoundation {
     res.redirect('/');
   }
 
+  /**
+   * Removes an OAuth query if it exists
+   * @param query.platform the oauth platform to remove
+   * @param query.userUUID the user to clear the link for
+   */
   async removeLinkIfExists(query: {platform: OAUTH_PLATFORM, userUUID: string}) {
     const link = await OAuthLink.findOne(query);
     if (link) await link.remove();
   }
 
+  /** Called by Discord upon OAuth completion */
   @Get("/discord/callback")
   async discordCallback(req: PBRequest, res: PBResponse) {
     if (this.disableDiscordAPIs) return notFoundAPI(res);
@@ -97,6 +106,7 @@ export default class PresentiOAuthAPI extends PresentiAPIFoundation {
     res.redirect('/');
   }
 
+  /** Whether Discord OAuth APIs should be enabled */
   get disableDiscordAPIs() {
     return !CONFIG.discord || !CONFIG.discord.clientID || !CONFIG.discord.clientSecret;
   }

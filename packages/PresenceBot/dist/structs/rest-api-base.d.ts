@@ -9,7 +9,13 @@ export declare const Delete: (path: string, ...middleware: RequestHandler[]) => 
 export declare const Put: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
 export declare const Any: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
 export declare const Options: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+/** set headers that the route will access */
 export declare function Headers(...headers: string[]): any;
+/**
+ * Returns empty Route metadata
+ * @param path route path
+ * @param method request method
+ */
 export declare function RouteDataShell(path: string, method?: HTTPMethod): RouteData;
 /** Foundation for any HTTP-based service */
 export default class RestAPIBase {

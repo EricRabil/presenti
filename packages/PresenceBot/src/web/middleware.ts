@@ -3,14 +3,16 @@ import { SecurityKit } from "../utils/security";
 import { FIRST_PARTY_SCOPE } from "../structs/socket-api-base";
 import { RequestHandler } from "../utils/web/types";
 
+/** Returns a 401 if the request is not authenticated */
 export const IdentityGuard: RequestHandler = async (req, res, next) => {
   if (!res.user) {
-    res.writeStatus(401).json({ e: 401, msg: "Invalid identity token." });
+    res.error("Invalid identity token.", 401);
     return next(true);
   }
   next();
 }
 
+/** Renders an authentication error if the request is not authenticated */
 export const IdentityGuardFrontend: RequestHandler = async (req, res, next) => {
   if (!res.user) {
     res.render('login', { error: 'You must be logged in to perform this action.', signup: CONFIG.registration });
@@ -19,6 +21,7 @@ export const IdentityGuardFrontend: RequestHandler = async (req, res, next) => {
   next();
 }
 
+/** Blocks first-party requests to an endpoint */
 export const DenyFirstPartyGuard: RequestHandler = async (req, res, next) => {
   if (res.user === (FIRST_PARTY_SCOPE as any)) {
     res.writeStatus(403).json({ error: "First-parties may not call this endpoint." });
@@ -27,6 +30,7 @@ export const DenyFirstPartyGuard: RequestHandler = async (req, res, next) => {
   next();
 }
 
+/** Only accepts first-party requests to an endpoint */
 export const FirstPartyGuard: RequestHandler = async (req, res, next) => {
   if (res.user !== (FIRST_PARTY_SCOPE as any)) {
     res.writeStatus(403).json({ error: "You are not authorized to use this endpoint." });

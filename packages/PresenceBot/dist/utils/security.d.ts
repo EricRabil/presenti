@@ -24,6 +24,7 @@ export declare namespace SecurityKit {
      * Validates an API key against a user or the first-party rules
      * @param apiKey api to validate
      */
-    function validateApiKey(apiKey: string): Promise<User | typeof FIRST_PARTY_SCOPE | null>;
+    function validateApiKey(apiKey: string): Promise<typeof FIRST_PARTY_SCOPE | User | null>;
+    /** Returns the UUID associated with a token, or null */
     function validate(token: string): Promise<string | null>;
 }

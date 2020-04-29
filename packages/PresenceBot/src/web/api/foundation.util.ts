@@ -23,8 +23,11 @@ export function GlobalGuards(...middleware: RequestHandler[]) {
   }
 }
 
+/** Base class for API endpoints */
 export default class PresentiAPIFoundation extends RestAPIBase {
+  /** prefix for the API routes encapsulated within the class */
   static prefix: string = "";
+  /** middleware to be injected into all API routes */
   static middleware: RequestHandler[] = [];
 
   constructor(app: TemplatedApp) {
@@ -32,6 +35,7 @@ export default class PresentiAPIFoundation extends RestAPIBase {
   }
 
   loadRoutes() {
+    /** Prepends all routes with the prefixed path */
     this._routes = this._routes.map(metadata => {
       metadata.path = `${(this.constructor as IPresentiAPIFoundation<this>).prefix}${metadata.path}`;
       return metadata;
@@ -41,6 +45,7 @@ export default class PresentiAPIFoundation extends RestAPIBase {
   }
   
   buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
+    /** Prepends all middleware with the configured middleware */
     return super.buildStack(metadata, (this.constructor as IPresentiAPIFoundation<this>).middleware.concat(middleware), headers.concat('authorization', 'host'));
   }
 }

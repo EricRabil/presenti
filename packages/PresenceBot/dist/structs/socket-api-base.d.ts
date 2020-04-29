@@ -8,6 +8,7 @@ export declare const DenyFirstParty: (value?: boolean) => <T extends SocketAPIAd
 export declare const DenyAuthed: (value?: boolean) => <T extends SocketAPIAdapter>(target: T, property: keyof T, descriptor?: PropertyDescriptor | undefined) => void;
 export declare type PayloadHandler = (ws: WebSocket, data: any) => any;
 export declare const FIRST_PARTY_SCOPE: unique symbol;
+/** Contextual wrapper for socket connections */
 export declare class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
     readonly ws: WebSocket;
     private adapter;
@@ -15,11 +16,20 @@ export declare class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter
     readonly id: string;
     constructor(ws: WebSocket, adapter: T);
     close(): void;
+    /**
+     * Sends a payload to the socket
+     * @param type payload type
+     * @param data data to send, null if empty
+     */
     send(type: PayloadType, data?: any): void;
     private get log();
+    /** The scope this socket is connected to */
     get scope(): string | typeof FIRST_PARTY_SCOPE;
+    /** Whether the socket has authenticated with the server */
     get authenticated(): boolean;
+    /** Whether the socket is a first-party connection */
     get firstParty(): boolean;
+    /** Whether the socket is closed */
     get dead(): boolean;
     private assertAlive;
 }
@@ -27,7 +37,7 @@ interface HandlerStruct<T = any> {
     property: keyof T;
     handler: Function;
 }
-export interface HandlerMetadata {
+interface HandlerMetadata {
     authed: boolean;
     denyAuthed: boolean;
     firstParty: boolean;

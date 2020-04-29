@@ -177,8 +177,8 @@ class RESTAdapterV2 extends scoped_adapter_1.ScopedPresenceAdapter {
     destroySession(session) {
         this.log.debug("Destroying session", { sessionID: session, user: this.sessionIndex[session] });
         this.clearExpiry(session);
-        delete this.sessionIndex[session];
-        delete this.presenceLedger[session];
+        this.sessionIndex[session] = undefined;
+        this.presenceLedger[session] = undefined;
     }
     /**
      * Clears the expiration timeout for a session

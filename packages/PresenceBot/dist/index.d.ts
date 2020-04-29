@@ -9,13 +9,21 @@ import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
 export declare class PresenceService {
     private port;
     private userQuery;
+    /** Supervisor that tracks supervisors */
     supervisor: MasterSupervisor;
+    /** WebSocket and Web server */
     app: TemplatedApp;
+    /** Record of <scope, connections> */
     clients: Record<string, WebSocket[]>;
+    /** Record of <connection, scope> */
     idMap: Map<WebSocket, string>;
+    /** Record of <scope, latest payload> */
     scopedPayloads: Record<string, Record<string, any>>;
+    /** Record of latest global payload */
     globalPayload: Record<string, any>;
+    /** reference to the adapter supervisor */
     adapterSupervisor: AdapterSupervisor;
+    /** logging instance */
     log: import("winston").Logger;
     constructor(port: number, userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>);
     /**
@@ -33,13 +41,20 @@ export declare class PresenceService {
      * Registers all adapters with the supervisor
      */
     registerAdapters(): void;
+    /** Registers state adapters with the supervisor */
     registerStates(): void;
     /**
      * Dispatches the latest presence state to the given selector
      * @param selector selector to dispatch to
      */
     dispatchToSelector(selector: string, refresh?: boolean): Promise<void>;
-    payloadForSelector(selector: string, newSocket?: boolean, refresh?: boolean): Promise<Record<string, any>>;
+    /**
+     * Returns the latest payload for a scope, querying adapters if none has been cached already
+     * @param scope
+     * @param newSocket is this payload being sent for a new connection?
+     * @param refresh should the cache be refreshed?
+     */
+    payloadForSelector(scope: string, newSocket?: boolean, refresh?: boolean): Promise<Record<string, any>>;
     /**
      * Dispatches to a set of selectors, or all connected users
      * @param selector selectors to dispatch to

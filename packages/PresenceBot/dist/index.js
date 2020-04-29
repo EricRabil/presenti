@@ -17,15 +17,22 @@ class PresenceService {
     constructor(port, userQuery) {
         this.port = port;
         this.userQuery = userQuery;
+        /** Supervisor that tracks supervisors */
         this.supervisor = new master_supervisor_1.MasterSupervisor();
+        /** Record of <scope, connections> */
         this.clients = {};
+        /** Record of <connection, scope> */
         this.idMap = new Map();
+        /** Record of <scope, latest payload> */
         this.scopedPayloads = {};
+        /** Record of latest global payload */
         this.globalPayload = {};
+        /** logging instance */
         this.log = logging_1.log.child({ name: "Presenti" });
         this.app = uWebSockets_js_1.App();
         this.supervisor = new master_supervisor_1.MasterSupervisor();
         this.supervisor.on("updated", (scope) => this.dispatch(scope, true));
+        /** presence streaming endpoint */
         this.app.ws('/presence/:id', {
             open: async (ws, req) => {
                 const id = req.getParameter(0);
@@ -92,6 +99,7 @@ class PresenceService {
         adapterSupervisor.register(new rest_adapter_1.RESTAdapterV2(this.app));
         this.supervisor.register(adapterSupervisor);
     }
+    /** Registers state adapters with the supervisor */
     registerStates() {
         const stateSupervisor = new state_supervisor_1.StateSupervisor();
         stateSupervisor.register(new gradient_state_1.GradientState());
@@ -108,12 +116,18 @@ class PresenceService {
         const payload = JSON.stringify(await this.payloadForSelector(selector, false, refresh));
         await Promise.all(clients.map(client => (client.send(payload))));
     }
-    async payloadForSelector(selector, newSocket = false, refresh = false) {
-        if (!this.scopedPayloads[selector] || refresh)
-            this.scopedPayloads[selector] = await this.supervisor.scopedData(selector, newSocket);
+    /**
+     * Returns the latest payload for a scope, querying adapters if none has been cached already
+     * @param scope
+     * @param newSocket is this payload being sent for a new connection?
+     * @param refresh should the cache be refreshed?
+     */
+    async payloadForSelector(scope, newSocket = false, refresh = false) {
+        if (!this.scopedPayloads[scope] || refresh)
+            this.scopedPayloads[scope] = await this.supervisor.scopedData(scope, newSocket);
         if (!this.globalPayload)
             this.globalPayload = await this.supervisor.globalData(newSocket);
-        return Object.assign({}, this.globalPayload, this.scopedPayloads[selector]);
+        return Object.assign({}, this.globalPayload, this.scopedPayloads[scope]);
     }
     /**
      * Dispatches to a set of selectors, or all connected users
