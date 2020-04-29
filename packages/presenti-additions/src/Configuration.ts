@@ -9,6 +9,9 @@ export interface ConfigurationStruct {
     token: string | null;
     logging: boolean;
   };
+  spotifyInternal: {
+    key: string | null;
+  };
   discord: {
     token: string;
     prefix: string;
@@ -27,6 +30,9 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     host: null,
     token: null,
     logging: true
+  },
+  spotifyInternal: {
+    key: null
   },
   discord: false,
   db: {

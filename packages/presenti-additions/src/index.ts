@@ -13,6 +13,7 @@ export class PresentiAdditionsService {
   database: Database = new Database();
   presences: Record<string, {presences: PresenceList }> = {};
   privateSpotifyAdapter: PrivateSpotifyAdapter;
+  discordAdapter: DiscordAdapter;
 
   async run() {
     await this.ensureConfig();
@@ -36,7 +37,7 @@ export class PresentiAdditionsService {
     this.supervisor.on("updated", scope => this.updateAndDispatch(scope!));
 
     this.supervisor.register(this.privateSpotifyAdapter = new PrivateSpotifyAdapter());
-    if (CONFIG.discord) this.supervisor.register(new DiscordAdapter(CONFIG.discord, this));
+    if (CONFIG.discord) this.supervisor.register(this.discordAdapter = new DiscordAdapter(CONFIG.discord, this));
 
     await this.supervisor.run();
   }

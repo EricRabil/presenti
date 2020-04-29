@@ -1,9 +1,10 @@
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { PresenceList, PresenceDictionary } from "presenti/dist/utils/presence-magic";
 import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
-import { AdapterState } from "remote-presence-utils";
-
-const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
+import { AdapterState, OAUTH_PLATFORM } from "remote-presence-utils";
+import { PresencePipe } from "../db/entities/Pipe";
+import { EventBus, Events } from "../event-bus";
+import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";
 
 interface SpotifyStorage {
   /** Format of Record<scope, headers> */
@@ -42,34 +43,33 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   }
 
   async run(): Promise<void> {
-    const container = await this.container();
-    await Promise.all(
-      Object.entries(container.data.scopeBindings)
-            .map(([scope, cookies]) => this.registerScope(scope, cookies))
-    );
+    EventBus.on(Events.PIPE_CREATE, pipe => {
+      if (pipe.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
+      this.registerScope(pipe.scope, pipe.platformID);
+    });
+
+    EventBus.on(Events.PIPE_DESTROY, pipe => {
+      if (pipe.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
+      this.deregisterScope(pipe.scope);
+      this.emit("updated", pipe.scope);
+    });
+
+    await this.reloadClients();
 
     this.state = AdapterState.RUNNING;
   }
 
-  async setCookies(scope: string, cookies: string | undefined) {
-    const container = await this.container();
-    const oldCookies = container.data.scopeBindings[scope];
-    if (oldCookies === cookies) return;
+  async reloadClients() {
+    const pipes = await PresencePipe.find({
+      platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL
+    });
 
-    this.deregisterScope(scope);
-
-    if (cookies) {
-      container.data.scopeBindings[scope] = cookies;
-      this.registerScope(scope, cookies);
-    } else {
-      delete container.data.scopeBindings[scope];
-      this.emit("updated", scope);
-    }
-
-    await container.save();
+    await Promise.all(pipes.map(({ scope, platformID: cookies }) => this.registerScope(scope, cookies)));
   }
 
-  registerScope(scope: string, cookies: string) {
+  async registerScope(scope: string, encryptedCookies: string) {
+    const cookies = await SpotifyInternalKit.decryptCookies(encryptedCookies);
+
     const client = new SpotifyPrivateClient(cookies);
     client.on("updated", () => this.emit("updated", scope));
     
@@ -84,5 +84,6 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
 
     client.close();
     delete this.clients[scope];
+    this.emit("updated", scope);
   }
 }

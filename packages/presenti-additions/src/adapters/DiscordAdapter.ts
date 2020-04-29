@@ -1,11 +1,13 @@
-import crypto from "crypto";
+import { Client, ClientApplication, Util } from "discord.js";
 import got from "got";
-import { PresenceAdapter, AdapterState, Presence, PresenceStruct, PresenceBuilder } from "remote-presence-utils";
-import { Client, Activity, Util, ClientApplication } from "discord.js";
+import { PresenceDictionary } from "presenti/dist/utils/presence-magic";
+import { AdapterState, PresenceBuilder, PresenceStruct, OAUTH_PLATFORM } from "remote-presence-utils";
+import { PresentiAdditionsService } from "..";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { log } from "../utils";
-import { PresentiAdditionsService } from "..";
-import { PresenceDictionary } from "presenti/dist/utils/presence-magic";
+import { DiscordAPI } from "../api/discord";
+import { EventBus, Events } from "../event-bus";
+import { PresencePipe } from "../db/entities/Pipe";
 
 export interface DiscordAdapterOptions {
   token: string;
@@ -54,19 +56,17 @@ const DEFAULT_STORAGE: DiscordStorage = {
   spotifyWhitelist: []
 }
 
-/**
- * This cannot be piped remotely.
- */
 export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   client: Client;
   iconRegistry: Record<string, DiscordIconMap> = {};
   log = log.child({ name: "DiscordAdapter" });
-  linkLocks: Record<string, ReturnType<typeof setTimeout>> = {};
-  linkLockWarns: Record<string, boolean | undefined> = {};
   clientData: ClientApplication;
+  botAPI: DiscordAPI;
+  pipeLedger: Record<string, string> = {};
 
   constructor(public readonly options: DiscordAdapterOptions, private service: PresentiAdditionsService) {
     super("com.ericrabil.discord", DEFAULT_STORAGE);
+    this.botAPI = new DiscordAPI(service);
   }
 
   state: AdapterState = AdapterState.READY;
@@ -79,161 +79,32 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     const data: DiscordIconMap[] = await got("https://gist.github.com/EricRabil/b8c959c0abfe0c5628c31ca85ac985dd/raw/").json();
     data.forEach(map => this.iconRegistry[map.id] = map);
 
+    await this.reloadPipeLedger();
+    this.log.info(`Loaded pipe ledger with ${Object.keys(this.pipeLedger).length} entry(s)`)
     await this.client.login(this.options.token);
 
     this.client.on("presenceUpdate", async (_, presence) => {
       const id = presence.user?.id || presence.member?.id || (presence as any)['userID'];
       if (!id) return;
+      if (!this.pipeLedger[id]) return;
+      this.emit("updated", this.pipeLedger[id]);
+    });
 
-      const storage = await this.container();
-      const scopes = Object.entries(storage.data.scopeBindings).filter(([,snowflake]) => snowflake === id).map(([scope]) => scope);
-      if (scopes.length === 0) return;
+    EventBus.on(Events.PIPE_CREATE, pipe => {
+      if (pipe.platform !== OAUTH_PLATFORM.DISCORD) return;
+      this.pipeLedger[pipe.platformID] = pipe.scope;
+      this.emit("updated", pipe.scope);
+    });
 
-      scopes.forEach(scope => this.emit("updated", scope));
+    EventBus.on(Events.PIPE_DESTROY, pipe => {
+      if (pipe.platform !== OAUTH_PLATFORM.DISCORD) return;
+      delete this.pipeLedger[pipe.platformID];
+      this.emit("updated", pipe.scope);
     });
 
     this.client.on("message", async (message) => {
       if (!message.cleanContent.startsWith(this.options.prefix)) return;
-      const [ command, ...args ] = message.cleanContent.substring(this.options.prefix.length).split(" ");
-
-      switch (command) {
-        case "link": {
-          if (message.channel.type !== "dm") return message.delete().then(() => message.channel.send(`<@${message.author.id}>, please run \`!link\` over DM. It is insecure to post your link code in public channels.`));
-          if (this.linkLocks[message.author.id]) {
-            this.deferLinkLock(message.author.id);
-            if (!this.linkLockWarns[message.author.id]) {
-              message.reply("Sorry! You can only run `!link` once every few seconds. Please wait a few moments, then try again.");
-              this.linkLockWarns[message.author.id] = true;
-            }
-            return;
-          }
-          const [ userID, code ] = args;
-          if (!code || !userID) return message.reply(`Usage: \`${this.options.prefix}link {userID} {code}\``);
-          const storage = await this.container();
-          
-          if (storage.data.scopeBindings[userID] === message.author.id) return message.reply(`You are already linked to \`${Util.removeMentions(userID)}\``)
-
-          this.deferLinkLock(message.author.id);
-
-          const success = await this.service.client.validateCode(userID, code);
-          if (!success) return message.reply(`Sorry, the link code you provided is either invalid or expired.`);
-
-          storage.data.scopeBindings[userID] = message.author.id;
-          await storage.save();
-
-          this.emit("updated", userID);
-          message.reply(`Presences for <@${message.author.id}> will now pipe to \`${Util.removeMentions(userID)}\``)
-          break;
-        }
-        case "unlink": {
-          const [ userID ] = args;
-          if (!userID) return message.reply(`Usage: \`${this.options.prefix}unlink {userID}\``);
-
-          const storage = await this.container();
-          if (storage.data.scopeBindings[userID] !== message.author.id) return message.reply(`Sorry, ${Util.removeMentions(userID)} is not linked to your account.`);
-
-          delete storage.data.scopeBindings[userID];
-          await storage.save();
-
-          message.reply(`Successfully unlinked ${Util.removeMentions(userID)} from your account.`);
-
-          this.emit("updated", userID);
-          break;
-        }
-        case "link-state": {
-          const storage = await this.container();
-          const scopes = Object.entries(storage.data.scopeBindings).filter(([scope, snowflake]) => snowflake === message.author.id).map(([scope]) => Util.removeMentions(scope));
-
-          if (scopes.length === 1) message.reply(`You are currently linked to \`${scopes[0]}\``)
-          else if (scopes.length > 1) message.reply(`\`\`\`md\n# Here are the scopes linked to your account:\n\n${scopes.map(scope => `- ${scope}`).join("\n")}\n\`\`\``);
-          else message.reply(`You are not linked to any users right now.`);
-          break;
-        }
-        case "s-approve": {
-          if (message.author.id !== this.clientData.owner?.id) {
-            return message.reply("Sorry, only the bot owner can approve access to the private Spotify adapter.");
-          }
-
-          const storage = await this.container();
-          const whitelist = (storage.data.spotifyWhitelist || (storage.data.spotifyWhitelist = []));
-          const toAdd = message.mentions.users.map(u => u.id).filter(id => !whitelist.includes(id));
-          storage.data.spotifyWhitelist = storage.data.spotifyWhitelist.concat(toAdd);
-          await storage.save();
-
-          return message.reply(`\`\`\`md\n# Added the following users to the whitelist:\n\n${message.mentions.users.map(u => `- ${u.username}#${u.discriminator}`).join("\n")}\n\`\`\``);
-        }
-        case "s-revoke": {
-          if (message.author.id !== this.clientData.owner?.id) {
-            return message.reply("Sorry, only the bot owner can approve access to the private Spotify adapter.");
-          }
-
-          const storage = await this.container();
-          const whitelist = (storage.data.spotifyWhitelist || (storage.data.spotifyWhitelist = []));
-          const toRemove = message.mentions.users.map(u => u.id).filter(id => whitelist.includes(id));
-          storage.data.spotifyWhitelist = storage.data.spotifyWhitelist.filter(id => !toRemove.includes(id));
-          await storage.save();
-
-          return message.reply(`\`\`\`md\n# Removed the following users from the whitelist:\n\n${message.mentions.users.map(u => `- ${u.username}#${u.discriminator}`).join("\n")}\n\`\`\``);
-        }
-        case "s-whitelist": {
-          if (message.author.id !== this.clientData.owner?.id) {
-            return message.reply("Sorry, only the bot owner can approve access to the private Spotify adapter.");
-          }
-
-          const storage = await this.container();
-          const whitelist = (storage.data.spotifyWhitelist || (storage.data.spotifyWhitelist = []));
-          const users = whitelist.map(id => this.client.users.resolve(id)).filter(user => user !== null);
-
-          return message.reply(`\`\`\`md\n# The following users are approved to use the private Spotify adapter:\n\n${users.map(u => `- ${u!.username}#${u!.discriminator}`).join("\n")}\n\`\`\``);
-        }
-        case "s-link": {
-          if (message.channel.type !== "dm") {
-            return message.delete().then(() => message.reply("Please run this command in a DM."));
-          }
-
-          const storage = await this.container();
-          const whitelist = (storage.data.spotifyWhitelist || (storage.data.spotifyWhitelist = []));
-          
-          if (!whitelist.includes(message.author.id)) {
-            return message.reply("Sorry, you are not approved to use the private Spotify adapter.");
-          }
-
-          const [ scope, ...cookieParts ] = args;
-          const cookies = cookieParts.join(" ");
-
-          if ((await this.discordSnowflakeForScope(scope)) !== message.author.id) {
-            return message.reply("Sorry, you must link your spotify status to a scope you are linked to.");
-          }
-
-          await this.service.privateSpotifyAdapter.setCookies(scope, cookies);
-
-          message.reply(`\`\`\`md\n# Linked your Spotify account.\n\n- We linked the cookies you provided to the scope "${scope}"\n- It is highly recommended that you delete that message, as it contains credentials that anyone could use to compromise your account.\n\`\`\``);
-          return;
-        }
-        case "s-unlink": {
-          const storage = await this.container();
-          const whitelist = (storage.data.spotifyWhitelist || (storage.data.spotifyWhitelist = []));
-          
-          if (!whitelist.includes(message.author.id)) {
-            return message.reply("Sorry, you are not approved to use the private Spotify adapter.");
-          }
-
-          const [ scope ] = args;
-
-          if ((await this.discordSnowflakeForScope(scope)) !== message.author.id) {
-            return message.reply("Sorry, you must link your spotify status to a scope you are linked to.");
-          }
-
-          await this.service.privateSpotifyAdapter.setCookies(scope, undefined);
-
-          return message.reply("Your Spotify account has been unlinked from that scope.");
-        }
-        case "help": {
-          const commands = ["link", "unlink", "link-state", "s-link", "s-unlink", "s-link-state", "s-approve"];
-
-          message.reply(`\`\`\`md\n# Commands\n\n${commands.map(c => `- ${this.options.prefix}${c}`).join("\n")}\n\`\`\``);
-        }
-      }
+      this.botAPI.handleMessage(message, message.cleanContent.substring(this.options.prefix.length).split(" ")[0]);
     });
 
     await ready;
@@ -245,15 +116,17 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     this.state = AdapterState.RUNNING;
   }
 
-  deferLinkLock(id: string) {
-    this.linkLocks[id] = setTimeout(() => (delete this.linkLocks[id], delete this.linkLockWarns[id]), 5000);
-    this.linkLockWarns[id] = this.linkLockWarns[id] || false;
+  async reloadPipeLedger() {
+    const pipes = await PresencePipe.find({
+      platform: OAUTH_PLATFORM.DISCORD
+    });
+
+    this.pipeLedger = pipes.reduce((acc, {platformID, scope}) => Object.assign(acc, { [platformID]: scope }), {});
   }
 
   async discordSnowflakeForScope(scope: string) {
-    const container = await this.container();
-    const snowflake = container.data.scopeBindings[scope];
-    return snowflake || null;
+    const entry = Object.entries(this.pipeLedger).find(([,pipeScope]) => pipeScope === scope);
+    return entry && entry[0] || null;
   }
 
   async discordPresences(scope: string) {
