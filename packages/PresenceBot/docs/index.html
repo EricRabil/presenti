@@ -1,0 +1,503 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>presenti</title>
+	<meta name="description" content="Documentation for presenti">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">presenti</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>presenti</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#presencebot" id="presencebot" style="color: inherit; text-decoration: none;">
+					<h1>PresenceBot</h1>
+				</a>
+				<p>Lightweight REST API for retrieving the presence of a set list of Discord users.</p>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting Started</h2>
+				</a>
+				<p>PresenceBot is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.</p>
+				<ol>
+					<li><p>Clone the latest version of PresenceBot using <code>git clone https://github.com/EricRabil/PresenceBot.git</code></p>
+					</li>
+					<li><p>Initialize the modules using <code>npm i</code></p>
+					</li>
+					<li><p>Initialize the service by running <code>node js/run.js</code></p>
+					</li>
+					<li><p>The service will generate a <code>config.json</code> file in the root of the <code>PresenceBot</code> directory - the default port is <code>8138</code>, and tokens are currently stored in this file. <em>I am planning on moving tokens to a database with a REST API for managing them.</em></p>
+						<ol>
+							<li>In the users object of the <code>config.json</code> file, this is the schema:<pre><code class="language-json">{
+<span class="hljs-attr">"users"</span>: {
+ <span class="hljs-attr">"token"</span>: <span class="hljs-string">"name"</span>
+}
+}</code></pre>
+							</li>
+							<li>Choose a secure token (this is your responsibility) and enter a name for this &quot;user&quot; (or scope).</li>
+							<li>Save the file.</li>
+						</ol>
+					</li>
+					<li><p>Now that you&#39;ve configured the service - here are some ways you can run it:</p>
+						<ul>
+							<li><code>pm2 start js/run.js --name=presenti</code></li>
+							<li><code>screen -S presenti &quot;node js/run.js&quot;</code></li>
+							<li><code>node js/run.js</code></li>
+						</ul>
+					</li>
+				</ol>
+				<a href="#streaming-api" id="streaming-api" style="color: inherit; text-decoration: none;">
+					<h2>Streaming API</h2>
+				</a>
+				<p>The Streaming API is for apps that are subscribing to presence data.</p>
+				<a href="#websocket" id="websocket" style="color: inherit; text-decoration: none;">
+					<h3>WebSocket</h3>
+				</a>
+				<blockquote>
+					<p>Currently, the Streaming API only exists on the WebSocket platform. If you have a use case for other platforms, please open an issue.</p>
+				</blockquote>
+				<p>Subscribing to a presence is fairly straightforward. Simply open a connection to</p>
+				<p><code>ws://{host}/presence/{name}</code></p>
+				<p>Where host is the address to your server, and name is the name tied to the token.</p>
+				<p>Presence updates look like this, and are also sent upon connection:</p>
+				<pre><code class="language-json5">{
+  &quot;activities&quot;: [
+    {
+      &quot;title&quot;: &quot;Listening to Spotify&quot;,
+      &quot;largeText&quot;: {
+          &quot;text&quot;: &quot;Issues/Hold On&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      &quot;smallTexts&quot;: [
+          {
+              &quot;text&quot;: &quot;by Teyana Taylor&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a&quot;
+          },
+          {
+              &quot;text&quot;: &quot;on K.T.S.E.&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU&quot;
+          }
+      ],
+      &quot;image&quot;: {
+          &quot;src&quot;: &quot;https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      // unix timestamp representing start/stop of media, omit for no timer
+      &quot;timestamps&quot;: {
+          &quot;start&quot;: 1587431026177,
+          &quot;stop&quot;: 1587431296243
+      },
+      &quot;gradient&quot;: {
+          &quot;enabled&quot;: true
+      },
+      &quot;isPaused&quot;: true,
+      &quot;effective&quot;: 1587420294386
+    }
+  ]
+}</code></pre>
+				<p>This is how that would be rendered</p>
+				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<p>These are the only messages that will be sent by the server. If the connection closes, simply re-open the connection. There is no authentication necessary for this endpoint.</p>
+				<a href="#presence-api" id="presence-api" style="color: inherit; text-decoration: none;">
+					<h2>Presence API</h2>
+				</a>
+				<p>The Presence API is for apps that are providing presence data to the service.</p>
+				<a href="#rest" id="rest" style="color: inherit; text-decoration: none;">
+					<h3>REST</h3>
+				</a>
+				<p>The REST API is useful for platforms in which it is not feasible to maintain a WebSocket connection for updating your presence.</p>
+				<a href="#new-session" id="new-session" style="color: inherit; text-decoration: none;">
+					<h4>New Session</h4>
+				</a>
+				<p><code>GET /session?token={your token}</code></p>
+				<p>Call this endpoint with a valid token to open a new presence session. The session will remain valid for as long as the value of <code>expires</code>, in milliseconds. This is server-configurable, and you can prevent the session from expiring by calling any of the below endpoints.</p>
+				<p><em>Example Response</em></p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"sessionID"</span>: <span class="hljs-string">"34e7f94b-7fa3-4196-912a-88186b25299d"</span>,
+  <span class="hljs-attr">"expires"</span>: <span class="hljs-number">10000</span>
+}</code></pre>
+				<a href="#update-presence" id="update-presence" style="color: inherit; text-decoration: none;">
+					<h4>Update Presence</h4>
+				</a>
+				<p><code>PUT /session?token={token}&amp;id={sessionID}</code></p>
+				<p>Call this endpoint to update the presence state for the session. Calling this endpoint doubles as a session refresh, resetting the time until session expiration.</p>
+				<p><em>Example Request</em></p>
+				<pre><code class="language-json5">{
+  &quot;presences&quot;: [
+    {
+      &quot;title&quot;: &quot;Listening to Spotify&quot;,
+      &quot;largeText&quot;: {
+          &quot;text&quot;: &quot;Issues/Hold On&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      &quot;smallTexts&quot;: [
+          {
+              &quot;text&quot;: &quot;by Teyana Taylor&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a&quot;
+          },
+          {
+              &quot;text&quot;: &quot;on K.T.S.E.&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU&quot;
+          }
+      ],
+      &quot;image&quot;: {
+          &quot;src&quot;: &quot;https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      // unix timestamp representing start/stop of media, omit for no timer
+      &quot;timestamps&quot;: {
+          &quot;start&quot;: 1587431026177,
+          &quot;stop&quot;: 1587431296243
+      },
+      // if you would like a gradient background to be generated for this presence, set enabled to true.
+      // if you dont need a gradient, you can omit this or set it to null.
+      &quot;gradient&quot;: {
+          &quot;enabled&quot;: true,
+          // priority can be increased to take precedence over other gradient presences
+          &quot;priority&quot;: 0
+      },
+      &quot;isPaused&quot;: true,
+      &quot;effective&quot;: 1587420294386
+    }
+  ]
+}</code></pre>
+				<p>This is how that would be rendered</p>
+				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<p><em>Example Response</em></p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"ok"</span>: <span class="hljs-literal">true</span>
+}</code></pre>
+				<a href="#refresh-session" id="refresh-session" style="color: inherit; text-decoration: none;">
+					<h4>Refresh Session</h4>
+				</a>
+				<p><code>PUT /session/refresh?token={token}&amp;id={sessionID}</code></p>
+				<p>Call this endpoint to prevent the session from expiring, but don&#39;t have an updated payload to send.</p>
+				<p><em>Example Response</em></p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"ok"</span>: <span class="hljs-literal">true</span>
+}</code></pre>
+				<a href="#websocket-1" id="websocket-1" style="color: inherit; text-decoration: none;">
+					<h3>WebSocket</h3>
+				</a>
+				<p>The WebSocket API is useful for dedicated presence servers that will be sending a large or unknown amount of data.</p>
+				<a href="#an-overview" id="an-overview" style="color: inherit; text-decoration: none;">
+					<h4>An Overview</h4>
+				</a>
+				<p>The WebSocket API follows the following general schema when exchanging data</p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-attr">"data"</span>: []
+}</code></pre>
+				<a href="#type-codes" id="type-codes" style="color: inherit; text-decoration: none;">
+					<h4>Type Codes</h4>
+				</a>
+				<p>These are the valid codes that may be sent or received over the WebSocket API.
+					|Code|Name|Description|Sender|Response?|
+					|-|-|-|-|-|
+					|0|Ping|Pings the server|Client|✅|
+					|1|Pong|Sent upon ping|Server|❎|
+					|2|Presence|Updates presence, where the data property is an array of presence objects|Client|❎|
+					|3|Identify|Authenticates session, where the data property is the user token|Client|✅|
+				|4|Greetings|Sent by the server, upon successful authentication. Start sending pings after receiving greetings.|Server|❎|</p>
+				<a href="#example-messages" id="example-messages" style="color: inherit; text-decoration: none;">
+					<h4>Example messages</h4>
+				</a>
+				<a href="#identify" id="identify" style="color: inherit; text-decoration: none;">
+					<h5>Identify</h5>
+				</a>
+				<p>Sent upon connection open, this identifies the session for the server.</p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-number">3</span>,
+  <span class="hljs-attr">"data"</span>: <span class="hljs-string">"{token}"</span>
+}</code></pre>
+				<a href="#ping" id="ping" style="color: inherit; text-decoration: none;">
+					<h5>Ping</h5>
+				</a>
+				<p>Though not required, these can help prevent a connection time-out and unnecessarily reconnecting.</p>
+				<pre><code class="language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-number">0</span>
+}</code></pre>
+				<a href="#presence-update" id="presence-update" style="color: inherit; text-decoration: none;">
+					<h5>Presence Update</h5>
+				</a>
+				<pre><code class="language-json5">{
+  &quot;type&quot;:2,
+  &quot;data&quot;: [
+    {
+      &quot;title&quot;: &quot;Listening to Spotify&quot;,
+      &quot;largeText&quot;: {
+          &quot;text&quot;: &quot;Issues/Hold On&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      &quot;smallTexts&quot;: [
+          {
+              &quot;text&quot;: &quot;by Teyana Taylor&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a&quot;
+          },
+          {
+              &quot;text&quot;: &quot;on K.T.S.E.&quot;,
+              &quot;link&quot;: &quot;https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU&quot;
+          }
+      ],
+      &quot;image&quot;: {
+          &quot;src&quot;: &quot;https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd&quot;,
+          &quot;link&quot;: &quot;https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb&quot;
+      },
+      // unix timestamp representing start/stop of media, omit for no timer
+      &quot;timestamps&quot;: {
+          &quot;start&quot;: 1587431026177,
+          &quot;stop&quot;: 1587431296243
+      },
+      &quot;gradient&quot;: {
+          &quot;enabled&quot;: true
+      },
+      &quot;isPaused&quot;: true,
+      &quot;effective&quot;: 1587420294386
+    }
+  ]
+}</code></pre>
+				<p>This is how that would be rendered</p>
+				<p><img src="docs/rendered.png" alt="Rendered Presence"></p>
+				<a href="#pre-requisites" id="pre-requisites" style="color: inherit; text-decoration: none;">
+					<h2>Pre-requisites</h2>
+				</a>
+				<ul>
+					<li>Node 12</li>
+					<li>node-gyp capable device</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_adapters_presence_rest_adapter_.html">&quot;adapters/presence/rest-<wbr>adapter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_adapters_presence_socket_adapter_.html">&quot;adapters/presence/socket-<wbr>adapter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_adapters_state_gradient_state_.html">&quot;adapters/state/gradient-<wbr>state&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_database_connector_.html">&quot;database/connector&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_database_entities_.html">&quot;database/entities&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_database_entities_oauthlink_.html">&quot;database/entities/OAuth<wbr>Link&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_database_entities_user_.html">&quot;database/entities/<wbr>User&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_database_subscribers_usersubscriber_.html">&quot;database/subscribers/<wbr>User<wbr>Subscriber&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_event_bus_.html">&quot;event-<wbr>bus&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_index_.html">&quot;index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_run_.html">&quot;run&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_adapter_.html">&quot;structs/adapter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_rest_api_base_.html">&quot;structs/rest-<wbr>api-<wbr>base&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_scoped_adapter_.html">&quot;structs/scoped-<wbr>adapter&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_socket_api_base_.html">&quot;structs/socket-<wbr>api-<wbr>base&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_state_.html">&quot;structs/state&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_structs_supervisor_.html">&quot;structs/supervisor&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_supervisors_adapter_supervisor_.html">&quot;supervisors/adapter-<wbr>supervisor&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_supervisors_master_supervisor_.html">&quot;supervisors/master-<wbr>supervisor&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_supervisors_state_supervisor_.html">&quot;supervisors/state-<wbr>supervisor&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_config_.html">&quot;utils/config&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_index_.html">&quot;utils/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_logging_.html">&quot;utils/logging&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_object_.html">&quot;utils/object&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_presence_magic_.html">&quot;utils/presence-<wbr>magic&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_renderer_.html">&quot;utils/renderer&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_security_.html">&quot;utils/security&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_shell_.html">&quot;utils/shell&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_utils_index_.html">&quot;utils/utils-<wbr>index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_index_.html">&quot;utils/web/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_normalizers_body_.html">&quot;utils/web/normalizers/body&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_normalizers_params_.html">&quot;utils/web/normalizers/params&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_shared_middleware_.html">&quot;utils/web/shared-<wbr>middleware&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_types_.html">&quot;utils/web/types&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_utils_.html">&quot;utils/web/utils&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_utils_web_web_index_.html">&quot;utils/web/web-<wbr>index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_api_api_.html">&quot;web/api/api&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_api_foundation_util_.html">&quot;web/api/foundation.util&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_api_oauth_api_.html">&quot;web/api/oauth-<wbr>api&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_canned_responses_.html">&quot;web/canned-<wbr>responses&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_frontend_.html">&quot;web/frontend&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_index_.html">&quot;web/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_loaders_.html">&quot;web/loaders&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_web_middleware_.html">&quot;web/middleware&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

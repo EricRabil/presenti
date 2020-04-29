@@ -65,3 +65,17 @@ export declare class PresenceService {
      */
     run(): Promise<void>;
 }
+export * from "./adapters/presence/rest-adapter";
+export * from "./adapters/presence/socket-adapter";
+export * from "./adapters/state/gradient-state";
+export * from "./supervisors/adapter-supervisor";
+export * from "./supervisors/state-supervisor";
+export * from "./supervisors/master-supervisor";
+export * from "./structs/adapter";
+export * from "./structs/rest-api-base";
+export * from "./structs/scoped-adapter";
+export * from "./structs/socket-api-base";
+export * from "./structs/state";
+export * from "./structs/supervisor";
+export * from "./utils";
+export * from "./web";

@@ -1,4 +1,7 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const remote_presence_utils_1 = require("remote-presence-utils");
@@ -151,3 +154,17 @@ class PresenceService {
     }
 }
 exports.PresenceService = PresenceService;
+__export(require("./adapters/presence/rest-adapter"));
+__export(require("./adapters/presence/socket-adapter"));
+__export(require("./adapters/state/gradient-state"));
+__export(require("./supervisors/adapter-supervisor"));
+__export(require("./supervisors/state-supervisor"));
+__export(require("./supervisors/master-supervisor"));
+__export(require("./structs/adapter"));
+__export(require("./structs/rest-api-base"));
+__export(require("./structs/scoped-adapter"));
+__export(require("./structs/socket-api-base"));
+__export(require("./structs/state"));
+__export(require("./structs/supervisor"));
+__export(require("./utils"));
+__export(require("./web"));
