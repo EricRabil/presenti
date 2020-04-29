@@ -1,9 +1,18 @@
 import { BaseEntity } from "typeorm";
+import { OAuthLink } from "./OAuthLink";
 export declare class User extends BaseEntity {
     uuid: string;
     userID: string;
     passwordHash: string;
+    oAuthLinks: OAuthLink[];
     excludes: string[];
+    json(full?: boolean): {
+        uuid: string;
+        userID: string;
+        platforms: {} | null;
+        excludes: string[];
+    };
+    get platforms(): {};
     setPassword(password: string): Promise<void>;
     checkPassword(password: string): Promise<boolean>;
     /**

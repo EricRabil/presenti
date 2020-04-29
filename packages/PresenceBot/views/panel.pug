@@ -7,6 +7,15 @@ block styles
 block content
   div.jumbotron
     h1 Hi, #{user.userID}
+
+  div.token-management
+    h3 OAuth
+    p You can link your account with any of the below platforms to seamlessly integrate presence data from it.
+    div.oauth-section
+      if config.discord
+        a.oauth-item(href=`/api/oauth/discord${user.platforms.DISCORD ? '/unlink' : ''}`)
+          img(src='/assets/img/discord.svg')
+          | #{user.platforms.DISCORD ? 'Unlink from Discord' : 'Link with Discord'}
   
   div.token-management
     h3 Token Management

@@ -1,8 +1,9 @@
-import bcrypt from "bcrypt";
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { TOTPAsync } from "@otplib/core-async";
 import { createDigest } from "@otplib/plugin-crypto-async-ronomon";
+import bcrypt from "bcrypt";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { SecurityKit } from "../../utils/security";
+import { OAuthLink } from "./OAuthLink";
 
 const generator = new TOTPAsync({
   step: 60,
@@ -19,9 +20,25 @@ export class User extends BaseEntity {
 
   @Column()
   passwordHash: string;
+  
+  @OneToMany(type => OAuthLink, link => link.user, { eager: true })
+  oAuthLinks: OAuthLink[];
 
-  @Column("simple-array", { default: [] })
+  @Column("simple-array", { default: '' })
   excludes: string[];
+
+  json(full = false) {
+    return {
+      uuid: this.uuid,
+      userID: this.userID,
+      platforms: full ? this.platforms : null,
+      excludes: this.excludes
+    }
+  }
+  
+  get platforms() {
+    return (this.oAuthLinks || []).reduce((acc, { platform, linkID }) => Object.assign(acc, { [platform]: linkID }), {});
+  }
 
   async setPassword(password: string) {
     this.passwordHash = await bcrypt.hash(password, 10);

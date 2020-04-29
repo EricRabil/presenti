@@ -6,11 +6,20 @@ import pug from "pug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { log } from "../logging";
 import body from "./normalizers/body";
-import { PBRequest, PBResponse, RequestHandler } from "./types";
+import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
+import params from "./normalizers/params";
+import { CONFIG } from "../config";
 
 const { version } = require("../../../package.json");
 
 export class MiddlewareTimeoutError extends Error { }
+
+export interface RouteData {
+  path: string;
+  method: HTTPMethod;
+  property: string;
+  middleware: RequestHandler[];
+}
 
 export function toArrayBuffer(buffer: Buffer) {
   return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
@@ -50,13 +59,13 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
   const newResponse: PBResponse = res as any;
 
   /** Renders a template */
-  newResponse.render = async function (tpl, options) {
-    options = Object.assign({}, options, { user: this.user });
+  newResponse.render = function (tpl, options) {
+    options = Object.assign({}, options, { user: this.user, config: CONFIG });
     res.writeHeader(...Responses.HTML).end(pug.renderFile(templateResolver(tpl), options!));
   };
 
   /** Sends JSON as the response */
-  newResponse.json = async function (json) {
+  newResponse.json = function (json) {
     res.writeHeader(...Responses.JSON).end(JSON.stringify(json));
   }
 
@@ -134,11 +143,15 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
   const oldWriteStatus: any = newResponse.writeStatus;
 
   /** Maps status numbers to their fully-qualified strings to meet uWS requirements */
-  newResponse.writeStatus = function (status: string | number) {
+  newResponse.writeStatus = newResponse.status = function (status: string | number) {
     this._status = status;
     if (typeof status === "number") status = `${status} ${STATUS_CODES[status]}`
     oldWriteStatus.call(this, status);
     return this;
+  }
+
+  newResponse.error = function(error: string, code: number = 400) {
+    return this.status(code).json({ error });
   }
 
   const oldEnd = newResponse.end;
@@ -166,9 +179,11 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
  * @param res response object
  * @param middleware middleware stack
  */
-export async function runMiddleware(req: PBRequest, res: PBResponse, middleware: RequestHandler[]) {
+export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PBResponse, middleware: RequestHandler[]) {
   // load body data
+  const parameters = params(req, metadata.path);
   req.body = await body(req, res);
+  req.getParameter = (index: number) => parameters[index];
 
   for (let fn of middleware) {
     let didComplete = false;

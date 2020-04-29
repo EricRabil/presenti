@@ -18,6 +18,9 @@ class Database {
             entities: [
                 __dirname + "/entities/*.js"
             ],
+            subscribers: [
+                __dirname + "/subscribers/*.js"
+            ],
             username: username,
             password: password,
             synchronize: true

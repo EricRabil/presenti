@@ -35,12 +35,12 @@ class Frontend extends rest_api_base_1.default {
     }
     loadRoutes() {
         super.loadRoutes();
-        this.app.any('/*', this.buildHandler((req, res) => {
+        this.app.any('/*', this.buildHandler(rest_api_base_1.RouteDataShell("/*"), (req, res) => {
             canned_responses_1.notFound(res);
         }));
     }
-    buildStack(middleware, headers = []) {
-        return super.buildStack([loaders_1.UserLoader()].concat(middleware), headers.concat('authorization'));
+    buildStack(metadata, middleware, headers = []) {
+        return super.buildStack(metadata, [loaders_1.UserLoader()].concat(middleware), headers.concat('authorization'));
     }
     loginView(req, res) {
         res.render('login', { signup: config_1.CONFIG.registration });

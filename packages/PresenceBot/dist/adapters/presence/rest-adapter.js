@@ -75,8 +75,8 @@ class RESTPresenceAPI extends rest_api_base_1.default {
         this.adapter = adapter;
         this.log = logging_1.log.child({ name: "RESTPresenceAPI" });
     }
-    buildStack(middleware, headers = []) {
-        return super.buildStack([InsertAdapterGuard(() => this.adapter), AdapterRunningGuard].concat(middleware), headers);
+    buildStack(metadata, middleware, headers = []) {
+        return super.buildStack(metadata, [InsertAdapterGuard(() => this.adapter), AdapterRunningGuard].concat(middleware), headers);
     }
     async createSession(req, res) {
         const params = new URLSearchParams(req.getQuery());

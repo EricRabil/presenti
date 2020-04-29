@@ -1,7 +1,13 @@
 /// <reference types="node" />
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
-import { PBRequest, PBResponse, RequestHandler } from "./types";
+import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 export declare class MiddlewareTimeoutError extends Error {
+}
+export interface RouteData {
+    path: string;
+    method: HTTPMethod;
+    property: string;
+    middleware: RequestHandler[];
 }
 export declare function toArrayBuffer(buffer: Buffer): ArrayBuffer;
 export declare const Responses: Record<string, [string, string]>;
@@ -15,4 +21,4 @@ export declare function wrapResponse(res: HttpResponse, templateResolver?: (file
  * @param res response object
  * @param middleware middleware stack
  */
-export declare function runMiddleware(req: PBRequest, res: PBResponse, middleware: RequestHandler[]): Promise<void>;
+export declare function runMiddleware(metadata: RouteData, req: PBRequest, res: PBResponse, middleware: RequestHandler[]): Promise<void>;

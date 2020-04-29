@@ -13,16 +13,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const typeorm_1 = require("typeorm");
 const core_async_1 = require("@otplib/core-async");
 const plugin_crypto_async_ronomon_1 = require("@otplib/plugin-crypto-async-ronomon");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const typeorm_1 = require("typeorm");
 const security_1 = require("../../utils/security");
+const OAuthLink_1 = require("./OAuthLink");
 const generator = new core_async_1.TOTPAsync({
     step: 60,
     createDigest: plugin_crypto_async_ronomon_1.createDigest
 });
 let User = User_1 = class User extends typeorm_1.BaseEntity {
+    json(full = false) {
+        return {
+            uuid: this.uuid,
+            userID: this.userID,
+            platforms: full ? this.platforms : null,
+            excludes: this.excludes
+        };
+    }
+    get platforms() {
+        return (this.oAuthLinks || []).reduce((acc, { platform, linkID }) => Object.assign(acc, { [platform]: linkID }), {});
+    }
     async setPassword(password) {
         this.passwordHash = await bcrypt_1.default.hash(password, 10);
     }
@@ -93,7 +105,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "passwordHash", void 0);
 __decorate([
-    typeorm_1.Column("simple-array", { default: [] }),
+    typeorm_1.OneToMany(type => OAuthLink_1.OAuthLink, link => link.user, { eager: true }),
+    __metadata("design:type", Array)
+], User.prototype, "oAuthLinks", void 0);
+__decorate([
+    typeorm_1.Column("simple-array", { default: '' }),
     __metadata("design:type", Array)
 ], User.prototype, "excludes", void 0);
 User = User_1 = __decorate([

@@ -6,9 +6,9 @@ export interface ConfigurationStruct {
         firstPartyKey: string | null;
     };
     discord: {
-        token: string;
-        prefix: string;
-    } | false;
+        clientID: string;
+        clientSecret: string;
+    } | null;
     web: {
         host: string;
     };

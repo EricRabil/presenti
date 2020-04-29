@@ -109,3 +109,4 @@ config.json
 
 # Mac shit
 .DS_Store
+.nsi.json

@@ -9,7 +9,7 @@ const logging_1 = require("./logging");
 const DEFAULT_CONFIG = {
     port: 8138,
     registration: false,
-    discord: false,
+    discord: null,
     crypto: {
         jwtSecret: null,
         firstPartyKey: null

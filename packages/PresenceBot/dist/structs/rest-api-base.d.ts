@@ -1,13 +1,16 @@
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import { RequestHandler, HTTPMethod } from "../utils/web/types";
+import { RouteData } from "../utils/web/utils";
 export declare function Route(path: string, method: HTTPMethod, ...middleware: RequestHandler[]): <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Get: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Post: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Patch: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Delete: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Put: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Any: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
+export declare const Options: (path: string, ...middleware: RequestHandler[]) => <T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) => void;
 export declare function Headers(...headers: string[]): any;
-interface RouteData {
-    path: string;
-    method: HTTPMethod;
-    property: string;
-    middleware: RequestHandler[];
-}
+export declare function RouteDataShell(path: string, method?: HTTPMethod): RouteData;
 /** Foundation for any HTTP-based service */
 export default class RestAPIBase {
     readonly app: TemplatedApp;
@@ -23,14 +26,14 @@ export default class RestAPIBase {
      * @param middleware handler stack
      * @param headers headers to be loaded
      */
-    protected buildStack(middleware: RequestHandler[], headers?: string[]): (res: HttpResponse, req: HttpRequest) => any;
+    protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers?: string[]): (res: HttpResponse, req: HttpRequest) => any;
     /**
      * Builds a handler stack that has no extra middleware.
      *
      * @param handler handler function
      * @param headers headers to be loaded
      */
-    protected buildHandler(handler: RequestHandler, headers?: string[]): (res: HttpResponse, req: HttpRequest) => any;
+    protected buildHandler(metadata: RouteData, handler: RequestHandler, headers?: string[]): (res: HttpResponse, req: HttpRequest) => any;
     /**
      * Returns the absolute path of a template
      *
@@ -40,4 +43,3 @@ export default class RestAPIBase {
      */
     private resolveTemplate;
 }
-export {};

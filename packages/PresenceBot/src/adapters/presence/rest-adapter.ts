@@ -11,6 +11,7 @@ import { User } from "../../database/entities";
 import { log } from "../../utils/logging";
 import { BodyParser } from "../../utils/web/shared-middleware";
 import { FirstPartyGuard } from "../../web/middleware";
+import { RouteData } from "../../utils/web/utils";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();
@@ -68,8 +69,8 @@ export class RESTPresenceAPI extends RestAPIBase {
     super(app);
   }
 
-  buildStack(middleware: RequestHandler[], headers: string[] = []) {
-    return super.buildStack([InsertAdapterGuard(() => this.adapter), AdapterRunningGuard].concat(middleware), headers);
+  buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
+    return super.buildStack(metadata, [InsertAdapterGuard(() => this.adapter), AdapterRunningGuard].concat(middleware), headers);
   }
 
   @Route("/session", "get")

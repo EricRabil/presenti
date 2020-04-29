@@ -10,6 +10,8 @@ const mime_types_1 = __importDefault(require("mime-types"));
 const pug_1 = __importDefault(require("pug"));
 const logging_1 = require("../logging");
 const body_1 = __importDefault(require("./normalizers/body"));
+const params_1 = __importDefault(require("./normalizers/params"));
+const config_1 = require("../config");
 const { version } = require("../../../package.json");
 class MiddlewareTimeoutError extends Error {
 }
@@ -46,12 +48,12 @@ exports.wrapRequest = wrapRequest;
 function wrapResponse(res, templateResolver = file => file) {
     const newResponse = res;
     /** Renders a template */
-    newResponse.render = async function (tpl, options) {
-        options = Object.assign({}, options, { user: this.user });
+    newResponse.render = function (tpl, options) {
+        options = Object.assign({}, options, { user: this.user, config: config_1.CONFIG });
         res.writeHeader(...exports.Responses.HTML).end(pug_1.default.renderFile(templateResolver(tpl), options));
     };
     /** Sends JSON as the response */
-    newResponse.json = async function (json) {
+    newResponse.json = function (json) {
         res.writeHeader(...exports.Responses.JSON).end(JSON.stringify(json));
     };
     /** Redirect the user */
@@ -120,12 +122,15 @@ function wrapResponse(res, templateResolver = file => file) {
     };
     const oldWriteStatus = newResponse.writeStatus;
     /** Maps status numbers to their fully-qualified strings to meet uWS requirements */
-    newResponse.writeStatus = function (status) {
+    newResponse.writeStatus = newResponse.status = function (status) {
         this._status = status;
         if (typeof status === "number")
             status = `${status} ${http_1.STATUS_CODES[status]}`;
         oldWriteStatus.call(this, status);
         return this;
+    };
+    newResponse.error = function (error, code = 400) {
+        return this.status(code).json({ error });
     };
     const oldEnd = newResponse.end;
     /** Sends cookies that were set, and sets a default status if none was set. */
@@ -148,9 +153,11 @@ exports.wrapResponse = wrapResponse;
  * @param res response object
  * @param middleware middleware stack
  */
-async function runMiddleware(req, res, middleware) {
+async function runMiddleware(metadata, req, res, middleware) {
     // load body data
+    const parameters = params_1.default(req, metadata.path);
     req.body = await body_1.default(req, res);
+    req.getParameter = (index) => parameters[index];
     for (let fn of middleware) {
         let didComplete = false;
         try {

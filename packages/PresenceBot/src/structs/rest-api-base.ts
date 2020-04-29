@@ -1,7 +1,7 @@
 import path from "path";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import { RequestHandler, HTTPMethod } from "../utils/web/types";
-import { runMiddleware, wrapResponse, wrapRequest } from "../utils/web/utils";
+import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/web/utils";
 
 export function Route(path: string, method: HTTPMethod, ...middleware: RequestHandler[]) {
   return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
@@ -16,10 +16,28 @@ export function Route(path: string, method: HTTPMethod, ...middleware: RequestHa
   }
 }
 
+const BuildRouteShorthand = (method: HTTPMethod) => (path: string, ...middleware: RequestHandler[]) => Route(path, method, ...middleware);
+export const Get = BuildRouteShorthand("get");
+export const Post = BuildRouteShorthand("post");
+export const Patch = BuildRouteShorthand("patch");
+export const Delete = BuildRouteShorthand("del");
+export const Put = BuildRouteShorthand("put");
+export const Any = BuildRouteShorthand("any");
+export const Options = BuildRouteShorthand("options");
+
 export function Headers(...headers: string[]): any {
   return function (target: any, property: string, descriptor: PropertyDecorator) {
     const fn = target[property];
     fn.headers = headers;
+  }
+}
+
+export function RouteDataShell(path: string, method: HTTPMethod = "any"): RouteData {
+  return {
+    path,
+    property: null as any,
+    method,
+    middleware: [] 
   }
 }
 
@@ -44,13 +62,6 @@ function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: st
   }
 }
 
-interface RouteData {
-  path: string;
-  method: HTTPMethod;
-  property: string;
-  middleware: RequestHandler[];
-}
-
 /** Foundation for any HTTP-based service */
 export default class RestAPIBase {
   _routes: RouteData[];
@@ -61,10 +72,12 @@ export default class RestAPIBase {
 
   /** Loads all routes registered to this instance. */
   protected loadRoutes() {
-    this._routes.forEach(({ path, method, property, middleware }) => {
-      const { [property]: handler } = this as any;
+    this._routes.forEach((metadata) => {
+      let { path, method, property, middleware } = metadata;
+      const handler: RequestHandler = (req, res, next, eNext) => this[property](req, res, next, eNext);
+      const headers = this[property].headers;
       middleware = middleware.concat(handler);
-      this.app[method](path, this.buildStack(middleware, handler.headers || []));
+      this.app[method](path, this.buildStack(metadata, middleware, headers || []));
     });
   }
 
@@ -75,11 +88,11 @@ export default class RestAPIBase {
    * @param middleware handler stack
    * @param headers headers to be loaded
    */
-  protected buildStack(middleware: RequestHandler[], headers: string[] = []) {
+  protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
     return handler(async (res, req) => {
       const nRes = wrapResponse(res, this.resolveTemplate.bind(this)), nReq = wrapRequest(req, nRes);
 
-      await runMiddleware(nReq, nRes, middleware);
+      await runMiddleware(metadata, nReq, nRes, middleware);
     }, ['content-type', 'cookie'].concat(headers || []));
   }
 
@@ -89,8 +102,8 @@ export default class RestAPIBase {
    * @param handler handler function
    * @param headers headers to be loaded
    */
-  protected buildHandler(handler: RequestHandler, headers: string[] = []) {
-    return this.buildStack([handler], headers);
+  protected buildHandler(metadata: RouteData, handler: RequestHandler, headers: string[] = []) {
+    return this.buildStack(metadata, [handler], headers);
   }
 
   /**

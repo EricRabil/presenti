@@ -3,13 +3,14 @@ import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
 import { CONFIG } from "../utils/config";
 import { User } from "../database/entities";
-import RestAPIBase, { Route } from "../structs/rest-api-base";
+import RestAPIBase, { Route, RouteDataShell } from "../structs/rest-api-base";
 import { BodyParser } from "../utils/web/shared-middleware";
 import { PBRequest, PBResponse, RequestHandler } from "../utils/web/types";
 import { notFound } from "./canned-responses";
 import { UserLoader } from "./loaders";
 import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middleware";
 import { API_ROUTES } from "remote-presence-utils";
+import { RouteData } from "../utils/web/utils";
 
 export default class Frontend extends RestAPIBase {
   static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "views");
@@ -23,13 +24,13 @@ export default class Frontend extends RestAPIBase {
   loadRoutes() {
     super.loadRoutes();
 
-    this.app.any('/*', this.buildHandler((req, res) => {
+    this.app.any('/*', this.buildHandler(RouteDataShell("/*"), (req, res) => {
       notFound(res);
     }));
   }
 
-  buildStack(middleware: RequestHandler[], headers: string[] = []) {
-    return super.buildStack([UserLoader()].concat(middleware), headers.concat('authorization'));
+  buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
+    return super.buildStack(metadata, [UserLoader()].concat(middleware), headers.concat('authorization'));
   }
 
   @Route("/login", "get")

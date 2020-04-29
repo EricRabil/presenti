@@ -11,9 +11,9 @@ export interface ConfigurationStruct {
     firstPartyKey: string | null;
   },
   discord: {
-    token: string;
-    prefix: string;
-  } | false,
+    clientID: string;
+    clientSecret: string;
+  } | null,
   web: {
     host: string;
   };
@@ -29,7 +29,7 @@ export interface ConfigurationStruct {
 const DEFAULT_CONFIG: ConfigurationStruct = {
   port: 8138,
   registration: false,
-  discord: false,
+  discord: null,
   crypto: {
     jwtSecret: null,
     firstPartyKey: null

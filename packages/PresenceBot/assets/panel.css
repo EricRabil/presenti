@@ -34,3 +34,34 @@ h1, h2, h3, h4, h5, h6, p {
 iframe#preview-frame {
   width: 100%;
 }
+
+.oauth-section {
+  display: flex;
+  flex-flow: row;
+}
+
+.oauth-section .oauth-item {
+  background-color: var(--bg-shallow-alt);
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing);
+  height: 40px;
+  padding-right: calc(var(--spacing) + 3px);
+  transition: background-color var(--animation-speed) linear;
+}
+
+.oauth-section .oauth-item:hover {
+  background-color: var(--bg-shallow-1);
+}
+
+.oauth-section .oauth-item:active {
+  background-color: var(--bg-shallow-2);
+}
+
+.oauth-section .oauth-item img {
+  width: 40px;
+  padding-right: var(--spacing);
+}

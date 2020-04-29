@@ -1,6 +1,7 @@
 import { TemplatedApp } from "uWebSockets.js";
 import RestAPIBase from "../structs/rest-api-base";
 import { PBRequest, PBResponse, RequestHandler } from "../utils/web/types";
+import { RouteData } from "../utils/web/utils";
 export default class Frontend extends RestAPIBase {
     readonly app: TemplatedApp;
     static readonly VIEWS_DIRECTORY: string;
@@ -8,7 +9,7 @@ export default class Frontend extends RestAPIBase {
     static readonly PRESENTI_ASSET_DIRECTORY: string;
     constructor(app: TemplatedApp);
     loadRoutes(): void;
-    buildStack(middleware: RequestHandler[], headers?: string[]): (res: import("uWebSockets.js").HttpResponse, req: import("uWebSockets.js").HttpRequest) => any;
+    buildStack(metadata: RouteData, middleware: RequestHandler[], headers?: string[]): (res: import("uWebSockets.js").HttpResponse, req: import("uWebSockets.js").HttpRequest) => any;
     loginView(req: PBRequest, res: PBResponse): void;
     signupView(req: PBRequest, res: PBResponse): void;
     changePassword(req: PBRequest, res: PBResponse): void;

@@ -1,5 +1,6 @@
-import { PresenceAdapter, Presence } from "remote-presence-utils";
+import { Presence } from "remote-presence-utils";
 import { PresenceDictionary } from "../utils/presence-magic";
+import { NativePresenceAdapter } from "./adapter";
 
 export declare interface ScopedPresenceAdapter {
   on(event: 'updated', listener: (id: string) => any): this;
@@ -9,7 +10,7 @@ export declare interface ScopedPresenceAdapter {
   emit(event: string | symbol, ...args: any[]): boolean;
 }
 
-export abstract class ScopedPresenceAdapter extends PresenceAdapter {
+export abstract class ScopedPresenceAdapter extends NativePresenceAdapter {
   abstract activityForUser(id: string): Promise<Presence> | Presence;
   abstract activities(): Promise<PresenceDictionary> | PresenceDictionary;
 

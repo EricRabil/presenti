@@ -18,6 +18,14 @@ function Route(path, method, ...middleware) {
     };
 }
 exports.Route = Route;
+const BuildRouteShorthand = (method) => (path, ...middleware) => Route(path, method, ...middleware);
+exports.Get = BuildRouteShorthand("get");
+exports.Post = BuildRouteShorthand("post");
+exports.Patch = BuildRouteShorthand("patch");
+exports.Delete = BuildRouteShorthand("del");
+exports.Put = BuildRouteShorthand("put");
+exports.Any = BuildRouteShorthand("any");
+exports.Options = BuildRouteShorthand("options");
 function Headers(...headers) {
     return function (target, property, descriptor) {
         const fn = target[property];
@@ -25,6 +33,15 @@ function Headers(...headers) {
     };
 }
 exports.Headers = Headers;
+function RouteDataShell(path, method = "any") {
+    return {
+        path,
+        property: null,
+        method,
+        middleware: []
+    };
+}
+exports.RouteDataShell = RouteDataShell;
 function handler(exec, headers = []) {
     return (res, req) => {
         res.onAborted(() => {
@@ -51,10 +68,12 @@ class RestAPIBase {
     }
     /** Loads all routes registered to this instance. */
     loadRoutes() {
-        this._routes.forEach(({ path, method, property, middleware }) => {
-            const { [property]: handler } = this;
+        this._routes.forEach((metadata) => {
+            let { path, method, property, middleware } = metadata;
+            const handler = (req, res, next, eNext) => this[property](req, res, next, eNext);
+            const headers = this[property].headers;
             middleware = middleware.concat(handler);
-            this.app[method](path, this.buildStack(middleware, handler.headers || []));
+            this.app[method](path, this.buildStack(metadata, middleware, headers || []));
         });
     }
     /**
@@ -64,10 +83,10 @@ class RestAPIBase {
      * @param middleware handler stack
      * @param headers headers to be loaded
      */
-    buildStack(middleware, headers = []) {
+    buildStack(metadata, middleware, headers = []) {
         return handler(async (res, req) => {
             const nRes = utils_1.wrapResponse(res, this.resolveTemplate.bind(this)), nReq = utils_1.wrapRequest(req, nRes);
-            await utils_1.runMiddleware(nReq, nRes, middleware);
+            await utils_1.runMiddleware(metadata, nReq, nRes, middleware);
         }, ['content-type', 'cookie'].concat(headers || []));
     }
     /**
@@ -76,8 +95,8 @@ class RestAPIBase {
      * @param handler handler function
      * @param headers headers to be loaded
      */
-    buildHandler(handler, headers = []) {
-        return this.buildStack([handler], headers);
+    buildHandler(metadata, handler, headers = []) {
+        return this.buildStack(metadata, [handler], headers);
     }
     /**
      * Returns the absolute path of a template

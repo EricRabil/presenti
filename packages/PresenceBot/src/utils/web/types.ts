@@ -21,13 +21,13 @@ export interface PBRequest extends HttpRequest {
 }
 export interface PBResponse extends HttpResponse {
   /** Render a pug template */
-  render(tpl: string, options?: Options & LocalsObject): Promise<void>;
+  render(tpl: string, options?: Options & LocalsObject): void;
   user: User;
 
   _reqHeaders: Record<string, string>;
 
   /** Send a JSON response */
-  json(json: any): Promise<void>;
+  json(json: any): void;
 
   /** Send a file */
   file(path: string): Promise<void>;
@@ -38,6 +38,13 @@ export interface PBResponse extends HttpResponse {
   /** Writes the HTTP status code. */
   writeStatus(status: string): PBResponse;
   writeStatus(status: number): PBResponse;
+
+  /** Writes the HTTP status code. */
+  status(status: string): PBResponse;
+  status(status: number): PBResponse;
+
+  /** Returns an error as the response with the given status code, 400 if omitted */
+  error(message: string, status?: number): void;
 
   setCookie(name: string, value: string, options?: CookieSerializeOptions): PBResponse;
   clearCookie(name: string): PBResponse;

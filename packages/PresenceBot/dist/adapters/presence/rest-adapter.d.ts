@@ -5,11 +5,12 @@ import { TemplatedApp } from "uWebSockets.js";
 import { PresenceList, PresenceDictionary } from "../../utils/presence-magic";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { User } from "../../database/entities";
+import { RouteData } from "../../utils/web/utils";
 export declare class RESTPresenceAPI extends RestAPIBase {
     private adapter;
     log: import("winston").Logger;
     constructor(app: TemplatedApp, adapter: RESTAdapterV2);
-    buildStack(middleware: RequestHandler[], headers?: string[]): (res: import("uWebSockets.js").HttpResponse, req: import("uWebSockets.js").HttpRequest) => any;
+    buildStack(metadata: RouteData, middleware: RequestHandler[], headers?: string[]): (res: import("uWebSockets.js").HttpResponse, req: import("uWebSockets.js").HttpRequest) => any;
     createSession(req: PBRequest, res: PBResponse): Promise<void>;
     updateSession(req: PBRequest, res: PBResponse): Promise<void>;
     updateSessionScope(req: PBRequest, res: PBResponse): Promise<void>;

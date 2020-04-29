@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const remote_presence_utils_1 = require("remote-presence-utils");
-class ScopedPresenceAdapter extends remote_presence_utils_1.PresenceAdapter {
+const adapter_1 = require("./adapter");
+class ScopedPresenceAdapter extends adapter_1.NativePresenceAdapter {
     /**
      * It doesn't make sense to return a mono-array of all presences for scoped adapters.
      */
