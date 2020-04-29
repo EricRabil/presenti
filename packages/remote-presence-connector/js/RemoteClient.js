@@ -171,30 +171,27 @@ class RemoteClient extends remote_presence_utils_1.Evented {
         return this.send({ type: remote_presence_utils_2.PayloadType.PRESENCE_FIRST_PARTY, data });
     }
     /**
-     * Validates a link code for a user. Requires first-party token.
-     * @param scope scope to verify
-     * @param code code to test
+     * Query presenti for data related to a scope
+     * @param userID scope/user ID
      */
-    async validateCode(scope, code) {
-        try {
-            const r = await fetch(`${this.ajaxBase}${remote_presence_utils_2.API_ROUTES.LINK_CODE}`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'authorization': this.options.token
-                },
-                body: JSON.stringify({
-                    scope,
-                    code
-                })
-            }).then(res => res.json());
-            console.log(r);
-            return !!r.valid;
-        }
-        catch (e) {
-            return false;
-        }
+    async lookupUser(userID) {
+        return fetch(`${this.ajaxBase}/api/users/${userID}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+    }
+    /**
+     * Query presenti for a user given a platform and the platform ID
+     * @param platform platform
+     * @param linkID id
+     */
+    async platformLookup(platform, linkID) {
+        const params = new URLSearchParams();
+        params.set('platform', platform);
+        params.set('id', linkID);
+        return fetch(`${this.ajaxBase}/api/users/lookup?${params.toString()}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+    }
+    get headers() {
+        return {
+            authorization: this.options.token
+        };
     }
     get socketEndpoint() {
         return `ws${this.options.host}/remote`;

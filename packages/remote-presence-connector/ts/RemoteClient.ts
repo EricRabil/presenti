@@ -1,4 +1,4 @@
-import { Presence, PresenceAdapter, AdapterState, Evented } from "remote-presence-utils";
+import { Presence, PresenceAdapter, AdapterState, Evented, PresentiUser, OAUTH_PLATFORM } from "remote-presence-utils";
 import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES } from "remote-presence-utils";
 import winston from "winston";
 
@@ -227,28 +227,29 @@ export class RemoteClient extends Evented {
   }
 
   /**
-   * Validates a link code for a user. Requires first-party token.
-   * @param scope scope to verify
-   * @param code code to test
+   * Query presenti for data related to a scope
+   * @param userID scope/user ID
    */
-  async validateCode(scope: string, code: string) {
-    try {
-      const r = await fetch(`${this.ajaxBase}${API_ROUTES.LINK_CODE}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'authorization': this.options.token
-        },
-        body: JSON.stringify({
-          scope,
-          code
-        })
-      }).then(res => res.json());
-      console.log(r);
-      return !!r.valid;
-    } catch (e) {
-      return false;
+  async lookupUser(userID: string): Promise<PresentiUser | null> {
+    return fetch(`${this.ajaxBase}/api/users/${userID}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+  }
+
+  /**
+   * Query presenti for a user given a platform and the platform ID
+   * @param platform platform
+   * @param linkID id
+   */
+  async platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null> {
+    const params = new URLSearchParams();
+    params.set('platform', platform);
+    params.set('id', linkID);
+
+    return fetch(`${this.ajaxBase}/api/users/lookup?${params.toString()}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+  }
+
+  get headers() {
+    return {
+      authorization: this.options.token
     }
   }
 

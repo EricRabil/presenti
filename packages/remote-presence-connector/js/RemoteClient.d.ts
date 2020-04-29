@@ -1,4 +1,4 @@
-import { Presence, PresenceAdapter, Evented } from "remote-presence-utils";
+import { Presence, PresenceAdapter, Evented, PresentiUser, OAUTH_PLATFORM } from "remote-presence-utils";
 import { RemotePayload, FirstPartyPresenceData } from "remote-presence-utils";
 import winston from "winston";
 export interface RemoteClientOptions {
@@ -72,11 +72,19 @@ export declare class RemoteClient extends Evented {
      */
     updatePresenceForScope(data: FirstPartyPresenceData): void;
     /**
-     * Validates a link code for a user. Requires first-party token.
-     * @param scope scope to verify
-     * @param code code to test
+     * Query presenti for data related to a scope
+     * @param userID scope/user ID
      */
-    validateCode(scope: string, code: string): Promise<boolean>;
+    lookupUser(userID: string): Promise<PresentiUser | null>;
+    /**
+     * Query presenti for a user given a platform and the platform ID
+     * @param platform platform
+     * @param linkID id
+     */
+    platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null>;
+    get headers(): {
+        authorization: string;
+    };
     get socketEndpoint(): string;
     get ajaxBase(): string;
     /**
