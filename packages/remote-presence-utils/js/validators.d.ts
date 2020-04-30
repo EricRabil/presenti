@@ -1,4 +1,4 @@
-import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload } from "./types";
+import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange } from "./types";
 import { PayloadType } from "./types";
 export declare function isPresencePayload(payload: RemotePayload): payload is RemotePresencePayload;
 export declare function isFirstPartyPresencePayload(payload: RemotePayload): payload is FirstPartyPresencePayload;
@@ -6,4 +6,8 @@ export declare function isIdentifyPayload(payload: RemotePayload): payload is Id
 export declare function isPingPayload(payload: RemotePayload): payload is PingPayload;
 export declare function isPongPayload(payload: RemotePayload): payload is PongPayload;
 export declare function isGreetingsPayload(payload: RemotePayload): payload is GreetingsPayload;
+export declare function isPresentiText(obj: any): obj is PresenceText;
+export declare function isPresentiImage(obj: any): obj is PresenceImage;
+export declare function isPresentiTimeRange(obj: any): obj is PresenceTimeRange;
+export declare function isPresentiStruct(obj: any): obj is PresenceStruct;
 export declare const PayloadValidators: Record<PayloadType, (payload: RemotePayload) => boolean>;
