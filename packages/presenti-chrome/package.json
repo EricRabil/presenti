@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "chrome-extension-async": "^3.4.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "moment": "~2.24.0",
     "remote-presence-connector": "^1.0.2",
     "remote-presence-utils": "^1.0.3"
