@@ -1,8 +1,8 @@
 version: '3'
 services:
-  presenti:
+  presenti-server:
     build: 
-      context: .
+      context: packages/presenti-server
       dockerfile: Dockerfile.prod
     command: npm run prod
     depends_on:
@@ -15,9 +15,23 @@ services:
     ports:
       - '8138:8138'
     working_dir: /root
+  presenti-additions:
+    build:
+      context: packages/presenti-additions
+      dockerfile: Dockerfile.prod
+    command: npm run prod
+    depends_on:
+      - postgres
+      - presenti-server
+    environment:
+      DB_HOST: 'postgres'
+      DB_NAME: 'presenti-additions'
+      DB_USERNAME: 'presenti'
+      DB_PASSWORD: 'badbitch'
+    working_dir: /root
   postgres:
     image: postgres:12.2-alpine
     environment:
       POSTGRES_USER: 'presenti'
       POSTGRES_PASSWORD: 'badbitch'
-      POSTGRES_DB: 'presenti'
+      POSTGRES_MULTIPLE_DATABASES: 'presenti,presenti-additions'

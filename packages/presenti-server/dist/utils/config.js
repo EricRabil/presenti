@@ -27,4 +27,14 @@ const DEFAULT_CONFIG = {
 };
 exports.CONFIG_PATH = path_1.default.resolve(__dirname, "..", "..", "config.json");
 exports.CONFIG = fs_extra_1.default.pathExistsSync(exports.CONFIG_PATH) ? fs_extra_1.default.readJsonSync(exports.CONFIG_PATH) : (fs_extra_1.default.writeJsonSync(exports.CONFIG_PATH, DEFAULT_CONFIG, { spaces: 4 }), JSON.parse(JSON.stringify(DEFAULT_CONFIG)));
+if (process.env.DB_HOST)
+    exports.CONFIG.db.host = process.env.DB_HOST;
+if (process.env.DB_PORT)
+    exports.CONFIG.db.port = +process.env.DB_PORT;
+if (process.env.DB_NAME)
+    exports.CONFIG.db.name = process.env.DB_NAME;
+if (process.env.DB_USERNAME)
+    exports.CONFIG.db.username = process.env.DB_USERNAME;
+if (process.env.DB_PASSWORD)
+    exports.CONFIG.db.password = process.env.DB_PASSWORD;
 exports.saveConfig = () => fs_extra_1.default.writeJson(exports.CONFIG_PATH, exports.CONFIG, { spaces: 4 }).then(() => logging_1.log.info('Updated configuration file'));

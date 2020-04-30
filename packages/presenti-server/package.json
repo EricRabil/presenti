@@ -1,5 +1,5 @@
 {
-  "name": "presenti",
+  "name": "@presenti/server",
   "version": "1.0.2",
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
   "main": "dist/index.js",
@@ -8,11 +8,7 @@
     "watch": "tsc -p . --watch",
     "prod": "NODE_ENV=production node dist/run.js",
     "dev": "NODE_ENV=development node --experimental-repl-await dist/run.js",
-    "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME",
-    "docker-dev": "docker-compose run presenti",
-    "docker-dev-init": "docker-compose build",
-    "docker-prod-init": "docker-compose -f docker-compose.yml build",
-    "docker-prod": "docker-compose up"
+    "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME"
   },
   "repository": {
     "type": "git",
@@ -48,7 +44,6 @@
     "presenti-renderer": "github:EricRabil/presenti-renderer",
     "pug": "^2.0.4",
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
-    "sactivity": "^1.0.2",
     "splashy": "^5.0.2",
     "typeorm": "^0.2.24",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.4.0",

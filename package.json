@@ -3,5 +3,11 @@
   "private": true,
   "devDependencies": {
     "lerna": "^3.20.2"
+  },
+  "scripts": {
+    "docker-dev": "docker-compose run presenti-server",
+    "docker-dev-init": "docker-compose build",
+    "docker-prod-init": "docker-compose -f docker-compose.yml build",
+    "docker-prod": "docker-compose up"
   }
 }
