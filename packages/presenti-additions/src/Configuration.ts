@@ -55,6 +55,7 @@ if (process.env.DB_NAME) CONFIG.db.database = process.env.DB_NAME;
 if (process.env.DB_USERNAME) CONFIG.db.username = process.env.DB_USERNAME;
 if (process.env.DB_PASSWORD) CONFIG.db.password = process.env.DB_PASSWORD;
 if (process.env.PRESENTI_TOKEN) CONFIG.presenti.token = process.env.PRESENTI_TOKEN;
+if (process.env.PRESENTI_HOST) CONFIG.presenti.host = process.env.PRESENTI_HOST;
 
 if (!CONFIG.presenti.token) {
   log.info("Hi there! It looks like you haven't configured a token for Presenti Additions. Generate one from the Presenti shell, then pass it as env variable PRESENTI_TOKEN or store it in config.json");

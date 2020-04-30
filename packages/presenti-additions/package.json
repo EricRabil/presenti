@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@clusterws/cws": "github:EricRabil/cWS#pre-gyp",
-    "@presenti/server": "^1.0.2",
+    "@presenti/server": "^1.0.3",
     "chalk": "^4.0.0",
     "discord.js": "^12.2.0",
     "fs-extra": "^9.0.0",
@@ -36,6 +36,7 @@
     "pg": "^8.0.3",
     "remote-presence-connector": "github:EricRabil/remote-presence-connector",
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
+    "sactivity": "^1.0.3",
     "typeorm": "^0.2.24",
     "winston": "^3.2.1"
   }

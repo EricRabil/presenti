@@ -1,9 +1,9 @@
 import inquirer from "inquirer";
 import { RemoteClient, RemoteClientOptions } from "remote-presence-connector";
 import { CONFIG, saveConfig } from "./Configuration";
-import { AdapterSupervisor } from "presenti/dist/supervisors/adapter-supervisor";
+import { AdapterSupervisor } from "@presenti/server";
 import { DiscordAdapter } from "./adapters/DiscordAdapter";
-import { PresenceList } from "presenti/dist/utils/presence-magic";
+import { PresenceList } from "@presenti/server/dist/utils/presence-magic";
 import { Database } from "./db/connector";
 import { PrivateSpotifyAdapter } from "./adapters/PrivateSpotifyAdapter";
 

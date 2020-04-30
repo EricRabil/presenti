@@ -6,11 +6,11 @@ services:
       dockerfile: Dockerfile.prod
     command: npm run prod
     depends_on:
-      - postgres
+      - server_postgres
     environment:
-      DB_HOST: 'postgres'
-      DB_NAME: 'presenti'
-      DB_USERNAME: 'presenti'
+      DB_HOST: server_postgres
+      DB_NAME: server
+      DB_USERNAME: server
       DB_PASSWORD: 'badbitch'
     ports:
       - '8138:8138'
@@ -21,17 +21,23 @@ services:
       dockerfile: Dockerfile.prod
     command: npm run prod
     depends_on:
-      - postgres
+      - additions_postgres
       - presenti-server
     environment:
-      DB_HOST: 'postgres'
-      DB_NAME: 'presenti-additions'
-      DB_USERNAME: 'presenti'
+      DB_HOST: additions_postgres
+      DB_NAME: additions
+      DB_USERNAME: additions
       DB_PASSWORD: 'badbitch'
-    working_dir: /root
-  postgres:
+      PRESENTI_HOST: '://presenti-server:8138'
+  server_postgres:
     image: postgres:12.2-alpine
     environment:
-      POSTGRES_USER: 'presenti'
-      POSTGRES_PASSWORD: 'badbitch'
-      POSTGRES_MULTIPLE_DATABASES: 'presenti,presenti-additions'
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: badbitch
+      POSTGRES_DB: server
+  additions_postgres:
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_USER: additions
+      POSTGRES_PASSWORD: badbitch
+      POSTGRES_DB: additions

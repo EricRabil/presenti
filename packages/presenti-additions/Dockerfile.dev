@@ -3,5 +3,5 @@ FROM node:14
 WORKDIR /root
 ADD . /root
 
-RUN npm i EricRabil/cWS#pre-gyp
+RUN npm install bcrypt
 RUN npm run build
