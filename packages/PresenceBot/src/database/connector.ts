@@ -30,29 +30,39 @@ export class Database {
 
     let hasChanges = false;
     if (username === null) {
-      const { newUsername } = await inquirer.prompt([
-        {
-          type: "input",
-          name: "newUsername",
-          message: `What username will be used to connect to db '${host}:${port}'?`
-        }
-      ]);
-
-      username = this.config.username = newUsername;
-      hasChanges = true;
+      if (process.env.NODE_ENV === "production") {
+        if (!(username = process.env.DB_USERNAME!)) throw new Error("Please configure the database settings in your config.json or pass DB_USERNAME");
+        hasChanges = true;
+      } else {
+        const { newUsername } = await inquirer.prompt([
+          {
+            type: "input",
+            name: "newUsername",
+            message: `What username will be used to connect to db '${host}:${port}'?`
+          }
+        ]);
+  
+        username = this.config.username = newUsername;
+        hasChanges = true;
+      }
     }
 
     if (password === null) {
-      const { newPassword } = await inquirer.prompt([
-        {
-          type: "password",
-          name: "newPassword",
-          message: `What is the password for the '${username}' user on the database?`
-        }
-      ]);
-
-      password = this.config.password = newPassword;
-      hasChanges = true;
+      if (process.env.NODE_ENV === "production") {
+        if (!(password = process.env.DB_PASSWORD!)) throw new Error("Please configure the database settings in your config.json or pass DB_PASSWORD");
+        hasChanges = true;
+      } else {
+        const { newPassword } = await inquirer.prompt([
+          {
+            type: "password",
+            name: "newPassword",
+            message: `What is the password for the '${username}' user on the database?`
+          }
+        ]);
+  
+        password = this.config.password = newPassword;
+        hasChanges = true;
+      }
     }
 
     if (hasChanges) await saveConfig();

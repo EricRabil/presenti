@@ -18,11 +18,11 @@ const DEFAULT_CONFIG = {
         host: "://localhost:8138"
     },
     db: {
-        host: 'localhost',
-        port: 5432,
-        name: 'presenti',
-        username: null,
-        password: null
+        host: process.env.DB_HOST || 'localhost',
+        port: +process.env.DB_PORT || 5432,
+        name: process.env.DB_NAME || 'presenti',
+        username: process.env.DB_USERNAME || null,
+        password: process.env.DB_PASSWORD || null
     }
 };
 exports.CONFIG_PATH = path_1.default.resolve(__dirname, "..", "..", "config.json");

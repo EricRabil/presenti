@@ -40,6 +40,7 @@ const shell = new shell_1.Shell({ service, SecurityKit: security_1.SecurityKit, 
 database.connect().then(() => {
     service.run().then(() => {
         logging_1.log.info('Service is running!');
-        shell.run();
+        if (process.env.NODE_ENV !== "production")
+            shell.run();
     });
 });

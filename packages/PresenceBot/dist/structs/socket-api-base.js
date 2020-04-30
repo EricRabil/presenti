@@ -99,6 +99,7 @@ const HandlerStructBase = {
     property: null,
     handler: null
 };
+/** Initial metadata object */
 const HandlerMetadataBase = {
     authed: false,
     denyAuthed: false,

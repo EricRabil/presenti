@@ -39,7 +39,7 @@ const AdapterRunningGuard = (req, res, next) => {
     }
     next();
 };
-const clean = (str) => { var _a; return (_a = str) === null || _a === void 0 ? void 0 : _a.replace(/(\r\n|\n|\r)/gm, ""); };
+const clean = (str) => str === null || str === void 0 ? void 0 : str.replace(/(\r\n|\n|\r)/gm, "");
 const SessionGuard = async (req, res, next) => {
     var _a;
     const params = new URLSearchParams(req.getQuery());

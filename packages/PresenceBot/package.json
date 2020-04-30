@@ -4,10 +4,15 @@
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "rm -rf dist && tsc -p .",
     "watch": "tsc -p . --watch",
-    "run": "node --experimental-repl-await dist/run.js",
-    "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME"
+    "prod": "NODE_ENV=production node dist/run.js",
+    "dev": "NODE_ENV=development node --experimental-repl-await dist/run.js",
+    "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME",
+    "docker-dev": "docker-compose run presenti",
+    "docker-dev-init": "docker-compose build",
+    "docker-prod-init": "docker-compose -f docker-compose.yml build",
+    "docker-prod": "docker-compose up"
   },
   "repository": {
     "type": "git",

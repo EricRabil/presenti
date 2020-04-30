@@ -37,6 +37,7 @@ interface HandlerStruct<T = any> {
     property: keyof T;
     handler: Function;
 }
+/** Metadata used when processing a payload, defined by decorators */
 interface HandlerMetadata {
     authed: boolean;
     denyAuthed: boolean;

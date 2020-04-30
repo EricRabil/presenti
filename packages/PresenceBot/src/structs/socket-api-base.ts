@@ -98,6 +98,7 @@ const HandlerStructBase: HandlerStruct = {
   handler: null as any
 }
 
+/** Metadata used when processing a payload, defined by decorators */
 interface HandlerMetadata {
   authed: boolean;
   denyAuthed: boolean;
@@ -105,6 +106,7 @@ interface HandlerMetadata {
   denyFirstParty: boolean;
 }
 
+/** Initial metadata object */
 const HandlerMetadataBase: HandlerMetadata = {
   authed: false,
   denyAuthed: false,

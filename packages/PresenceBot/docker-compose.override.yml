@@ -1,0 +1,12 @@
+version: '3'
+services:
+  presenti:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    stdin_open: true
+    tty: true
+    volumes:
+      - '.:/root'
+      - '/root/node_modules'

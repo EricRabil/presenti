@@ -35,6 +35,6 @@ const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapter
 database.connect().then(() => {
   service.run().then(() => {
     log.info('Service is running!');
-    shell.run();
+    if (process.env.NODE_ENV !== "production") shell.run();
   });
 });
