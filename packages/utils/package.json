@@ -1,5 +1,5 @@
 {
-  "name": "remote-presence-utils",
+  "name": "@presenti/utils",
   "version": "1.0.9",
   "description": "Utility functions and types for the Remote Presence API",
   "main": "js/index.js",

@@ -1,5 +1,5 @@
 {
-  "name": "presenti-additions",
+  "name": "@presenti/additions",
   "version": "1.0.0",
   "description": "Additional adapters to spice up your Presenti experience.",
   "main": "js/index.js",
