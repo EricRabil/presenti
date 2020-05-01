@@ -1,4 +1,4 @@
-import { AdapterState, Presence, PresenceAdapter, PresenceBuilder } from "remote-presence-utils";
+import { AdapterState, Presence, PresenceAdapter, PresenceBuilder } from "@presenti/utils";
 import Sactivity, { SpotifyClient } from "sactivity";
 
 const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`

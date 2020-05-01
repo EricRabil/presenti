@@ -1,6 +1,6 @@
 import { log } from "../utils/logging";
 import { EventEmitter } from "events";
-import { AdapterState, Evented } from "remote-presence-utils";
+import { AdapterState, Evented } from "@presenti/utils";
 import { AdapterStruct } from "./adapter";
 
 export declare interface Supervisor<T extends AdapterStruct> {

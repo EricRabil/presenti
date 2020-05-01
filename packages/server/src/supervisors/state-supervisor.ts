@@ -1,4 +1,4 @@
-import { Evented } from "remote-presence-utils";
+import { Evented } from "@presenti/utils";
 import { StateAdapter } from "../structs/state";
 import { Supervisor } from "../structs/supervisor";
 

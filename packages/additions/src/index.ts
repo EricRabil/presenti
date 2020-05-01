@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-import { RemoteClient, RemoteClientOptions } from "remote-presence-connector";
+import { RemoteClient, RemoteClientOptions } from "@presenti/client";
 import { CONFIG, saveConfig } from "./Configuration";
 import { AdapterSupervisor } from "@presenti/server";
 import { DiscordAdapter } from "./adapters/DiscordAdapter";

@@ -1,4 +1,4 @@
-import { Evented, AdapterState } from "remote-presence-utils";
+import { Evented, AdapterState } from "@presenti/utils";
 
 export declare interface StateAdapter {
   on(event: 'updated', listener: (id: string) => any): this;

@@ -1,5 +1,5 @@
 import { StateAdapter } from "../../structs/state";
-import { AdapterState, PresenceStruct } from "remote-presence-utils";
+import { AdapterState, PresenceStruct } from "@presenti/utils";
 import { SharedAdapterSupervisor } from "../../supervisors/adapter-supervisor";
 import { PresentiKit } from "../../utils/renderer";
 

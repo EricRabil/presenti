@@ -1,5 +1,5 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, RelationId, ManyToOne } from "typeorm";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 import { User } from "./User";
 
 @Entity()

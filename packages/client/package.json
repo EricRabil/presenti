@@ -1,6 +1,6 @@
 {
   "name": "@presenti/client",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Utility library that allows you to use the Remote Presence API in Presenti",
   "main": "js/index.js",
   "scripts": {
@@ -25,8 +25,8 @@
     "@clusterws/cws": "^1.6.0"
   },
   "dependencies": {
+    "@presenti/utils": "^1.0.9",
     "node-fetch": "^2.6.0",
-    "remote-presence-utils": "github:EricRabil/remote-presence-utils",
     "winston": "^3.2.1",
     "ws": "^7.2.3"
   },

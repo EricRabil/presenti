@@ -1,6 +1,6 @@
 import events, { EventEmitter } from "events";
 import { User } from "./database/entities";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 import { PresenceList } from "./utils/presence-magic";
 
 export enum Events {

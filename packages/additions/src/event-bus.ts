@@ -1,5 +1,5 @@
 import events, { EventEmitter } from "events";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "./db/entities/Pipe";
 
 export enum Events {

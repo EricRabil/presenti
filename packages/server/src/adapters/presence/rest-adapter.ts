@@ -3,7 +3,7 @@ import { PBRequest, PBResponse, RequestHandler } from "../../utils/web/types";
 import { ScopedPresenceAdapter } from "../../structs/scoped-adapter";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresenceList, PresenceDictionary, PresenceMagic } from "../../utils/presence-magic";
-import { AdapterState, PresenceStruct } from "remote-presence-utils";
+import { AdapterState, PresenceStruct } from "@presenti/utils";
 import * as uuid from "uuid";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { SecurityKit } from "../../utils/security";

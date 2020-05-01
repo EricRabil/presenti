@@ -1,7 +1,7 @@
 import { Client, ClientApplication, Util } from "discord.js";
 import got from "got";
 import { PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
-import { AdapterState, PresenceBuilder, PresenceStruct, OAUTH_PLATFORM } from "remote-presence-utils";
+import { AdapterState, PresenceBuilder, PresenceStruct, OAUTH_PLATFORM } from "@presenti/utils";
 import { PresentiAdditionsService } from "..";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { log } from "../utils";

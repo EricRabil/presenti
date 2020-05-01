@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import qs from "querystring";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 import { Get } from "../../structs/rest-api-base";
 import { CONFIG } from "../../utils/config";
 import log from "../../utils/logging";

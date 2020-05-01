@@ -19,8 +19,8 @@
     "chrome-extension-async": "^3.4.1",
     "jquery": "^3.4.1",
     "moment": "~2.24.0",
-    "remote-presence-connector": "^1.0.2",
-    "remote-presence-utils": "^1.0.3"
+    "@presenti/client": "^1.0.7",
+    "@presenti/utils": "^1.0.9"
   },
   "devDependencies": {
     "@types/chrome": "0.0.100",

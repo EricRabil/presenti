@@ -1,4 +1,4 @@
-import { API_ROUTES, OAUTH_PLATFORM } from "remote-presence-utils";
+import { API_ROUTES, OAUTH_PLATFORM } from "@presenti/utils";
 import { User } from "../../database/entities";
 import RestAPIBase, { Route, RouteDataShell } from "../../structs/rest-api-base";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";

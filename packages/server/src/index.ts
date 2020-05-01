@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { isRemotePayload, PayloadType } from "remote-presence-utils";
+import { isRemotePayload, PayloadType } from "@presenti/utils";
 import { App, TemplatedApp, WebSocket } from "uWebSockets.js";
 import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";

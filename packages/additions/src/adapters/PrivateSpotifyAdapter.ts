@@ -1,7 +1,7 @@
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { PresenceList, PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
 import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
-import { AdapterState, OAUTH_PLATFORM } from "remote-presence-utils";
+import { AdapterState, OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { EventBus, Events } from "../event-bus";
 import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";

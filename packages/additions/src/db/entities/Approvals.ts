@@ -1,5 +1,5 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, Unique } from "typeorm";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 
 /** Represents a platform user with elevated API access */
 @Entity()

@@ -1,5 +1,5 @@
 import events, { EventEmitter } from "events";
-import { Evented, AdapterState, PresenceAdapter, Presence } from "remote-presence-utils";
+import { Evented, AdapterState, PresenceAdapter, Presence } from "@presenti/utils";
 
 export interface AdapterStruct extends Evented {
   on(event: "updated", listener: (scope?: string) => any): this;

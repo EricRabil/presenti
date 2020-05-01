@@ -1,7 +1,7 @@
 import { Message, Channel, Util, ClientApplication } from "discord.js";
-import RemoteClient from "remote-presence-connector";
+import RemoteClient from "@presenti/client";
 import { PresentiAdditionsService } from "..";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { Approvals } from "../db/entities/Approvals";
 import { SpotifyInternalKit } from "../adapters/utils/SpotifyInternalKit";

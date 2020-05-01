@@ -8,8 +8,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { PresenceStream } from 'remote-presence-connector'
-import { PresenceStruct } from 'remote-presence-utils'
+import { PresenceStream } from '@presenti/client'
+import { PresenceStruct } from '@presenti/utils'
 import PresentiPresence from './PresentiPresence.vue'
 
 export interface Presence {

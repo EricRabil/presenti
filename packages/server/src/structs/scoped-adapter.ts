@@ -1,4 +1,4 @@
-import { Presence } from "remote-presence-utils";
+import { Presence } from "@presenti/utils";
 import { PresenceDictionary } from "../utils/presence-magic";
 import { NativePresenceAdapter } from "./adapter";
 

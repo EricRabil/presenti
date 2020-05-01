@@ -1,4 +1,4 @@
-import { AdapterState, PresenceAdapter, PresenceStruct } from "remote-presence-utils";
+import { AdapterState, PresenceAdapter, PresenceStruct } from "@presenti/utils";
 import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
 import { Supervisor } from "../structs/supervisor";
 import { log } from "../utils/logging";

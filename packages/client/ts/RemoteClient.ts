@@ -1,5 +1,5 @@
-import { Presence, PresenceAdapter, AdapterState, Evented, PresentiUser, OAUTH_PLATFORM } from "remote-presence-utils";
-import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES } from "remote-presence-utils";
+import { Presence, PresenceAdapter, AdapterState, Evented, PresentiUser, OAUTH_PLATFORM } from "@presenti/utils";
+import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES } from "@presenti/utils";
 import winston from "winston";
 
 export interface RemoteClientOptions {

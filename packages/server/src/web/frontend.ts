@@ -9,7 +9,7 @@ import { PBRequest, PBResponse, RequestHandler } from "../utils/web/types";
 import { notFound } from "./canned-responses";
 import { UserLoader } from "./loaders";
 import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middleware";
-import { API_ROUTES } from "remote-presence-utils";
+import { API_ROUTES } from "@presenti/utils";
 import { RouteData } from "../utils/web/utils";
 
 /** Frontend routes */

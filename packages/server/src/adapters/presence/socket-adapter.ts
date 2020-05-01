@@ -1,4 +1,4 @@
-import { PayloadType, AdapterState, Presence, FirstPartyPresenceData } from "remote-presence-utils";
+import { PayloadType, AdapterState, Presence, FirstPartyPresenceData } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
 import { log } from "../../utils/logging";
 import { SocketAPIAdapter, Handler, SocketContext, Authed, FIRST_PARTY_SCOPE, FirstParty, DenyFirstParty } from "../../structs/socket-api-base";

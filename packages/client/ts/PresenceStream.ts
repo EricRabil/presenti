@@ -1,4 +1,4 @@
-import { Evented, PresenceStruct, PayloadType } from "remote-presence-utils";
+import { Evented, PresenceStruct, PayloadType } from "@presenti/utils";
 
 export interface PresenceStreamOptions {
   url?: string;

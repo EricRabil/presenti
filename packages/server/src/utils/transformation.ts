@@ -1,4 +1,4 @@
-import { PresenceStruct, PresenceImage, PresenceText, isPresentiImage, isPresentiText } from "remote-presence-utils";
+import { PresenceStruct, PresenceImage, PresenceText, isPresentiImage, isPresentiText } from "@presenti/utils";
 
 export enum TransformationType {
   SET = "set", REPLACE = "replace", DELETE = "delete"

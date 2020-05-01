@@ -1,5 +1,5 @@
 import { Entity, BaseEntity, Column, PrimaryGeneratedColumn } from "typeorm";
-import { OAUTH_PLATFORM } from "remote-presence-utils";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 
 @Entity()
 export class PresencePipe extends BaseEntity {

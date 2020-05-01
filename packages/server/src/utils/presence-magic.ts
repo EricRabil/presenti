@@ -1,5 +1,5 @@
 import deepEqual from "deep-equal";
-import { PresenceStruct } from "remote-presence-utils";
+import { PresenceStruct } from "@presenti/utils";
 import { log as logger } from "./logging";
 
 export type PresenceList = Array<Partial<PresenceStruct>>;

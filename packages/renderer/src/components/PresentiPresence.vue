@@ -31,7 +31,7 @@ import { Presence } from './StatusRenderer.vue'
 import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from './TimeBar.vue'
-import { PresenceStruct } from 'remote-presence-utils/js/types'
+import { PresenceStruct } from '@presenti/utils/js/types'
 
 @Component({
   components: {
