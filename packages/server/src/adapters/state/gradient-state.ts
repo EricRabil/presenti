@@ -2,7 +2,8 @@ import { StateAdapter } from "../../structs/state";
 import { AdapterState, PresenceStruct } from "@presenti/utils";
 import { SharedAdapterSupervisor } from "../../supervisors/adapter-supervisor";
 import { PresentiKit } from "../../utils/renderer";
-
+import { PresenceProvider } from "../../structs/output";
+import { EventBus, Events } from "../../event-bus";
 export interface BackgroundData {
   color: string;
   transition: number;
@@ -44,8 +45,12 @@ export class GradientState extends StateAdapter {
   static readonly TRANSITION_GAP = 500;
   static shadeCache: Record<string, string[]> = {};
 
-  constructor() {
+  constructor(public readonly provider: PresenceProvider) {
     super();
+
+    EventBus.on(Events.PRESENCE_UPDATE, ({ scope }) => {
+      this.emit("updated", scope);
+    });
   }
 
   async run() {
@@ -92,7 +97,9 @@ export class GradientState extends StateAdapter {
    * @param scope scope to query for gradient shades
    */
   async shadesForScope(scope: string): Promise<{shades: string[], currentShade: string, same: boolean, presencePaused: boolean} | undefined> {
-    const presence = await GradientState.gradientActivityForScope(scope);
+    const presence = await this.provider.presence(scope).then(presences => presences.find(presence => truthful(presence.gradient, "enabled")));
+    if (!presence) return;
+
     const shades = await GradientState.shadeForPresence(presence);
     if (!shades) {
       this.shades[scope] = undefined!;
@@ -137,22 +144,6 @@ export class GradientState extends StateAdapter {
       // re-schedule color rotation
       this.runRotationTimer(scope);
     }, GradientState.TRANSITION_TIME + GradientState.TRANSITION_GAP);
-  }
-
-  /**
-   * Finds the presence with the highest-priority gradient selection
-   * @param scope scope to look for presences within
-   */
-  static async gradientActivityForScope(scope: string) {
-    const { presences } = await SharedAdapterSupervisor.scopedData(scope);
-    const [ activity ] = presences
-      .filter(activity => truthful(activity.gradient, "enabled"))
-      .sort((a, b) => {
-        const aPriority: number = typeof a.gradient === 'boolean' ? 0 : (a.gradient?.priority || 0)
-        const bPriority: number = typeof b.gradient === 'boolean' ? 0 : (b.gradient?.priority || 0)
-        return bPriority - aPriority
-      });
-    return activity;
   }
 
   /**

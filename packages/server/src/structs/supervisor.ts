@@ -36,7 +36,7 @@ export abstract class Supervisor<T extends AdapterStruct> extends Evented {
     this.state = AdapterState.RUNNING;
   }
 
-  abstract scopedData(scope: string, newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
-  abstract scopedDatas(): Promise<Record<string, Record<string, Record<string, any>>>>;
+  abstract scopedData(scope: string, newSocket?: boolean): Promise<any>;
+  abstract scopedDatas(): Promise<Record<string, any>>;
   abstract globalData(newSocket?: boolean): Promise<Record<string, Record<string, any>>>;
 }

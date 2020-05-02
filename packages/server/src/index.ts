@@ -3,7 +3,6 @@ import { isRemotePayload, PayloadType } from "@presenti/utils";
 import { App, TemplatedApp, WebSocket } from "uWebSockets.js";
 import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
-import { MasterSupervisor } from "./supervisors/master-supervisor";
 import { GradientState } from "./adapters/state/gradient-state";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
 import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
@@ -11,96 +10,43 @@ import { StateSupervisor } from "./supervisors/state-supervisor";
 import { log } from "./utils/logging";
 import { PresentiModuleClasses } from "./structs/presenti-module";
 import NativeClient from "./structs/native-client";
+import { StateAdapter } from "./structs/state";
+import { PresenceProvider, PresenceOutput } from "./structs/output";
+import { PresenceDictionary } from "./utils/utils-index";
+import { EventBus, Events } from "./event-bus";
+import { PresenceStreamOutput } from "./outputs/presence-stream";
+import { PresenceRESTOutput } from "./outputs/presence-rest";
 
 /**
  * Tracks global and scoped (per-user presence)
  */
-export class PresenceService {
-  /** Supervisor that tracks supervisors */
-  supervisor: MasterSupervisor = new MasterSupervisor();
-  /** WebSocket and Web server */
-  app: TemplatedApp;
-  /** Record of <scope, connections> */
-  clients: Record<string, WebSocket[]> = {};
-  /** Record of <connection, scope> */
-  idMap: Map<WebSocket, string> = new Map();
-  /** Record of <scope, latest payload> */
-  scopedPayloads: Record<string, Record<string, any>> = {};
-  /** Record of latest global payload */
-  globalPayload: Record<string, any> = {};
-  /** reference to the adapter supervisor */
-  adapterSupervisor: AdapterSupervisor;
+export class PresenceService implements PresenceProvider {
   /** logging instance */
   log = log.child({ name: "Presenti" });
+  /** WebSocket and Web server */
+  app: TemplatedApp;
+  /** reference to the adapter supervisor */
+  adapterSupervisor: AdapterSupervisor;
+  /** reference to the state supervisor */
+  stateSupervisor: StateSupervisor;
   /** Native client for modules running on the server process */
   nativeClient: NativeClient;
+  /** Array of outputs that send out assembled presence payloads */
+  outputs: PresenceOutput[] = [];
+
+  presences: PresenceDictionary = {};
+  states: Record<string, Record<string, any>> = {};
 
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();
-    this.supervisor = new MasterSupervisor();
-    this.supervisor.on("updated", (scope) => this.dispatch(scope, true));
     this.nativeClient = new NativeClient();
     this.nativeClient.on("updated", ({ scope }) => {
-      console.log(scope);
       this.adapterSupervisor.updated(scope);
-    });
-
-    /** presence streaming endpoint */
-    this.app.ws('/presence/:id', {
-      open: async (ws, req) => {
-        const id = req.getParameter(0);
-        this.mountClient(id, ws);
-        ws.send(JSON.stringify(await this.payloadForSelector(id, true)));
-      },
-      message: (ws, msg) => {
-        const rawStr = Buffer.from(msg).toString('utf8');
-        var parsed;
-        try {
-          parsed = JSON.parse(rawStr);
-        } catch (e) {
-          ws.close();
-          return;
-        }
-        if (!isRemotePayload(parsed)) return;
-
-        switch (parsed.type) {
-          case PayloadType.PING:
-            ws.send(JSON.stringify({type: PayloadType.PONG}));
-            break;
-        }
-      },
-      close: (ws, code, message) => {
-        this.unmountClient(ws);
-      }
     });
 
     this.registerAdapters();
     this.registerStates();
-  }
-
-  /**
-   * Allocates resources to a websocket with a scope ID
-   * @param id scope ID
-   * @param socket socket
-   */
-  mountClient(id: string, socket: WebSocket) {
-    const clients = (this.clients[id] || (this.clients[id] = []));
-    if (clients.includes(socket)) return;
-    this.idMap.set(socket, id);
-    clients.push(socket);
-  }
-
-  /**
-   * Deallocates resources for a websocket
-   * @param socket socket to deallocate
-   */
-  unmountClient(socket: WebSocket) {
-    const id = this.idMap.get(socket);
-    if (!id) return;
-    const clients = (this.clients[id] || (this.clients[id] = []));
-    if (!clients.includes(socket)) return;
-    clients.splice(clients.indexOf(socket), 1);
-    this.idMap.delete(socket);
+    this.registerOutputs();
   }
 
   /**
@@ -112,74 +58,83 @@ export class PresenceService {
     adapterSupervisor.register(new RemoteAdatpterV2(this.app));
     adapterSupervisor.register(new RESTAdapterV2(this.app));
 
-    this.supervisor.register(adapterSupervisor);
+    adapterSupervisor.on("updated", async scope => scope && EventBus.emit(Events.PRESENCE_UPDATE, {
+      scope,
+      presence: await this.presence(scope, false, true)
+    }));
   }
 
   /** Registers state adapters with the supervisor */
   registerStates() {
-    const stateSupervisor = new StateSupervisor();
+    const stateSupervisor = this.stateSupervisor = new StateSupervisor();
 
-    stateSupervisor.register(new GradientState());
+    stateSupervisor.register(new GradientState(this));
 
-    this.supervisor.register(stateSupervisor);
+    stateSupervisor.on("updated", async scope => scope && EventBus.emit(Events.STATE_UPDATE, {
+      scope,
+      state: await this.state(scope, false, true)
+    }));
+  }
+
+  registerOutputs() {
+    this.outputs.push(new PresenceStreamOutput(this, this.app));
+    this.outputs.push(new PresenceRESTOutput(this, this.app));
   }
 
   /**
-   * Dispatches the latest presence state to the given selector
-   * @param selector selector to dispatch to
+   * Returns the presence for a given scope
+   * @param scope scope
    */
-  async dispatchToSelector(selector: string, refresh: boolean = false) {
-    const clients = this.clients[selector];
-    if (!clients || clients.length === 0) return;
-    const payload = JSON.stringify(await this.payloadForSelector(selector, false, refresh));
+  async presence(scope: string, initial: boolean = false, refresh: boolean = false) {
+    if (!this.presences[scope] || refresh) this.presences[scope] = await this.adapterSupervisor.scopedData(scope);
 
-    await Promise.all(
-      clients.map(client => (
-        client.send(payload)
-      ))
-    );
+    return this.presences[scope];
   }
 
   /**
-   * Returns the latest payload for a scope, querying adapters if none has been cached already
-   * @param scope
-   * @param newSocket is this payload being sent for a new connection?
-   * @param refresh should the cache be refreshed?
+   * Returns the state for a given scope
+   * @param scope scope
+   * @param initial whether this should be treated as a "new" state
    */
-  async payloadForSelector(scope: string, newSocket: boolean = false, refresh: boolean  = false) {
-    if (!this.scopedPayloads[scope] || refresh) this.scopedPayloads[scope] = await this.supervisor.scopedData(scope, newSocket);
-    if (!this.globalPayload) this.globalPayload = await this.supervisor.globalData(newSocket);
+  async state(scope: string, initial: boolean = false, refresh: boolean = false) {
+    if (!this.states[scope] || initial || refresh) this.states[scope] = await this.stateSupervisor.scopedData(scope, initial);
 
-    return Object.assign({}, this.globalPayload, this.scopedPayloads[scope]);
+    return this.states[scope];
   }
 
   /**
-   * Dispatches to a set of selectors, or all connected users
-   * @param selector selectors to dispatch to
+   * Initializes adapters and preloads presences/states
    */
-  async dispatch(selector?: string | string[], refresh: boolean = false) {
-    if (!selector) selector = Object.keys(this.clients);
-    else if (!Array.isArray(selector)) selector = [selector];
+  async bootstrap() {
+    await this.adapterSupervisor.run();
+    await this.stateSupervisor.run();
+    await Promise.all(this.outputs.map(output => output.run()));
 
-    return selector.map(sel => this.dispatchToSelector(sel, refresh));
+    this.presences = await this.adapterSupervisor.scopedDatas();
+    this.states = await this.stateSupervisor.scopedDatas();
+
+    this.log.info(`Bootstrapped Presenti with ${Object.keys(this.presences).length} presence(s) and ${Object.keys(this.states).length} state(s)`);
   }
   
   /**
    * Starts the presence service
    */
-  async run(modules: PresentiModuleClasses = {Adapters: {}, Entities: {}, Configs: {}}) {
+  async run(modules: PresentiModuleClasses = {Adapters: {}, Entities: {}, Configs: {}, Outputs: {}}) {
     for (let [ name, adapterClass ] of Object.entries(modules.Adapters)) {
       this.log.info(`Loading module adapter ${name}`);
       const { [name.split(".")[0]]: config } = modules.Configs;
       const adapter = new adapterClass(config, this.nativeClient);
-      this.adapterSupervisor.register(adapter);
+      if (adapter instanceof StateAdapter) this.stateSupervisor.register(adapter);
+      else this.adapterSupervisor.register(adapter);
+    }
+    for (let [ name, outputClass ] of Object.entries(modules.Outputs)) {
+      this.log.info(`Loading output ${name}`);
+      const { [name.split(".")[0]]: config } = modules.Configs;
+      const output = new outputClass(this, this.app, config);
+      this.outputs.push(output);
     }
 
-    await this.supervisor.run();
-    
-    this.scopedPayloads = await this.supervisor.scopedDatas();
-    this.log.debug(`Bootstrapped Presenti with ${Object.keys(this.scopedPayloads).length} payloads to serve`);
-
+    await this.bootstrap();
     await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
   }
 }
@@ -189,7 +144,6 @@ export * from "./adapters/presence/socket-adapter";
 export * from "./adapters/state/gradient-state";
 export * from "./supervisors/adapter-supervisor";
 export * from "./supervisors/state-supervisor";
-export * from "./supervisors/master-supervisor";
 export * from "./structs/adapter";
 export * from "./structs/rest-api-base";
 export * from "./structs/scoped-adapter";

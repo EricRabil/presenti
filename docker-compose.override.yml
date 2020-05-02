@@ -1,20 +1,9 @@
 version: '3'
 services:
-  presenti-server:
-    build:
-      context: packages/presenti-server
-      dockerfile: Dockerfile.dev
+  presenti:
     command: npm run dev
     stdin_open: true
     tty: true
     volumes:
-      - './packages/presenti-server:/root'
-      - '/root/node_modules'
-  presenti-additions:
-    build:
-      context: packages/presenti-additions
-      dockerfile: Dockerfile.dev
-    command: npm run dev
-    volumes:
-      - './packages/presenti-additions:/root'
+      - './packages/server:/root'
       - '/root/node_modules'

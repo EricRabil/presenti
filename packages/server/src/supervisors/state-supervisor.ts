@@ -13,24 +13,22 @@ export class StateSupervisor extends Supervisor<StateAdapter> {
     SharedStateSupervisor = this;
   }
 
-  async scopedData(scope: string, newSocket: boolean = false): Promise<Record<string, Record<string, any>>> {
+  async scopedData(scope: string, newSocket: boolean = false) {
     const state = await this.scopedState(scope, newSocket);
 
-    return {
-      state
-    };
+    return state;
   }
 
   async scopedDatas() {
     const states = await Promise.all(this.adapters.map(adapter => adapter.datas()));
-    return Object.entries(states.reduce((acc, c) => {
+    return states.reduce((acc, c) => {
       Object.entries(c).forEach(([scope, state]) => {
         if (acc[scope]) acc[scope] = Object.assign(acc[scope], state);
         else acc[scope] = state;
         return acc;
       });
       return acc;
-    }, {})).reduce((acc, [scope, presences]) => Object.assign(acc, {[scope]: presences }), {});
+    }, {});
   }
 
   async globalData(newSocket: boolean = false): Promise<Record<string, Record<string, any>>> {

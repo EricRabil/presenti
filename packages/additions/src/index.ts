@@ -1,23 +1,17 @@
-import inquirer from "inquirer";
 import { RemoteClient, RemoteClientOptions } from "@presenti/client";
-import { CONFIG, saveConfig } from "./Configuration";
 import { AdapterSupervisor } from "@presenti/server";
-import { DiscordAdapter, DiscordAdapterOptions } from "./adapters/DiscordAdapter";
 import { PresenceList } from "@presenti/server/dist/utils/presence-magic";
-import { Database } from "./db/connector";
+import inquirer from "inquirer";
+import { DiscordAdapter } from "./adapters/DiscordAdapter";
 import { PrivateSpotifyAdapter } from "./adapters/PrivateSpotifyAdapter";
-import { SpotifyInternalKit } from "./adapters/utils/SpotifyInternalKit";
-
-export interface PresentiAdditionsConfig {
-  discord: DiscordAdapterOptions;
-  spotifyInternal: SpotifyInternalKit.SpotifyInternalConfig;
-}
+import { CONFIG, saveConfig } from "./Configuration";
+import { Database } from "./db/connector";
 
 export class PresentiAdditionsService {
   client: RemoteClient;
   supervisor: AdapterSupervisor;
   database: Database = new Database();
-  presences: Record<string, {presences: PresenceList }> = {};
+  presences: Record<string, PresenceList> = {};
   privateSpotifyAdapter: PrivateSpotifyAdapter;
   discordAdapter: DiscordAdapter;
 
@@ -50,7 +44,7 @@ export class PresentiAdditionsService {
 
   async dispatch(scope: string) {
     if (!scope) return;
-    const { presences: presence } = this.presences[scope] || {};
+    const presence = this.presences[scope] || {};
     if (!presence) return;
 
     this.client.updatePresenceForScope({
@@ -103,5 +97,6 @@ export class PresentiAdditionsService {
   }
 }
 
-export * as Entities from "./db/entities";
 export * as Adapters from "./adapters";
+export * as Entities from "./db/entities";
+

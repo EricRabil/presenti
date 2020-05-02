@@ -4,11 +4,14 @@
   "devDependencies": {
     "lerna": "^3.20.2"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "docker-dev": "docker-compose run presenti-server",
+    "docker-dev": "docker-compose run presenti",
     "docker-dev-init": "docker-compose build",
     "docker-prod-init": "docker-compose -f docker-compose.yml build",
-    "docker-prod": "docker-compose up",
+    "docker-prod": "docker-compose up -d",
     "setup": "npx lerna bootstrap --ci --hoist",
     "watch:utils": "npx lerna exec --scope @presenti/utils -- tsc -p . --watch",
     "watch:additions": "npx lerna exec --scope @presenti/additions -- tsc -p . --watch",
@@ -17,5 +20,10 @@
     "watch:renderer": "npx lerna exec --scope @presenti/renderer -- vue-cli-service build --watch --dest dist",
     "run:server": "npx lerna exec --scope @presenti/server -- npm run dev"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "@jimp/plugin-resize": "0.10.5-canary.882.886.0",
+    "@jimp/custom": "0.10.5-canary.882.886.0",
+    "@jimp/types": "0.10.5-canary.882.886.0"
+  }
 }

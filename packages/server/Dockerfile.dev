@@ -1,7 +1,0 @@
-FROM node:14
-
-WORKDIR /root
-ADD . /root
-
-RUN npm i bcrypt
-RUN npm run build

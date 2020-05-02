@@ -7,7 +7,8 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
   const rootModule: PresentiModuleClasses = {
     Adapters: {},
     Entities: {},
-    Configs: {}
+    Configs: {},
+    Outputs: {}
   }
 
   if (Object.keys(moduleNames).length === 0) return rootModule;
@@ -22,6 +23,9 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
       }
       for (let [entityName, entityClass] of Object.entries(rawModule.Entities || {})) {
         rootModule.Entities![`${name}.${entityName}`] = entityClass;
+      }
+      for (let [outputName, outputClass] of Object.entries(rawModule.Outputs || {})) {
+        rootModule.Outputs[`${name}.${outputName}`] = outputClass;
       }
       if (typeof config === "object") rootModule.Configs[name] = observeObject(config, () => saveConfig());
     } catch(e) {

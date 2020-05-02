@@ -1,11 +1,12 @@
-import { StorageAdapter } from "../structs/StorageAdapter";
-import { PresenceList, PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
-import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
+import { PresenceDictionary, PresenceList } from "@presenti/server/dist/utils/presence-magic";
 import { AdapterState, OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { EventBus, Events } from "../event-bus";
+import { PresentiAdditionsConfig } from "../structs/config";
+import { StorageAdapter } from "../structs/StorageAdapter";
 import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";
-import { PresentiAdditionsConfig } from "..";
+import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
+import log from "@presenti/server/dist/utils/logging";
 
 interface SpotifyStorage {
   /** Format of Record<scope, headers> */
@@ -23,6 +24,7 @@ const DEFAULT_STORAGE: SpotifyStorage = {
  */
 export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   static configKey: string = "spotifyInternal";
+  log = log.child({ name: "PrivateSpotify" })
 
   constructor(private config: PresentiAdditionsConfig) {
     super("com.ericrabil.spotify.private", DEFAULT_STORAGE);
@@ -73,8 +75,13 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   async registerScope(scope: string, encryptedCookies: string) {
     const cookies = await SpotifyInternalKit.decryptCookies(encryptedCookies, this.config.spotifyInternal);
 
+    this.log.info(`Registering Spotify connection with scope ${scope}`);
     const client = new SpotifyPrivateClient(cookies);
-    client.on("updated", () => this.emit("updated", scope));
+    client.on("updated", () => {
+      this.log.info(`Spotify scope ${scope} had a track update`);
+
+      this.emit("updated", scope);
+    });
     
     this.clients[scope] = client;
 

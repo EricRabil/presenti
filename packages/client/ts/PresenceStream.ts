@@ -45,8 +45,8 @@ export class PresenceStream extends Evented {
           setTimeout(() => this.ping(), 30 * 1000);
           break;
         default:
-          const { presences, state } = JSON.parse(data);
-          this.emit("presence", presences);
+          const { presence, state } = JSON.parse(data);
+          this.emit("presence", presence);
           this.emit("state", state);
       }
     }

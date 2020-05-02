@@ -1,8 +1,0 @@
-FROM node:14
-
-WORKDIR /root
-ADD . /root
-
-RUN npm ci
-
-RUN npm run build

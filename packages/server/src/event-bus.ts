@@ -23,16 +23,14 @@ export interface UserEvent {
 }
 
 export interface PresenceUpdateEvent {
-  /** This will be a string of the userID when the user was never queried. */
-  user: User | string;
-  /** Did a first party update the presence? */
-  firstParty: boolean;
-  /** Updated presence data for the user */
+  /** Scope for which the presence changed */
+  scope: string;
   presence: PresenceList;
 }
 
 export interface StateUpdateEvent {
-  user: User | string;
+  /** Scope for which the state changed */
+  scope: string;
   state: Record<string, any>;
 }
 

@@ -16,7 +16,7 @@ import { RouteData } from "../utils/web/utils";
 export default class Frontend extends RestAPIBase {
   static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "views");
   static readonly STATIC_DIRECTORY = path.resolve(__dirname, "..", "..", "assets");
-  static readonly PRESENTI_ASSET_DIRECTORY = path.resolve(__dirname, "..", "..", "node_modules", "@presenti/renderer", "dist");
+  static readonly PRESENTI_ASSET_DIRECTORY = path.resolve(require.resolve("@presenti/renderer"), "..", "..");
 
   constructor(public readonly app: TemplatedApp) {
     super(app, Frontend.VIEWS_DIRECTORY);

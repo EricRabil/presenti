@@ -1,14 +1,14 @@
-import { Client, ClientApplication, Util } from "discord.js";
-import got from "got";
+import RemoteClient from "@presenti/client";
 import { PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
-import { AdapterState, PresenceBuilder, PresenceStruct, OAUTH_PLATFORM } from "@presenti/utils";
-import { PresentiAdditionsService, PresentiAdditionsConfig } from "..";
+import { AdapterState, OAUTH_PLATFORM, PresenceBuilder, PresenceStruct } from "@presenti/utils";
+import { Client, ClientApplication } from "discord.js";
+import got from "got";
+import { DiscordAPI } from "../api/discord";
+import { PresencePipe } from "../db/entities/Pipe";
+import { EventBus, Events } from "../event-bus";
+import { PresentiAdditionsConfig } from "../structs/config";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { log } from "../utils";
-import { DiscordAPI } from "../api/discord";
-import { EventBus, Events } from "../event-bus";
-import { PresencePipe } from "../db/entities/Pipe";
-import RemoteClient from "@presenti/client";
 
 export interface DiscordAdapterOptions {
   token: string;
