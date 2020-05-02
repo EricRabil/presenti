@@ -1,11 +1,11 @@
-import { API_ROUTES, OAUTH_PLATFORM } from "@presenti/utils";
+import { API_ROUTES, OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
 import { User } from "../../database/entities";
 import RestAPIBase, { Route, RouteDataShell } from "../../structs/rest-api-base";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import log from "../../utils/logging";
 import { BodyParser } from "../../utils/web/shared-middleware";
 import { PBRequest, PBResponse, RequestHandler } from "../../utils/web/types";
-import { RouteData } from "../../utils/web/utils";
+import { RouteData, APIError } from "../../utils/web/utils";
 import { notFoundAPI } from "../canned-responses";
 import { UserLoader } from "../loaders";
 import { DenyFirstPartyGuard, FirstPartyGuard, IdentityGuard } from "../middleware";
@@ -41,12 +41,18 @@ export default class PresentiAPI extends RestAPIBase {
     const userID = req.getParameter(0);
     const full = res.user === (FIRST_PARTY_SCOPE as any);
     
+    const user = await PresentiAPI.userQuery(userID, full, res.user?.userID);
+
+    res.json(user);
+  }
+
+  static async userQuery(userID: string, full: boolean = false, queryingUser: string | null = null): Promise<PresentiUser | APIError> {
     const user = await User.findOne({ userID });
     if (!user) {
-      return res.writeStatus(404).json({ error: "Unknown user." });
+      return APIError.notFound("Unknown user.");
     }
-
-    res.json(user.json(full || (userID === user.userID)));
+    
+    return user.json(full || (user.userID === queryingUser));
   }
 
   /** Queries the database for a user with the given oauth link, accepts identity or authorization header */
@@ -55,21 +61,27 @@ export default class PresentiAPI extends RestAPIBase {
     const params = new URLSearchParams(req.getQuery());
     const platform = params.get("platform")?.toUpperCase(), linkID = params.get("id");
     const full = res.user === (FIRST_PARTY_SCOPE as any);
-    if (!platform || !linkID) return res.error("The platform and link id are required.");
-    if (!OAUTH_PLATFORM[platform]) return res.error("Unknown platform.", 404);
+
+    const user = await PresentiAPI.platformLookup(platform as any, linkID!, full);
+
+    res.json(user);
+  }
+
+  static async platformLookup(platform: OAUTH_PLATFORM, linkID: string, full: boolean = false): Promise<PresentiUser | APIError> {
+    if (!platform || !linkID) return APIError.badRequest("The platform and link id are required.");
+    if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
 
     const link = await OAuthLink.findOne({
-      platform: platform as any,
+      platform,
       linkID
     });
-    if (!link) return res.error("Unknown link.", 404);
+    if (!link) return APIError.notFound("Unknown link.");
 
     const user = await User.findOne({
       uuid: link.userUUID
     });
+    if (!user) return APIError.internal("Broken link.");
 
-    if (!user) return res.error("Broken link.", 500);
-
-    res.json(user.json(full || (res.user?.uuid === user.uuid)));
+    return user.json(full);
   }
 }

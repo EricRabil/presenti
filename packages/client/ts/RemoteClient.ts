@@ -59,7 +59,7 @@ export class RemoteClient extends Evented {
     });
   }
 
-  private initialize() {
+  public initialize() {
     return Promise.all(
       this.adapters.filter(adapter => (
         adapter.state === AdapterState.READY

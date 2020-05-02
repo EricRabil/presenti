@@ -13,7 +13,7 @@
     "@presenti/client": "^1.0.7",
     "@presenti/utils": "^1.0.9",
     "core-js": "^3.6.4",
-    "moment": "^2.24.0",
+    "moment": "2.24.0",
     "moment-duration-format": "^2.3.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",

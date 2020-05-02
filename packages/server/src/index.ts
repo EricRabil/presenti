@@ -9,6 +9,8 @@ import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
 import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
 import { StateSupervisor } from "./supervisors/state-supervisor";
 import { log } from "./utils/logging";
+import { PresentiModuleClasses } from "./structs/presenti-module";
+import NativeClient from "./structs/native-client";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -30,11 +32,18 @@ export class PresenceService {
   adapterSupervisor: AdapterSupervisor;
   /** logging instance */
   log = log.child({ name: "Presenti" });
+  /** Native client for modules running on the server process */
+  nativeClient: NativeClient;
 
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();
     this.supervisor = new MasterSupervisor();
     this.supervisor.on("updated", (scope) => this.dispatch(scope, true));
+    this.nativeClient = new NativeClient();
+    this.nativeClient.on("updated", ({ scope }) => {
+      console.log(scope);
+      this.adapterSupervisor.updated(scope);
+    });
 
     /** presence streaming endpoint */
     this.app.ws('/presence/:id', {
@@ -158,7 +167,14 @@ export class PresenceService {
   /**
    * Starts the presence service
    */
-  async run() {
+  async run(modules: PresentiModuleClasses = {Adapters: {}, Entities: {}, Configs: {}}) {
+    for (let [ name, adapterClass ] of Object.entries(modules.Adapters)) {
+      this.log.info(`Loading module adapter ${name}`);
+      const { [name.split(".")[0]]: config } = modules.Configs;
+      const adapter = new adapterClass(config, this.nativeClient);
+      this.adapterSupervisor.register(adapter);
+    }
+
     await this.supervisor.run();
     
     this.scopedPayloads = await this.supervisor.scopedDatas();

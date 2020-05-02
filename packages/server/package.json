@@ -28,8 +28,10 @@
   },
   "homepage": "https://github.com/EricRabil/PresenceBot#readme",
   "dependencies": {
+    "@presenti/client": "^1.0.7",
     "@presenti/renderer": "^0.1.1",
     "@presenti/utils": "^1.0.9",
+    "@presenti/additions": "^1.0.1",
     "bcrypt": "^4.0.1",
     "chalk": "^4.0.0",
     "cookie": "^0.4.1",

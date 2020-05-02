@@ -1,7 +1,7 @@
 import events, { EventEmitter } from "events";
-import { Evented, AdapterState, PresenceAdapter, Presence } from "@presenti/utils";
+import { IEvented, AdapterState, PresenceAdapter, Presence } from "@presenti/utils";
 
-export interface AdapterStruct extends Evented {
+export interface AdapterStruct extends IEvented {
   on(event: "updated", listener: (scope?: string) => any): this;
   on(event: string | symbol, listener: (...args: any[]) => void): this;
 

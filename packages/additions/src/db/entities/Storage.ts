@@ -8,6 +8,6 @@ export class Storage<T> extends BaseEntity {
   @Column()
   identifier: string;
 
-  @Column("simple-json")
+  @Column("simple-json", { default: "{}" })
   data: T;
 }

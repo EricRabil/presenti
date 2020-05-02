@@ -2,7 +2,7 @@ version: '3'
 services:
   presenti-server:
     build: 
-      context: packages/presenti-server
+      context: packages/server
       dockerfile: Dockerfile.prod
     command: npm run prod
     depends_on:
@@ -17,7 +17,7 @@ services:
     working_dir: /root
   presenti-additions:
     build:
-      context: packages/presenti-additions
+      context: packages/additions
       dockerfile: Dockerfile.prod
     command: npm run prod
     depends_on:

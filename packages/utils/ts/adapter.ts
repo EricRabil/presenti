@@ -6,7 +6,7 @@ export interface IEvented {
   emit(event: string, ...args: any[]): boolean;
 }
 
-export class Evented implements IEvented {
+var Evented = class EventedPolyfill implements IEvented {
   constructor() {
     (this as any)._listeners = {};
   }
@@ -31,6 +31,12 @@ export class Evented implements IEvented {
     return true;
   }
 }
+
+if (globalThis?.process?.release?.name) {
+  Evented = require("events").EventEmitter;
+}
+
+export { Evented }
 
 export declare interface PresenceAdapter {
   on(event: 'updated', listener: () => any): this;

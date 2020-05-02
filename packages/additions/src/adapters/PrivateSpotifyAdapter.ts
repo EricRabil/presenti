@@ -5,6 +5,7 @@ import { AdapterState, OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { EventBus, Events } from "../event-bus";
 import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";
+import { PresentiAdditionsConfig } from "..";
 
 interface SpotifyStorage {
   /** Format of Record<scope, headers> */
@@ -21,7 +22,9 @@ const DEFAULT_STORAGE: SpotifyStorage = {
  * Presence binding for sactivity
  */
 export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
-  constructor() {
+  static configKey: string = "spotifyInternal";
+
+  constructor(private config: PresentiAdditionsConfig) {
     super("com.ericrabil.spotify.private", DEFAULT_STORAGE);
   }
 
@@ -68,7 +71,7 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   }
 
   async registerScope(scope: string, encryptedCookies: string) {
-    const cookies = await SpotifyInternalKit.decryptCookies(encryptedCookies);
+    const cookies = await SpotifyInternalKit.decryptCookies(encryptedCookies, this.config.spotifyInternal);
 
     const client = new SpotifyPrivateClient(cookies);
     client.on("updated", () => this.emit("updated", scope));

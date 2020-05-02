@@ -2,12 +2,13 @@ import { Client, ClientApplication, Util } from "discord.js";
 import got from "got";
 import { PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
 import { AdapterState, PresenceBuilder, PresenceStruct, OAUTH_PLATFORM } from "@presenti/utils";
-import { PresentiAdditionsService } from "..";
+import { PresentiAdditionsService, PresentiAdditionsConfig } from "..";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { log } from "../utils";
 import { DiscordAPI } from "../api/discord";
 import { EventBus, Events } from "../event-bus";
 import { PresencePipe } from "../db/entities/Pipe";
+import RemoteClient from "@presenti/client";
 
 export interface DiscordAdapterOptions {
   token: string;
@@ -64,9 +65,11 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   botAPI: DiscordAPI;
   pipeLedger: Record<string, string> = {};
 
-  constructor(public readonly options: DiscordAdapterOptions, private service: PresentiAdditionsService) {
+  static configKey: string = "discord";
+
+  constructor(public readonly options: PresentiAdditionsConfig, private remoteClient: RemoteClient) {
     super("com.ericrabil.discord", DEFAULT_STORAGE);
-    this.botAPI = new DiscordAPI(service);
+    this.botAPI = new DiscordAPI(this, remoteClient);
   }
 
   state: AdapterState = AdapterState.READY;
@@ -81,7 +84,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
 
     await this.reloadPipeLedger();
     this.log.info(`Loaded pipe ledger with ${Object.keys(this.pipeLedger).length} entry(s)`)
-    await this.client.login(this.options.token);
+    await this.client.login(this.options.discord.token);
 
     this.client.on("presenceUpdate", async (_, presence) => {
       const id = presence.user?.id || presence.member?.id || (presence as any)['userID'];
@@ -103,8 +106,8 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     });
 
     this.client.on("message", async (message) => {
-      if (!message.cleanContent.startsWith(this.options.prefix)) return;
-      this.botAPI.handleMessage(message, message.cleanContent.substring(this.options.prefix.length).split(" ")[0]);
+      if (!message.cleanContent.startsWith(this.options.discord.prefix)) return;
+      this.botAPI.handleMessage(message, message.cleanContent.substring(this.options.discord.prefix.length).split(" ")[0]);
     });
 
     await ready;

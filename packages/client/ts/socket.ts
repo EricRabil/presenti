@@ -1,13 +1,17 @@
-if (typeof WebSocket === 'undefined' && global) {
-  let wsLib;
-  try {
-    wsLib = require('@clusterws/cws').WebSocket;
-  } catch {
-    wsLib = require('ws');
+if (!process.env.VUE_APP_EXISTS) {
+  if (globalThis?.process?.release?.name) {
+    if (typeof WebSocket === 'undefined') {
+      let wsLib;
+      try {
+        wsLib = require('@clusterws/cws').WebSocket;
+      } catch {
+        wsLib = require('ws');
+      }
+      (global as any).WebSocket = wsLib;
+    }
+    
+    if (typeof fetch === 'undefined') {
+      (global as any).fetch = require("node-fetch");
+    }
   }
-  (global as any).WebSocket = wsLib;
-}
-
-if (typeof fetch === 'undefined' && global) {
-  (global as any).fetch = require("node-fetch");
 }

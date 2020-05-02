@@ -1,9 +1,10 @@
 import inquirer from "inquirer";
 import { createConnection } from "typeorm";
 import { CONFIG, saveConfig } from "../utils/config";
+import { BaseEntityStatic } from "../structs/presenti-module";
 
 export class Database {
-  async connect() {
+  async connect(extraEntities: BaseEntityStatic[] = []) {
     let { host, port, name, username, password } = this.config;
 
     await this.ensureConfig();
@@ -14,7 +15,8 @@ export class Database {
       port,
       database: name,
       entities: [
-        __dirname + "/entities/*.js"
+        __dirname + "/entities/*.js",
+        ...extraEntities
       ],
       subscribers: [
         __dirname + "/subscribers/*.js"

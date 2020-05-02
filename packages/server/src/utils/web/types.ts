@@ -3,6 +3,7 @@ import { CookieSerializeOptions } from "cookie";
 import { Readable } from "stream";
 import { Options, LocalsObject } from "pug";
 import { User } from "../../database/entities";
+import { APIError } from "./utils";
 
 export type HTTPMethod = keyof Omit<TemplatedApp, 'listen' | 'publish' | 'ws'>;
 export type RequestHandler = (req: PBRequest, res: PBResponse, next: (stop?: boolean) => any, err: (e: any) => any) => any;
@@ -26,8 +27,9 @@ export interface PBResponse extends HttpResponse {
 
   _reqHeaders: Record<string, string>;
 
-  /** Send a JSON response */
+  /** Send a JSON response. You can pass an APIError here and it will be properly handled. */
   json(json: any): void;
+  json(error: APIError): void;
 
   /** Send a file */
   file(path: string): Promise<void>;
@@ -45,6 +47,7 @@ export interface PBResponse extends HttpResponse {
 
   /** Returns an error as the response with the given status code, 400 if omitted */
   error(message: string, status?: number): void;
+  error(apiError: APIError): void;
 
   /** Sets a cookie to be sent upon response end */
   setCookie(name: string, value: string, options?: CookieSerializeOptions): PBResponse;

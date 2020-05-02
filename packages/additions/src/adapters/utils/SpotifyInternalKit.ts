@@ -1,27 +1,29 @@
 import crypto from "crypto";
-import { CONFIG, saveConfig } from "../../Configuration";
 
 export namespace SpotifyInternalKit {
-  async function ensureKey() {
-    if (!CONFIG.spotifyInternal.key) {
-      CONFIG.spotifyInternal.key = crypto.randomBytes(16).toString('hex');
-      await saveConfig();
+  export interface SpotifyInternalConfig {
+    key: string | null;
+  }
+
+  async function ensureKey(config: SpotifyInternalConfig) {
+    if (!config.key) {
+      config.key = crypto.randomBytes(16).toString('hex');
     }
   }
 
   const IV_LENGTH = 16;
 
-  function key() {
+  function key(config: SpotifyInternalConfig) {
     return crypto.createHash("sha256")
-                 .update(CONFIG.spotifyInternal.key!)
+                 .update(config.key!)
                  .digest();
   }
 
-  export async function encryptCookies(cookies: string) {
-    await ensureKey();
+  export async function encryptCookies(cookies: string, config: SpotifyInternalConfig) {
+    await ensureKey(config);
     const iv = crypto.randomBytes(IV_LENGTH);
     console.log({ newIV: iv });
-    const cipher = crypto.createCipheriv('aes-256-gcm', key(), iv);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key(config), iv);
     let encrypted = cipher.update(cookies);
 
     encrypted = Buffer.concat([ encrypted, cipher.final() ]);
@@ -32,13 +34,13 @@ export namespace SpotifyInternalKit {
     return iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted.toString('hex');
   }
 
-  export async function decryptCookies(cookies: string) {
-    await ensureKey();
+  export async function decryptCookies(cookies: string, config: SpotifyInternalConfig) {
+    await ensureKey(config);
     const parts = cookies.split(':');
     const iv = Buffer.from(parts.shift()!, 'hex');
     const authTag = Buffer.from(parts.shift()!, 'hex');
     const encryptedText = Buffer.from(parts.join(':'), 'hex');
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key(), iv);
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key(config), iv);
     decipher.setAuthTag(authTag);
 
     let decrypted = decipher.update(encryptedText);

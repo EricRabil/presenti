@@ -72,6 +72,7 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
 
   /** Sends JSON as the response */
   newResponse.json = function (json) {
+    if (json instanceof APIError) return this.error(json);
     res.writeHeader(...Responses.JSON).end(JSON.stringify(json));
   }
 
@@ -157,7 +158,10 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
   }
 
   /** Shorthand for returning an API error */
-  newResponse.error = function(error: string, code: number = 400) {
+  newResponse.error = function(error: string | APIError, code: number = 400) {
+    if (error instanceof APIError) {
+      return this.status(error.httpCode).json(error.json);
+    }
     return this.status(code).json({ error });
   }
 
@@ -178,6 +182,42 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
   }
 
   return newResponse;
+}
+
+/**
+ * Structure for API-related errors, to be serialized/handled in whatever context needed
+ */
+export class APIError {
+  constructor(public message: string, public code: number = 400) {}
+
+  public get json() {
+    return {
+      error: this.message,
+      code: this.code
+    }
+  }
+
+  public get httpCode() {
+    const httpMessage = STATUS_CODES[this.code];
+    if (!httpMessage) return this.code.toString();
+    return `${this.code} ${STATUS_CODES[this.code]}`;
+  }
+
+  public static notFound(message: string = "Unknown resource.") {
+    return new APIError(message, 404);
+  }
+
+  public static badRequest(message: string = "Bad request.") {
+    return new APIError(message, 400);
+  }
+
+  public static internal(message: string = "Internal error.") {
+    return new APIError(message, 500);
+  }
+
+  public static timeout(message: string = "Service timeout.") {
+    return new APIError(message, 502);
+  }
 }
 
 /**

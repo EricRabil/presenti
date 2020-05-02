@@ -22,7 +22,8 @@ export interface ConfigurationStruct {
     name: string;
     username: string | null;
     password: string | null;
-  }
+  };
+  modules: Record<string, object | boolean>;
 }
 
 const DEFAULT_CONFIG: ConfigurationStruct = {
@@ -42,7 +43,8 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     name: process.env.DB_NAME || 'presenti',
     username: process.env.DB_USERNAME || null,
     password: process.env.DB_PASSWORD || null
-  }
+  },
+  modules: {}
 }
 
 export const CONFIG_PATH = path.resolve(__dirname, "..", "..", "config.json");

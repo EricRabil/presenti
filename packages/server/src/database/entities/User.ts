@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { SecurityKit } from "../../utils/security";
 import { OAuthLink } from "./OAuthLink";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 
 @Entity()
 export class User extends BaseEntity {
@@ -29,8 +30,8 @@ export class User extends BaseEntity {
     }
   }
   
-  get platforms() {
-    return (this.oAuthLinks || []).reduce((acc, { platform, linkID }) => Object.assign(acc, { [platform]: linkID }), {});
+  get platforms(): Record<OAUTH_PLATFORM, string> {
+    return (this.oAuthLinks || []).reduce((acc, { platform, linkID }) => Object.assign(acc, { [platform]: linkID }), {} as Record<OAUTH_PLATFORM, string>);
   }
 
   async setPassword(password: string) {

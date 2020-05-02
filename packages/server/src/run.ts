@@ -11,6 +11,7 @@ import { SharedStateSupervisor } from "./supervisors/state-supervisor";
 import { User } from "./database/entities";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
 import { WebRoutes } from "./web";
+import { loadModules } from "./utils/modules";
 
 process.on("unhandledRejection", e => {
   console.error(e);
@@ -32,9 +33,11 @@ console.clear();
 const routes = WebRoutes.initialize(service.app);
 const database = new Database();
 const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG });
-database.connect().then(() => {
-  service.run().then(() => {
-    log.info('Service is running!');
-    if (process.env.NODE_ENV !== "production") shell.run();
-  });
-});
+loadModules().then(({ Adapters, Entities, Configs}) => {
+  database.connect(Object.values(Entities)).then(() => {
+    service.run({ Adapters, Entities, Configs }).then(() => {
+      log.info('Service is running!');
+      if (process.env.NODE_ENV !== "production") shell.run();
+    });
+  });  
+})

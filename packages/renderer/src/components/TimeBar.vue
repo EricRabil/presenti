@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment'
+import moment from "moment";
 import VueSlider from 'vue-slider-component'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import 'vue-slider-component/theme/default.css'

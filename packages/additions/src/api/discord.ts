@@ -5,6 +5,7 @@ import { OAUTH_PLATFORM } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { Approvals } from "../db/entities/Approvals";
 import { SpotifyInternalKit } from "../adapters/utils/SpotifyInternalKit";
+import { DiscordAdapter } from "../adapters";
 
 type ChannelType = Channel['type'];
 interface CommandOptions {
@@ -64,7 +65,7 @@ Message.prototype.reply = function(...args: any[]) {
 export class DiscordAPI {
   commands: Record<string, CommandData<this>>;
 
-  constructor(private service: PresentiAdditionsService) {}
+  constructor(private discordAdapter: DiscordAdapter, private client: RemoteClient) {}
 
   handleMessage(message: Message, command: string) {
     const [ , ...args ] = message.content.split(" ");
@@ -86,7 +87,7 @@ export class DiscordAPI {
     }
 
     if (typeof options.args === "number" && args.length < options.args) {
-      return message.reply(Response("Syntax Error").items(`Syntax for '${this.service.discordAdapter.options.prefix}${command}'`, options.syntax ? `${this.service.discordAdapter.options.prefix}${options.syntax}` : `${this.service.discordAdapter.options.prefix}${command} ${Array.from({ length: options.args }).map((_,i) => `arg${i}`)}`));
+      return message.reply(Response("Syntax Error").items(`Syntax for '${this.discordAdapter.options.discord.prefix}${command}'`, options.syntax ? `${this.discordAdapter.options.discord.prefix}${options.syntax}` : `${this.discordAdapter.options.discord.prefix}${command} ${Array.from({ length: options.args }).map((_,i) => `arg${i}`)}`));
     }
     
     if (typeof this[name] !== "function") return;
@@ -194,7 +195,7 @@ export class DiscordAPI {
 
   _application: ClientApplication;
   async application() {
-    return this._application || (this._application = await this.service.discordAdapter.client.fetchApplication());
+    return this._application || (this._application = await this.discordAdapter.client.fetchApplication());
   }
   
   async loadProfileFromMessage(message: Message) {
@@ -224,7 +225,7 @@ export class DiscordAPI {
 
     const pipe = PresencePipe.create({
       platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL,
-      platformID: await SpotifyInternalKit.encryptCookies(cookies),
+      platformID: await SpotifyInternalKit.encryptCookies(cookies, this.discordAdapter.options.spotifyInternal),
       scope
     });
     await pipe.save();
@@ -263,10 +264,10 @@ export class DiscordAPI {
   }
 
   profileForDiscordID(id: string) {
-    return this.service.client.platformLookup(OAUTH_PLATFORM.DISCORD, id);
+    return this.client.platformLookup(OAUTH_PLATFORM.DISCORD, id);
   }
   
   discordIDForScope(scope: string) {
-    return this.service.client.lookupUser(scope).then(user => user?.platforms ? user.platforms[OAUTH_PLATFORM.DISCORD] : null);
+    return this.client.lookupUser(scope).then(user => user?.platforms ? user.platforms[OAUTH_PLATFORM.DISCORD] : null);
   }
 }

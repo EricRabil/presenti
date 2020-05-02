@@ -16,5 +16,6 @@
     "watch:client": "npx lerna exec --scope @presenti/client -- tsc -p . --watch",
     "watch:renderer": "npx lerna exec --scope @presenti/renderer -- vue-cli-service build --watch --dest dist",
     "run:server": "npx lerna exec --scope @presenti/server -- npm run dev"
-  }
+  },
+  "dependencies": {}
 }
