@@ -24,4 +24,9 @@ export class PresenceRESTOutput extends PresenceOutput {
 
     this.api = new RestAPI(app, this);
   }
+
+  async run() {
+    this.api.run();
+    await super.run();
+  }
 }

@@ -15,6 +15,10 @@ export namespace WebRoutes {
     const api = new PresentiAPI(app);
     const oauthAPI = new PresentiOAuthAPI(app);
 
+    frontend.run();
+    api.run();
+    oauthAPI.run();
+
     return { frontend, api, oauthAPI };
   }
 }

@@ -224,6 +224,7 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
   }
 
   run() {
+    this.api.run();
     this.state = AdapterState.RUNNING;
     this.log.info("REST Presence API is running.");
   }
