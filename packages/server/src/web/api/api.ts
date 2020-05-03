@@ -84,4 +84,44 @@ export default class PresentiAPI extends RestAPIBase {
 
     return user.json(full);
   }
+
+  static async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string): Promise<{ ok: true } | APIError> {
+    if (!platform || !linkID) return APIError.badRequest("The platform and link id are required.");
+    if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
+    const user = await User.findOne({ userID });
+    if (!user) return APIError.notFound("Unknown user.");
+
+    await this.removeLinkIfExists(platform, linkID);
+    
+    const link = OAuthLink.create({ platform, linkID });
+    link.user = user;
+    await link.save();
+
+    return { ok: true };
+  }
+
+  /**
+   * Drops a given user/platform link
+   * @param platform platform ID
+   * @param linkID link ID
+   * @param uuid user ID
+   */
+  static async dropLink(platform: OAUTH_PLATFORM, uuid: string): Promise<{ ok: true } | APIError> {
+    if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
+    await OAuthLink.createQueryBuilder()
+                   .delete()
+                   .where("platform = :platform", { platform })
+                   .andWhere("userUuid = :uuid", { uuid })
+                   .execute();
+
+    return { ok: true };
+  }
+
+  private static async removeLinkIfExists(platform: OAUTH_PLATFORM, linkID: string) {
+    await OAuthLink.createQueryBuilder()
+                   .delete()
+                   .where("platform = :platform", { platform })
+                   .andWhere("linkID = :linkID", { linkID })
+                   .execute();
+  }
 }
