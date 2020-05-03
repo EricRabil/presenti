@@ -57,6 +57,31 @@ export function wrapRequest(req: HttpRequest, res: PBResponse): PBRequest {
     return res._reqHeaders[key as any];
   }
 
+  newRequest.getMethod = function() {
+    return res._method;
+  }
+
+  Object.defineProperty(newRequest, "method", {
+    get() {
+      return newRequest.getMethod();
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(newRequest, "url", {
+    get() {
+      return newRequest.getUrl();
+    },
+    configurable: true
+  });
+
+  Object.defineProperty(newRequest, "headers", {
+    get() {
+      return res._reqHeaders;
+    },
+    configurable: true
+  });
+
   return newRequest;
 }
 
@@ -147,6 +172,9 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
     return this;
   }
 
+  /** Interoperability function for express */
+  newResponse.setHeader = newResponse.writeHeader;
+
   const oldWriteStatus: any = newResponse.writeStatus;
 
   /** Maps status numbers to their fully-qualified strings to meet uWS requirements */
@@ -156,6 +184,15 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
     oldWriteStatus.call(this, status);
     return this;
   }
+  Object.defineProperty(newResponse, "statusCode", {
+    get() {
+      return newResponse._status;
+    },
+    set(status) {
+      newResponse.writeStatus(status);
+      return this;
+    }
+  })
 
   /** Shorthand for returning an API error */
   newResponse.error = function(error: string | APIError, code: number = 400) {
@@ -229,7 +266,7 @@ export class APIError {
 export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PBResponse, middleware: RequestHandler[]) {
   // load body data
   const parameters = params(req, metadata.path);
-  req.body = await body(req, res);
+  req.body = req.rawBody = await body(req, res);
   req.getParameter = (index: number) => parameters[index];
 
   for (let fn of middleware) {

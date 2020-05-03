@@ -10,6 +10,10 @@ export type RequestHandler = (req: PBRequest, res: PBResponse, next: (stop?: boo
 
 export interface PBRequest extends HttpRequest {
   _cookies: Record<string, string>;
+  method: HTTPMethod;
+  headers: Record<string, string>;
+  url: string;
+  rawBody?: any;
   body?: any;
 
   stream: Readable;
@@ -24,6 +28,7 @@ export interface PBResponse extends HttpResponse {
   /** Render a pug template */
   render(tpl: string, options?: Options & LocalsObject): void;
   user: User;
+  statusCode: number;
 
   _reqHeaders: Record<string, string>;
 
@@ -61,6 +66,7 @@ export interface PBResponse extends HttpResponse {
 
   /** Writes key and value to HTTP response. */
   writeHeader(key: RecognizedString, value: RecognizedString): PBResponse;
+  setHeader(key: RecognizedString, value: RecognizedString): PBResponse;
   /** Enters or continues chunked encoding mode. Writes part of the response. End with zero length write. */
   write(chunk: RecognizedString): PBResponse;
   /** Ends this response by copying the contents of body. */
