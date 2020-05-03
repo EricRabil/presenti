@@ -114,8 +114,13 @@ export default class Frontend extends RestAPIBase {
     const token = await user.token(password);
     if (!token) return fail();
 
+    const redirect = req.cookie('redirect');
     res.setCookie('identity', token, { httpOnly: true });
-    res.redirect('/');
+    res.setCookie('redirect', '', { maxAge: 0 });
+
+    console.log(redirect);
+
+    res.redirect(redirect || '/');
   }
 
   /** Renders the panel if signed in, and the login page otherwise */

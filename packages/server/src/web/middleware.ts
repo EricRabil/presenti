@@ -15,6 +15,7 @@ export const IdentityGuard: RequestHandler = async (req, res, next) => {
 /** Renders an authentication error if the request is not authenticated */
 export const IdentityGuardFrontend: RequestHandler = async (req, res, next) => {
   if (!res.user) {
+    res.setCookie('redirect', req.url, { httpOnly: true, maxAge: 60 * 2.5, path: "/" });
     res.render('login', { error: 'You must be logged in to perform this action.', signup: CONFIG.registration });
     return next(true);
   }
