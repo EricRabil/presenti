@@ -1,5 +1,4 @@
 import { CONFIG } from "../utils/config";
-import { SecurityKit } from "../utils/security";
 import { FIRST_PARTY_SCOPE } from "../structs/socket-api-base";
 import { RequestHandler } from "../utils/web/types";
 
