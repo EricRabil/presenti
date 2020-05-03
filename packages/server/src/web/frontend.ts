@@ -11,15 +11,12 @@ import { UserLoader } from "./loaders";
 import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middleware";
 import { API_ROUTES } from "@presenti/utils";
 import { RouteData } from "../utils/web/utils";
+import { VIEWS_DIRECTORY, PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY } from "./Constants";
 
 /** Frontend routes */
 export default class Frontend extends RestAPIBase {
-  static readonly VIEWS_DIRECTORY = path.resolve(__dirname, "..", "..", "views");
-  static readonly STATIC_DIRECTORY = path.resolve(__dirname, "..", "..", "assets");
-  static readonly PRESENTI_ASSET_DIRECTORY = path.resolve(require.resolve("@presenti/renderer"), "..", "..");
-
   constructor(public readonly app: TemplatedApp) {
-    super(app, Frontend.VIEWS_DIRECTORY);
+    super(app, VIEWS_DIRECTORY);
   }
 
   loadRoutes() {
@@ -179,26 +176,26 @@ export default class Frontend extends RestAPIBase {
   /** Resolves template files */
   static resolve(file: string) {
     if (!file.endsWith('.pug')) file = `${file}.pug`;
-    return path.resolve(Frontend.VIEWS_DIRECTORY, file);
+    return path.resolve(VIEWS_DIRECTORY, file);
   }
 
   /** Resolves static assets */
   static resolveStatic(file: string) {
-    const resolved = path.resolve(Frontend.STATIC_DIRECTORY, file);
-    if (!resolved.startsWith(Frontend.STATIC_DIRECTORY)) return null;
+    const resolved = path.resolve(STATIC_DIRECTORY, file);
+    if (!resolved.startsWith(STATIC_DIRECTORY)) return null;
     return resolved;
   }
 
   /** Resolves presenti-renderer assets */
   static async resolvePresenti(file: string) {
-    let resolved = path.resolve(Frontend.PRESENTI_ASSET_DIRECTORY, file);
-    if (!resolved.startsWith(Frontend.PRESENTI_ASSET_DIRECTORY)) return null;
+    let resolved = path.resolve(PRESENTI_ASSET_DIRECTORY, file);
+    if (!resolved.startsWith(PRESENTI_ASSET_DIRECTORY)) return null;
     let [ name, subdir ] = resolved.split('/').reverse();
     if (subdir !== 'js' && subdir !== 'css') return null;
-    const contents = await fs.readdir(path.resolve(Frontend.PRESENTI_ASSET_DIRECTORY, subdir));
+    const contents = await fs.readdir(path.resolve(PRESENTI_ASSET_DIRECTORY, subdir));
     const [ prefix ] = name.split('.');
     name = contents.find(c => c.split('.')[0] === prefix)!;
     if (!name) return null;
-    return path.resolve(Frontend.PRESENTI_ASSET_DIRECTORY, subdir, name);
+    return path.resolve(PRESENTI_ASSET_DIRECTORY, subdir, name);
   }
 }
