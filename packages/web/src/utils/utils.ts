@@ -4,13 +4,10 @@ import { STATUS_CODES } from "http";
 import mime from "mime-types";
 import pug from "pug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
-import { log } from "../logging";
+import log from "@presenti/logging";
 import body from "./normalizers/body";
 import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 import params from "./normalizers/params";
-import { CONFIG } from "../config";
-
-const { version } = require("../../../package.json");
 
 export class MiddlewareTimeoutError extends Error { }
 
@@ -91,7 +88,7 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
 
   /** Renders a template */
   newResponse.render = function (tpl, options) {
-    options = Object.assign({}, options, { user: this.user, config: CONFIG });
+    options = Object.assign({}, options, { user: this.user });
     res.writeHeader(...Responses.HTML).end(pug.renderFile(templateResolver(tpl), options!));
   };
 
@@ -213,8 +210,7 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
     if (this.cookieWrites && Object.keys(this.cookieWrites).length > 0) {
       Object.values(this.cookieWrites).forEach(write => this.writeHeader('Set-Cookie', write));
     }
-
-    this.writeHeader('Server', `presenti/${version}`);
+    
     return oldEnd.call(this, body);
   }
 

@@ -1,5 +1,3 @@
-import RestAPIBase, { Route } from "../../structs/rest-api-base";
-import { PBRequest, PBResponse, RequestHandler } from "../../utils/web/types";
 import { ScopedPresenceAdapter } from "../../structs/scoped-adapter";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresenceList, PresenceDictionary, PresenceMagic } from "../../utils/presence-magic";
@@ -8,10 +6,9 @@ import * as uuid from "uuid";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { SecurityKit } from "../../utils/security";
 import { User } from "../../database/entities";
-import { log } from "../../utils/logging";
-import { BodyParser } from "../../utils/web/shared-middleware";
+import log from "@presenti/logging";
+import { BodyParser, RouteData, RestAPIBase, Route, PBRequest, PBResponse, RequestHandler } from "@presenti/web";
 import { FirstPartyGuard } from "../../web/middleware";
-import { RouteData } from "../../utils/web/utils";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();

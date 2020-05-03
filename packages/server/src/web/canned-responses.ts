@@ -1,4 +1,4 @@
-import { PBResponse } from "../utils/web/types";
+import { PBResponse } from "@presenti/web";
 
 /** Renders a 404 error page */
 export function notFound(res: PBResponse) {

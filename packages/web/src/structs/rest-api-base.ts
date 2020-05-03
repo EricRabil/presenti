@@ -1,8 +1,7 @@
 import path from "path";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
-import { RequestHandler, HTTPMethod } from "../utils/web/types";
-import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/web/utils";
-import { VIEWS_DIRECTORY } from "../web/Constants";
+import { RequestHandler, HTTPMethod } from "../utils/types";
+import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
 
 export function Route(path: string, method: HTTPMethod, ...middleware: RequestHandler[]) {
   return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
@@ -84,10 +83,10 @@ function build(app: RestAPIBase, method: HTTPMethod) {
 }
 
 /** Foundation for any HTTP-based service */
-export default class RestAPIBase {
+export class RestAPIBase {
   _routes: RouteData[];
 
-  constructor(readonly app: TemplatedApp, private viewsDirectory = VIEWS_DIRECTORY, private headers: string[] = []) {
+  constructor(readonly app: TemplatedApp, private viewsDirectory: string = process.cwd(), private headers: string[] = []) {
   }
 
 

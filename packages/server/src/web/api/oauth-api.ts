@@ -1,10 +1,9 @@
 import fetch from "node-fetch";
 import qs from "querystring";
 import { OAUTH_PLATFORM } from "@presenti/utils";
-import { Get } from "../../structs/rest-api-base";
+import { PBRequest, PBResponse, Get } from "@presenti/web";
 import { CONFIG } from "../../utils/config";
-import log from "../../utils/logging";
-import { PBRequest, PBResponse } from "../../utils/web/types";
+import log from "@presenti/logging";
 import { notFoundAPI } from "../canned-responses";
 import { UserLoader } from "../loaders";
 import { DenyFirstPartyGuard, IdentityGuard } from "../middleware";

@@ -1,7 +1,7 @@
 import { PresenceService } from ".";
 import Frontend from "./web/frontend";
 import { CONFIG } from "./utils/config";
-import { log } from "./utils/logging";
+import log from "@presenti/logging";
 import { Database } from "./database/connector";
 import { Shell } from "./utils/shell";
 import * as entities from "./database/entities";

@@ -1,7 +1,7 @@
 import { PayloadType, isRemotePayload, PayloadValidators, IdentifyPayload, RemotePayload } from "@presenti/utils";
 import * as uuid from "uuid";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
-import { log } from "../utils/logging";
+import log from "@presenti/logging";
 import { User } from "../database/entities";
 import { SecurityKit } from "../utils/security";
 import { ScopedPresenceAdapter } from "./scoped-adapter";

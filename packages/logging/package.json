@@ -1,0 +1,30 @@
+{
+  "name": "@presenti/logging",
+  "version": "0.0.1",
+  "description": "Logging library for server-side Presenti software",
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
+  "license": "GPL-3.0",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/presenti-monorepo.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/EricRabil/presenti-monorepo/issues"
+  },
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "winston": "^3.2.1"
+  }
+}

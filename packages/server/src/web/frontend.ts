@@ -1,17 +1,13 @@
+import { BodyParser, PBRequest, PBResponse, RequestHandler, RestAPIBase, Route, RouteDataShell, RouteData } from "@presenti/web";
 import fs from "fs-extra";
 import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
-import { CONFIG } from "../utils/config";
 import { User } from "../database/entities";
-import RestAPIBase, { Route, RouteDataShell } from "../structs/rest-api-base";
-import { BodyParser } from "../utils/web/shared-middleware";
-import { PBRequest, PBResponse, RequestHandler } from "../utils/web/types";
+import { CONFIG } from "../utils/config";
 import { notFound } from "./canned-responses";
+import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "./Constants";
 import { UserLoader } from "./loaders";
-import { IdentityGuard, IdentityGuardFrontend, FirstPartyGuard } from "./middleware";
-import { API_ROUTES } from "@presenti/utils";
-import { RouteData } from "../utils/web/utils";
-import { VIEWS_DIRECTORY, PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY } from "./Constants";
+import { IdentityGuardFrontend } from "./middleware";
 
 /** Frontend routes */
 export default class Frontend extends RestAPIBase {

@@ -5,4 +5,3 @@ export * from "./security";
 export * from "./shell";
 export * from "./logging";
 export * from "./config";
-export * from "./web";

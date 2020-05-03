@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { log } from "./logging";
+import log from "@presenti/logging";
 
 export interface ConfigurationStruct {
   port: number;

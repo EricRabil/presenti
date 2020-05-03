@@ -2,8 +2,7 @@ import { PresenceList } from "../utils/utils-index";
 import { EventBus, Events } from "../event-bus";
 import { AdapterState } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
-import PresentiAPIFoundation from "../web/api/foundation.util";
-import RestAPIBase from "./rest-api-base";
+import { RestAPIBase } from "@presenti/web";
 
 function debounce (fn: Function, wait = 1) {
   let timeout

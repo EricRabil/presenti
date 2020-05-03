@@ -1,6 +1,6 @@
 import { CONFIG } from "../utils/config";
 import { FIRST_PARTY_SCOPE } from "../structs/socket-api-base";
-import { RequestHandler } from "../utils/web/types";
+import { RequestHandler } from "@presenti/web";
 
 /** Returns a 401 if the request is not authenticated */
 export const IdentityGuard: RequestHandler = async (req, res, next) => {

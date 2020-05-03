@@ -1,11 +1,8 @@
 import { API_ROUTES, OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
 import { User } from "../../database/entities";
-import RestAPIBase, { Route, RouteDataShell, Put } from "../../structs/rest-api-base";
+import { RestAPIBase, Route, RouteDataShell, Put, BodyParser, PBRequest, PBResponse, RequestHandler, RouteData, APIError } from "@presenti/web";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
-import log from "../../utils/logging";
-import { BodyParser } from "../../utils/web/shared-middleware";
-import { PBRequest, PBResponse, RequestHandler } from "../../utils/web/types";
-import { RouteData, APIError } from "../../utils/web/utils";
+import log from "@presenti/logging";
 import { notFoundAPI } from "../canned-responses";
 import { UserLoader } from "../loaders";
 import { DenyFirstPartyGuard, FirstPartyGuard, IdentityGuard } from "../middleware";

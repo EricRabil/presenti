@@ -1,8 +1,8 @@
 import { PresentiAPIClient } from "@presenti/utils";
 import { RemotePayload, PayloadType, isFirstPartyPresencePayload, FirstPartyPresenceData, OAUTH_PLATFORM, PresentiUser, isPresencePayload } from "@presenti/utils";
 import PresentiAPI from "../web/api/api";
-import { APIError } from "../utils/web/utils";
-import log from "../utils/logging";
+import { APIError } from "@presenti/web";
+import log from "@presenti/logging";
 
 export declare interface NativeClient extends PresentiAPIClient {
   on(event: "updated", fn: (data: FirstPartyPresenceData) => any): this;
@@ -28,13 +28,13 @@ export class NativeClient extends PresentiAPIClient {
   async lookupUser(userID: string): Promise<PresentiUser | null> {
     const user = await PresentiAPI.userQuery(userID, true);
     if (user instanceof APIError) return null;
-    return user;
+    return user as PresentiUser;
   }
 
   async platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null> {
     const user = await PresentiAPI.platformLookup(platform, linkID, true);
     if (user instanceof APIError) return null;
-    return user;
+    return user as PresentiUser;
   }
 
   async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string) {

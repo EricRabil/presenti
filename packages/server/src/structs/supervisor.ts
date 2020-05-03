@@ -1,4 +1,4 @@
-import { log } from "../utils/logging";
+import log from "@presenti/logging";
 import { EventEmitter } from "events";
 import { AdapterState, Evented } from "@presenti/utils";
 import { AdapterStruct } from "./adapter";

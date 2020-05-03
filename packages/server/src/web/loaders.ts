@@ -1,4 +1,4 @@
-import { RequestHandler } from "../utils/web/types";
+import { RequestHandler } from "@presenti/web";
 import { User } from "../database/entities";
 import { SecurityKit } from "../utils/security";
 

@@ -1,7 +1,5 @@
 import { TemplatedApp } from "uWebSockets.js";
-import RestAPIBase from "../../structs/rest-api-base";
-import { RequestHandler } from "../../utils/web/types";
-import { RouteData } from "../../utils/web/utils";
+import { RequestHandler, RestAPIBase, RouteData } from "@presenti/web";
 
 interface IPresentiAPIFoundation<T> {
   new(...args: any[]): T;

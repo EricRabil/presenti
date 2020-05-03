@@ -2,7 +2,6 @@ import { RecognizedString, HttpRequest, HttpResponse, TemplatedApp } from "uWebS
 import { CookieSerializeOptions } from "cookie";
 import { Readable } from "stream";
 import { Options, LocalsObject } from "pug";
-import { User } from "../../database/entities";
 import { APIError } from "./utils";
 
 export type HTTPMethod = keyof Omit<TemplatedApp, 'listen' | 'publish' | 'ws'>;
@@ -27,7 +26,6 @@ export interface PBRequest extends HttpRequest {
 export interface PBResponse extends HttpResponse {
   /** Render a pug template */
   render(tpl: string, options?: Options & LocalsObject): void;
-  user: User;
   statusCode: number;
 
   _reqHeaders: Record<string, string>;
