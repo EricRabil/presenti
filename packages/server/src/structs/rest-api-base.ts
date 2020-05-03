@@ -70,11 +70,35 @@ function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: st
   }
 }
 
+function build(app: RestAPIBase, method: HTTPMethod) {
+  return function(path: string, ...handlers: RequestHandler[]) {
+    app[path] = handlers[handlers.length - 1];
+    (app._routes || (app._routes = [])).push({
+      path,
+      method,
+      property: path,
+      middleware: handlers.slice(0, handlers.length - 1)
+    });
+  }
+}
+
 /** Foundation for any HTTP-based service */
 export default class RestAPIBase {
   _routes: RouteData[];
 
   constructor(readonly app: TemplatedApp, private viewsDirectory = VIEWS_DIRECTORY, private headers: string[] = []) {
+  }
+
+
+  get = build(this, "get");
+  post = build(this, "post");
+  put = build(this, "put");
+  ["delete"] = build(this, "del");
+  del = build(this, "del");
+  patch = build(this, "patch");
+  any = build(this, "any");
+
+  run() {
     this.loadRoutes();
   }
 
@@ -85,7 +109,7 @@ export default class RestAPIBase {
       const handler: RequestHandler = (req, res, next, eNext) => this[property](req, res, next, eNext);
       const headers = this[property].headers;
       middleware = middleware.concat(handler);
-      this.app[method](path, this.buildStack(metadata, middleware, headers || []));
+      this.app[method](path, this.buildStack(metadata, middleware, (headers || []).concat(this.headers)));
     });
   }
 
