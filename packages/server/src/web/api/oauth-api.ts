@@ -10,6 +10,7 @@ import { UserLoader } from "../loaders";
 import { DenyFirstPartyGuard, IdentityGuard } from "../middleware";
 import PresentiAPIFoundation, { API, GlobalGuards } from "./foundation.util";
 import { OAuthLink } from "../../database/entities/OAuthLink";
+import PresentiAPI from "./api";
 
 const DISCORD_REDIRECT = (host: string) => `http://${host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;
@@ -38,6 +39,13 @@ export default class PresentiOAuthAPI extends PresentiAPIFoundation {
     })
     
     res.redirect('/');
+  }
+
+  @Get("/unlink/:platform")
+  async dropLink(req: PBRequest, res: PBResponse) {
+    const platform = req.getParameter(0);
+
+    res.json(await PresentiAPI.dropLink(platform as any, res.user!.uuid));
   }
 
   /**
