@@ -65,6 +65,7 @@ function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: st
 
     res._reqUrl = req.getUrl();
     res._reqQuery = req.getQuery();
+    res._method = req.getMethod();
 
     exec(res, req);
   }
