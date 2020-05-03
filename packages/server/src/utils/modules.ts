@@ -18,7 +18,7 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
     try {
       const rawModule = require(name);
       if (!isPresentiModule(rawModule)) continue;
-      for (let [adapterName, adapterClass] of Object.entries(rawModule.Adapters)) {
+      for (let [adapterName, adapterClass] of Object.entries(rawModule.Adapters || {})) {
         rootModule.Adapters[`${name}.${adapterName}`] = adapterClass;
       }
       for (let [entityName, entityClass] of Object.entries(rawModule.Entities || {})) {

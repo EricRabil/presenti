@@ -1,13 +1,12 @@
-import { PresenceAdapter } from "@presenti/utils";
+import { PresenceAdapter, PresentiAPIClient } from "@presenti/utils";
 import { BaseEntity } from "typeorm";
 import { NativePresenceAdapter } from "./adapter";
-import RemoteClient from "@presenti/client";
 import { StateAdapter } from "./state";
 import { PresenceOutput, PresenceProvider } from "./output";
 import { TemplatedApp } from "uWebSockets.js";
 
 type PresentiModuleStatic = {
-  new(config: any, client: RemoteClient): PresenceAdapter;
+  new(config: any, client: PresentiAPIClient): PresenceAdapter;
 }
 
 type PresentiOutputStatic = {
@@ -31,7 +30,7 @@ function cmp(obj: any, clazz: Constructor): obj is PresentiModuleStatic {
 }
 
 export function isPresentiModule(obj: any): obj is PresentiModuleClasses {
-  return "Adapters" in obj && Object.values(obj.Adapters).every(obj => cmp(obj, PresenceAdapter) || cmp(obj, NativePresenceAdapter) || cmp(obj, StateAdapter))
+  return ("Adapters" in obj ? Object.values(obj.Adapters).every(obj => cmp(obj, PresenceAdapter) || cmp(obj, NativePresenceAdapter) || cmp(obj, StateAdapter)) : true)
       && ("Entities" in obj ? Object.values(obj.Entities).every(obj => cmp(obj, BaseEntity)) : true)
       && ("Outputs" in obj ? Object.values(obj.Outputs).every(obj => cmp(obj, PresenceOutput)) : true);
 }
