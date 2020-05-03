@@ -9,6 +9,7 @@ import { User } from "../../database/entities";
 import log from "@presenti/logging";
 import { BodyParser, RouteData, RestAPIBase, Route, PBRequest, PBResponse, RequestHandler } from "@presenti/web";
 import { FirstPartyGuard } from "../../web/middleware";
+import PBRestAPIBase from "../../web/api/foundation.util";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();
@@ -59,7 +60,7 @@ const DenyFirstParties: RequestHandler = (req, res, next) => {
   next();
 }
 
-export class RESTPresenceAPI extends RestAPIBase {
+export class RESTPresenceAPI extends PBRestAPIBase {
   log = log.child({ name: "RESTPresenceAPI" })
 
   constructor(app: TemplatedApp, private adapter: RESTAdapterV2) {

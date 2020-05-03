@@ -1,5 +1,6 @@
 import { TemplatedApp } from "uWebSockets.js";
 import { RequestHandler, RestAPIBase, RouteData } from "@presenti/web";
+import { VIEWS_DIRECTORY } from "../Constants";
 
 interface IPresentiAPIFoundation<T> {
   new(...args: any[]): T;
@@ -22,14 +23,14 @@ export function GlobalGuards(...middleware: RequestHandler[]) {
 }
 
 /** Base class for API endpoints */
-export default class PresentiAPIFoundation extends RestAPIBase {
+export default class PBRestAPIBase extends RestAPIBase {
   /** prefix for the API routes encapsulated within the class */
   static prefix: string = "";
   /** middleware to be injected into all API routes */
   static middleware: RequestHandler[] = [];
 
-  constructor(app: TemplatedApp) {
-    super(app);
+  constructor(app: TemplatedApp, headers: string[] = []) {
+    super(app, VIEWS_DIRECTORY, headers);
   }
 
   loadRoutes() {

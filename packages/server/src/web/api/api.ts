@@ -1,15 +1,16 @@
-import { API_ROUTES, OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
-import { User } from "../../database/entities";
-import { RestAPIBase, Route, RouteDataShell, Put, BodyParser, PBRequest, PBResponse, RequestHandler, RouteData, APIError } from "@presenti/web";
-import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import log from "@presenti/logging";
+import { API_ROUTES, OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
+import { APIError, BodyParser, PBRequest, PBResponse, Put, RequestHandler, Route, RouteData, RouteDataShell } from "@presenti/web";
+import { User } from "../../database/entities";
+import { OAuthLink } from "../../database/entities/OAuthLink";
+import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { notFoundAPI } from "../canned-responses";
 import { UserLoader } from "../loaders";
-import { DenyFirstPartyGuard, FirstPartyGuard, IdentityGuard } from "../middleware";
-import { OAuthLink } from "../../database/entities/OAuthLink";
+import { FirstPartyGuard, IdentityGuard } from "../middleware";
+import PBRestAPIBase from "./foundation.util";
 
 /** Users API */
-export default class PresentiAPI extends RestAPIBase {
+export default class PresentiAPI extends PBRestAPIBase {
   log = log.child({ name: "PresentiAPI-REST" })
 
   loadRoutes() {

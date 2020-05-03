@@ -8,11 +8,12 @@ import { notFound } from "./canned-responses";
 import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "./Constants";
 import { UserLoader } from "./loaders";
 import { IdentityGuardFrontend } from "./middleware";
+import PBRestAPIBase from "./api/foundation.util";
 
 /** Frontend routes */
-export default class Frontend extends RestAPIBase {
+export default class Frontend extends PBRestAPIBase {
   constructor(public readonly app: TemplatedApp) {
-    super(app, VIEWS_DIRECTORY);
+    super(app);
   }
 
   loadRoutes() {

@@ -1,21 +1,20 @@
+import log from "@presenti/logging";
 import "reflect-metadata";
-import { isRemotePayload, PayloadType } from "@presenti/utils";
-import { App, TemplatedApp, WebSocket } from "uWebSockets.js";
-import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
+import { App, TemplatedApp } from "uWebSockets.js";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
+import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
 import { GradientState } from "./adapters/state/gradient-state";
+import { EventBus, Events } from "./event-bus";
+import { PresenceRESTOutput } from "./outputs/presence-rest";
+import { PresenceStreamOutput } from "./outputs/presence-stream";
+import NativeClient from "./structs/native-client";
+import { PresenceOutput, PresenceProvider } from "./structs/output";
+import { PresentiModuleClasses } from "./structs/presenti-module";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
+import { StateAdapter } from "./structs/state";
 import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
 import { StateSupervisor } from "./supervisors/state-supervisor";
-import log from "@presenti/logging";
-import { PresentiModuleClasses } from "./structs/presenti-module";
-import NativeClient from "./structs/native-client";
-import { StateAdapter } from "./structs/state";
-import { PresenceProvider, PresenceOutput } from "./structs/output";
 import { PresenceDictionary } from "./utils/utils-index";
-import { EventBus, Events } from "./event-bus";
-import { PresenceStreamOutput } from "./outputs/presence-stream";
-import { PresenceRESTOutput } from "./outputs/presence-rest";
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -142,12 +141,12 @@ export class PresenceService implements PresenceProvider {
 export * from "./adapters/presence/rest-adapter";
 export * from "./adapters/presence/socket-adapter";
 export * from "./adapters/state/gradient-state";
-export * from "./supervisors/adapter-supervisor";
-export * from "./supervisors/state-supervisor";
 export * from "./structs/adapter";
 export * from "./structs/scoped-adapter";
 export * from "./structs/socket-api-base";
 export * from "./structs/state";
 export * from "./structs/supervisor";
+export * from "./supervisors/adapter-supervisor";
+export * from "./supervisors/state-supervisor";
 export * from "./utils";
 export * from "./web";
