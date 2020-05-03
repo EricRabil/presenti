@@ -1,6 +1,6 @@
 import { API_ROUTES, OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
 import { User } from "../../database/entities";
-import RestAPIBase, { Route, RouteDataShell } from "../../structs/rest-api-base";
+import RestAPIBase, { Route, RouteDataShell, Put } from "../../structs/rest-api-base";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import log from "../../utils/logging";
 import { BodyParser } from "../../utils/web/shared-middleware";
@@ -83,6 +83,13 @@ export default class PresentiAPI extends RestAPIBase {
     if (!user) return APIError.internal("Broken link.");
 
     return user.json(full);
+  }
+
+  @Put("/api/user/:id/platform", UserLoader(true), FirstPartyGuard, BodyParser)
+  async establishLink(req: PBRequest, res: PBResponse) {
+    const userID = req.getParameter(0);
+    const { platform, linkID } = req.body;
+    res.json(await PresentiAPI.linkPlatform(platform, linkID, userID));
   }
 
   static async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string): Promise<{ ok: true } | APIError> {
