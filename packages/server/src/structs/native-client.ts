@@ -1,10 +1,10 @@
-import { RemoteClient } from "@presenti/client";
+import { PresentiAPIClient } from "@presenti/utils";
 import { RemotePayload, PayloadType, isFirstPartyPresencePayload, FirstPartyPresenceData, OAUTH_PLATFORM, PresentiUser, isPresencePayload } from "@presenti/utils";
 import PresentiAPI from "../web/api/api";
 import { APIError } from "../utils/web/utils";
 import log from "../utils/logging";
 
-export declare interface NativeClient extends RemoteClient {
+export declare interface NativeClient extends PresentiAPIClient {
   on(event: "updated", fn: (data: FirstPartyPresenceData) => any): this;
   on(event: string | symbol, fn: any): this;
   emit(event: "updated", data: FirstPartyPresenceData): boolean;
@@ -12,24 +12,18 @@ export declare interface NativeClient extends RemoteClient {
 }
 
 /**
- * Subclass of RemoteClient for adapters running within the server process, makes no network calls
- * Everything is treated as a first-party
+ * API that interfaces directly with the Presenti systems
  */
-export class NativeClient extends RemoteClient {
+export class NativeClient extends PresentiAPIClient {
   log = log.child({ name: "NativeClient" })
 
   constructor(private scope: string | null = null) {
-    super({} as any);
+    super();
   }
 
   async run() {
     await super.initialize();
   }
-
-  terminationHandler() {}
-  close() {}
-  ping() {}
-  deferredPing() {}
 
   async lookupUser(userID: string): Promise<PresentiUser | null> {
     const user = await PresentiAPI.userQuery(userID, true);
@@ -43,16 +37,9 @@ export class NativeClient extends RemoteClient {
     return user;
   }
 
-  get headers() {
-    return null as any;
-  }
-
-  get socketEndpoint() {
-    return null as any;
-  }
-
-  get ajaxBase() {
-    return null as any;
+  async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string) {
+    const result = await PresentiAPI.linkPlatform(platform, linkID, userID);
+    if (result instanceof APIError) throw result;
   }
 
   send(payload: RemotePayload) {

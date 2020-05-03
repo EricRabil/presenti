@@ -1,5 +1,5 @@
 import { Presence, PresenceAdapter, AdapterState, Evented, PresentiUser, OAUTH_PLATFORM } from "@presenti/utils";
-import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES } from "@presenti/utils";
+import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES, PresentiAPIClient } from "@presenti/utils";
 import winston from "winston";
 
 export interface RemoteClientOptions {
@@ -27,10 +27,8 @@ export declare interface RemoteClient {
 /**
  * Connects to a PresenceServer and allows you to funnel presence updates through it
  */
-export class RemoteClient extends Evented {
+export class RemoteClient extends PresentiAPIClient {
   socket: WebSocket;
-  ready: boolean = false;
-  adapters: PresenceAdapter[] = [];
   log: winston.Logger;
 
   constructor(private options: RemoteClientOptions) {
@@ -59,54 +57,12 @@ export class RemoteClient extends Evented {
     });
   }
 
-  public initialize() {
-    return Promise.all(
-      this.adapters.filter(adapter => (
-        adapter.state === AdapterState.READY
-      )).map(adapter => (
-        adapter.run()
-      ))
-    );
-  }
-
   /**
    * Starts the RemoteClient
    */
   async run() {
-    await this.initialize();
+    await super.run();
     return this._buildSocket();
-  }
-
-  /**
-   * Registers a PresenceAdapter to the client
-   * @param adapter adapter to register
-   */
-  register(adapter: PresenceAdapter) {
-    if (this.adapters.includes(adapter)) {
-      throw new Error("Cannot register an adapter more than once.");
-    }
-    this.adapters.push(
-      adapter.on("updated", this.sendLatestPresence.bind(this))
-    );
-  }
-
-  /**
-   * Sends the latest presence data to the server
-   */
-  sendLatestPresence() {
-    return <any>Promise.all(
-      this.adapters.filter(adapter => (
-        adapter.state === AdapterState.RUNNING
-      )).map(adapter => (
-        adapter.activity()
-      ))
-    ).then(activities => (
-      activities.filter(activity => (
-        !!activity
-      )).map(activity => (
-        Array.isArray(activity) ? activity : [activity]
-      )).reduce((a, c) => a.concat(c), [])
-    )).then(activities => this.presence(activities));
   }
 
   /**
@@ -201,50 +157,24 @@ export class RemoteClient extends Evented {
     setTimeout(() => this.ping(), 1000 * 30);
   }
 
-  /**
-   * Pings
-   */
-  ping() {
-    return this.send({ type: PayloadType.PING });
-  }
-
-  /**
-   * Sends a presence update packet
-   * @param data presence data
-   */
-  presence(data: Presence[] = []) {
-    this.emit("presence", data);
-    return this.send({ type: PayloadType.PRESENCE, data });
-  }
-  
-  /**
-   * Updates the presence for a given scope. Requires first-party token.
-   * Calling this endpoint without a first-party token will terminate the connection.
-   * @param data presence update dto
-   */
-  updatePresenceForScope(data: FirstPartyPresenceData) {
-    return this.send({ type: PayloadType.PRESENCE_FIRST_PARTY, data });
-  }
-
-  /**
-   * Query presenti for data related to a scope
-   * @param userID scope/user ID
-   */
   async lookupUser(userID: string): Promise<PresentiUser | null> {
     return fetch(`${this.ajaxBase}/api/users/${userID}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
   }
 
-  /**
-   * Query presenti for a user given a platform and the platform ID
-   * @param platform platform
-   * @param linkID id
-   */
   async platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null> {
     const params = new URLSearchParams();
     params.set('platform', platform);
     params.set('id', linkID);
 
     return fetch(`${this.ajaxBase}/api/users/lookup?${params.toString()}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+  }
+
+  async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string): Promise<void> {
+    return fetch(`${this.ajaxBase}/api/user/${userID}/platform`, {
+      headers: Object.assign({}, this.headers, { 'Content-Type': 'application/json' }),
+      method: "put",
+      body: JSON.stringify({ platform, linkID })
+    }).then(r => void 0);
   }
 
   get headers() {

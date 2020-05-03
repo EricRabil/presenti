@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@clusterws/cws": "github:EricRabil/cWS#pre-gyp",
-    "@presenti/client": "^1.0.7",
+    "@presenti/client": "^1.0.8",
     "@presenti/server": "^1.0.3",
     "@presenti/utils": "^1.0.9",
     "chalk": "^4.0.0",

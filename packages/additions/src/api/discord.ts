@@ -1,7 +1,6 @@
 import { Message, Channel, Util, ClientApplication } from "discord.js";
-import RemoteClient from "@presenti/client";
 import { PresentiAdditionsService } from "..";
-import { OAUTH_PLATFORM } from "@presenti/utils";
+import { OAUTH_PLATFORM, PresentiAPIClient } from "@presenti/utils";
 import { PresencePipe } from "../db/entities/Pipe";
 import { Approvals } from "../db/entities/Approvals";
 import { SpotifyInternalKit } from "../adapters/utils/SpotifyInternalKit";
@@ -65,7 +64,7 @@ Message.prototype.reply = function(...args: any[]) {
 export class DiscordAPI {
   commands: Record<string, CommandData<this>>;
 
-  constructor(private discordAdapter: DiscordAdapter, private client: RemoteClient) {}
+  constructor(private discordAdapter: DiscordAdapter, private client: PresentiAPIClient) {}
 
   handleMessage(message: Message, command: string) {
     const [ , ...args ] = message.content.split(" ");

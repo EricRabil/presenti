@@ -1,4 +1,4 @@
-import RemoteClient from "@presenti/client";
+import { PresentiAPIClient } from "@presenti/utils";
 import { PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
 import { AdapterState, OAUTH_PLATFORM, PresenceBuilder, PresenceStruct } from "@presenti/utils";
 import { Client, ClientApplication } from "discord.js";
@@ -67,7 +67,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
 
   static configKey: string = "discord";
 
-  constructor(public readonly options: PresentiAdditionsConfig, private remoteClient: RemoteClient) {
+  constructor(public readonly options: PresentiAdditionsConfig, private remoteClient: PresentiAPIClient) {
     super("com.ericrabil.discord", DEFAULT_STORAGE);
     this.botAPI = new DiscordAPI(this, remoteClient);
   }
