@@ -1,0 +1,1 @@
+export { SlackInstallationRecord as InstallationRecord } from "./Installation";
