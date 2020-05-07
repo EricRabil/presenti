@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   }
   
   get platforms(): Record<OAUTH_PLATFORM, string> {
-    return (this.oAuthLinks || []).reduce((acc, { platform, linkID }) => Object.assign(acc, { [platform]: linkID }), {} as Record<OAUTH_PLATFORM, string>);
+    return (this.oAuthLinks || []).reduce((acc, { platform, platformID: linkID }) => Object.assign(acc, { [platform]: linkID }), {} as Record<OAUTH_PLATFORM, string>);
   }
 
   async setPassword(password: string) {

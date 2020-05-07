@@ -1,4 +1,4 @@
-import { ScopedPresenceAdapter } from "@presenti/server";
+import { ScopedPresenceAdapter } from "@presenti/modules";
 import { Storage } from "../db/entities/Storage";
 
 export abstract class StorageAdapter<T> extends ScopedPresenceAdapter {

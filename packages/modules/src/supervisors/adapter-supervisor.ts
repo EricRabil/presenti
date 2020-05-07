@@ -1,8 +1,7 @@
-import { AdapterState, PresenceAdapter, PresenceStruct } from "@presenti/utils";
-import { ScopedPresenceAdapter } from "../structs/scoped-adapter";
-import { Supervisor } from "../structs/supervisor";
 import log from "@presenti/logging";
-import { PresenceList } from "../utils/presence-magic";
+import { ScopedPresenceAdapter } from "../structs";
+import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct } from "@presenti/utils";
+import { Supervisor } from "../structs/supervisor";
 
 export let SharedAdapterSupervisor: AdapterSupervisor;
 

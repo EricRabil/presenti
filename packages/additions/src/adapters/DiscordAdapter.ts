@@ -1,11 +1,7 @@
-import { PresentiAPIClient } from "@presenti/utils";
-import { PresenceDictionary } from "@presenti/server/dist/utils/presence-magic";
-import { AdapterState, OAUTH_PLATFORM, PresenceBuilder, PresenceStruct } from "@presenti/utils";
+import { AdapterState, Events, OAUTH_PLATFORM, PipeDirection, PresenceBuilder, PresenceDictionary, PresenceStruct, PresentiAPIClient } from "@presenti/utils";
 import { Client, ClientApplication } from "discord.js";
 import got from "got";
 import { DiscordAPI } from "../api/discord";
-import { PresencePipe } from "../db/entities/Pipe";
-import { EventBus, Events } from "../event-bus";
 import { PresentiAdditionsConfig } from "../structs/config";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { log } from "../utils";
@@ -13,6 +9,8 @@ import { log } from "../utils";
 export interface DiscordAdapterOptions {
   token: string;
   prefix: string;
+  clientID: string;
+  clientSecret: string;
 }
 
 interface Tagged {
@@ -93,16 +91,41 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
       this.emit("updated", this.pipeLedger[id]);
     });
 
-    EventBus.on(Events.PIPE_CREATE, pipe => {
-      if (pipe.platform !== OAUTH_PLATFORM.DISCORD) return;
-      this.pipeLedger[pipe.platformID] = pipe.scope;
-      this.emit("updated", pipe.scope);
+    this.remoteClient.subscribe(Events.LINK_CREATE, async link => {
+      if (link.platform !== OAUTH_PLATFORM.DISCORD) return;
+      if (link.pipeDirection === PipeDirection.PRESENTI || link.pipeDirection === PipeDirection.BIDIRECTIONAL) {
+        const scope = await this.remoteClient.resolveScopeFromUUID(link.userUUID);
+        if (!scope) return;
+
+        this.pipeLedger[link.platformID] = scope;
+        this.emit("updated");
+      }
     });
 
-    EventBus.on(Events.PIPE_DESTROY, pipe => {
-      if (pipe.platform !== OAUTH_PLATFORM.DISCORD) return;
-      delete this.pipeLedger[pipe.platformID];
-      this.emit("updated", pipe.scope);
+    this.remoteClient.subscribe(Events.LINK_UPDATE, async link => {
+      if (link.platform !== OAUTH_PLATFORM.DISCORD) return;
+      if (link.pipeDirection === PipeDirection.PRESENTI || link.pipeDirection === PipeDirection.BIDIRECTIONAL) {
+        const scope = await this.remoteClient.resolveScopeFromUUID(link.userUUID);
+        if (!scope) return;
+
+        this.pipeLedger[link.platformID] = scope;
+        this.emit("updated");
+      } else if (link.pipeDirection === PipeDirection.PLATFORM || link.pipeDirection === PipeDirection.NOWHERE) {
+        const scope = this.pipeLedger[link.platformID];
+        if (!scope) return;
+        this.pipeLedger[link.platformID] = undefined!;
+
+        this.emit("updated", scope);
+      }
+    });
+
+    this.remoteClient.subscribe(Events.LINK_REMOVE, link => {
+      if (link.platform !== OAUTH_PLATFORM.DISCORD) return;
+      const scope = this.pipeLedger[link.platformID];
+      if (!scope) return;
+
+      this.pipeLedger[link.platformID] = undefined!;
+      this.emit("updated", scope);
     });
 
     this.client.on("message", async (message) => {
@@ -120,15 +143,17 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   }
 
   async reloadPipeLedger() {
-    const pipes = await PresencePipe.find({
-      platform: OAUTH_PLATFORM.DISCORD
-    });
+    let pipes = await this.remoteClient.lookupLinksForPlatform(OAUTH_PLATFORM.DISCORD);
+    if (!pipes) return;
+    pipes = pipes.filter(pipe => pipe.pipeDirection === PipeDirection.PLATFORM || pipe.pipeDirection === PipeDirection.BIDIRECTIONAL);
 
-    this.pipeLedger = pipes.reduce((acc, {platformID, scope}) => Object.assign(acc, { [platformID]: scope }), {});
+    this.pipeLedger = pipes.reduce((acc, { platformID, scope }) => Object.assign(acc, { [platformID]: scope }), {});
+
+    console.log(this.pipeLedger);
   }
 
   async discordSnowflakeForScope(scope: string) {
-    const entry = Object.entries(this.pipeLedger).find(([,pipeScope]) => pipeScope === scope);
+    const entry = Object.entries(this.pipeLedger).find(([, pipeScope]) => pipeScope === scope);
     return entry && entry[0] || null;
   }
 
@@ -170,8 +195,8 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
     const container = await this.container();
     /** Maps a discord snowflake to all bound scopes */
     const snowflakes = Object.values(container.data.scopeBindings).filter((s, i, a) => a.indexOf(s) === i);
-    const activities = snowflakes.reduce((acc, snowflake) => Object.assign(acc, {[snowflake]: this.activityForUser(this.pipeLedger[snowflake])}), {} as Record<string, PresenceStruct[]>);
+    const activities = snowflakes.reduce((acc, snowflake) => Object.assign(acc, { [snowflake]: this.activityForUser(this.pipeLedger[snowflake]) }), {} as Record<string, PresenceStruct[]>);
 
-    return Object.entries(container.data.scopeBindings).reduce((acc, [scope, snowflake]) => Object.assign(acc, {[scope]: activities[snowflake]}), {} as PresenceDictionary);
+    return Object.entries(container.data.scopeBindings).reduce((acc, [scope, snowflake]) => Object.assign(acc, { [scope]: activities[snowflake] }), {} as PresenceDictionary);
   }
 }

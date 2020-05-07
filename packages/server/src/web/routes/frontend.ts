@@ -1,14 +1,14 @@
-import { BodyParser, PBRequest, PBResponse, RequestHandler, RestAPIBase, Route, RouteDataShell, RouteData } from "@presenti/web";
+import { Any, BodyParser, Get, PBRequest, PBResponse, Post, RequestHandler, RouteData, RouteDataShell } from "@presenti/web";
 import fs from "fs-extra";
 import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
-import { User } from "../database/entities";
-import { CONFIG } from "../utils/config";
-import { notFound } from "./canned-responses";
-import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "./Constants";
-import { UserLoader } from "./loaders";
-import { IdentityGuardFrontend } from "./middleware";
-import PBRestAPIBase from "./api/foundation.util";
+import { User } from "../../database/entities";
+import { CONFIG } from "../../utils/config";
+import PBRestAPIBase from "../../structs/rest-api-base";
+import { notFound } from "../canned-responses";
+import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "../../Constants";
+import { UserLoader, OAuthLoader } from "../middleware/loaders";
+import { IdentityGuardFrontend } from "../middleware/guards";
 
 /** Frontend routes */
 export default class Frontend extends PBRestAPIBase {
@@ -29,26 +29,26 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Renders the login page */
-  @Route("/login", "get")
+  @Get("/login")
   loginView(req: PBRequest, res: PBResponse) {
     res.render('login', { signup: CONFIG.registration });
   }
 
   /** Renders the signup page, if registration is enabled */
-  @Route("/signup", "get")
+  @Get("/signup")
   signupView(req: PBRequest, res: PBResponse) {
     if (!CONFIG.registration) return notFound(res);
     res.render('signup');
   }
 
   /** Renders the change password page, if the user is signed in */
-  @Route("/changepw", "get", IdentityGuardFrontend)
+  @Get("/changepw", IdentityGuardFrontend)
   changePassword(req: PBRequest, res: PBResponse) {
     res.render('changepw');
   }
 
   /** Called upon change password form submission, accepts "password" and "newPassword" in the form body */
-  @Route("/changepw", "post", IdentityGuardFrontend, BodyParser)
+  @Post("/changepw", IdentityGuardFrontend, BodyParser)
   async changePasswordComplete(req: PBRequest, res: PBResponse) {
     const fail = (msg: string) => res.render('changepw', { error: msg });
     if (!req.body || !req.body.password || !req.body.newPassword) {
@@ -67,7 +67,7 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Called upon signup form submission, accepts "id" and "password" in the form body */
-  @Route("/signup", "post", BodyParser)
+  @Post("/signup", BodyParser)
   async signupComplete(req: PBRequest, res: PBResponse) {
     if (!CONFIG.registration) return notFound(res);
     const fail = (msg: string) => res.render('signup', { error: msg });
@@ -90,14 +90,14 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Called to sign out the user */
-  @Route("/logout", "get")
+  @Get("/logout")
   logout(req: PBRequest, res: PBResponse) {
     res.setCookie('identity', '', { maxAge: 0 });
     res.redirect('/');
   }
 
   /** Called upon login form submission, accepts "id" and "password" in form submission */
-  @Route("/login", "post", BodyParser)
+  @Post("/login", BodyParser)
   async loginComplete(req: PBRequest, res: PBResponse) {
     const fail = () => res.render('login', { error: 'Invalid credentials.' });
     if (!req.body || !req.body.id || !req.body.password) {
@@ -121,7 +121,7 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Renders the panel if signed in, and the login page otherwise */
-  @Route("/", "any")
+  @Any("/")
   rootHandler(req: PBRequest, res: PBResponse) {
     if (!res.user) {
       res.redirect('/login');
@@ -132,13 +132,13 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Renders the panel home page */
-  @Route("/panel", "get", IdentityGuardFrontend)
+  @Get("/panel", IdentityGuardFrontend, OAuthLoader)
   panelView(req: PBRequest, res: PBResponse) {
     res.render('panel');
   }
 
   /** Serves assets for the presenti renderer */
-  @Route("/p-assets/*", "get")
+  @Get("/p-assets/*")
   async presentiAssets(req: PBRequest, res: PBResponse) {
     const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
     const absolute = await Frontend.resolvePresenti(relative).catch(e => null);
@@ -151,7 +151,7 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Serves the page for the presenti renderer */
-  @Route("/renderer", "get")
+  @Get("/renderer")
   renderer(req: PBRequest, res: PBResponse) {
     const params = new URLSearchParams(req.getQuery());
     const options = {
@@ -163,7 +163,7 @@ export default class Frontend extends PBRestAPIBase {
   }
 
   /** Serves static assets for the panel */
-  @Route("/assets/*", "get")
+  @Get("/assets/*")
   async staticAsset(req: PBRequest, res: PBResponse) {
     const relative = req.getUrl().substring(1).split('/').slice(1).join('/');
     const absolute = Frontend.resolveStatic(relative);

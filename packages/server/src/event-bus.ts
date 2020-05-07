@@ -1,46 +1,6 @@
-import events, { EventEmitter } from "events";
+import { Events, OAUTH_PLATFORM, PresenceList, PresentiLink, PresentiUser, EventsTable } from "@presenti/utils";
+import { EventEmitter } from "events";
 import { User } from "./database/entities";
-import { OAUTH_PLATFORM } from "@presenti/utils";
-import { PresenceList } from "./utils/presence-magic";
-
-export enum Events {
-  OAUTH_UPDATE,
-  USER_CREATE,
-  USER_UPDATE,
-  PRESENCE_UPDATE,
-  STATE_UPDATE
-}
-
-export interface OAuthEvent {
-  user: User;
-  /** New array of OAuth connections */
-  platforms: Record<OAUTH_PLATFORM, string>;
-}
-
-export interface UserEvent {
-  /** User entity representing the user */
-  user: User;
-}
-
-export interface PresenceUpdateEvent {
-  /** Scope for which the presence changed */
-  scope: string;
-  presence: PresenceList;
-}
-
-export interface StateUpdateEvent {
-  /** Scope for which the state changed */
-  scope: string;
-  state: Record<string, any>;
-}
-
-interface EventsTable {
-  [Events.OAUTH_UPDATE]: OAuthEvent;
-  [Events.PRESENCE_UPDATE]: PresenceUpdateEvent;
-  [Events.STATE_UPDATE]: StateUpdateEvent;
-  [Events.USER_CREATE]: UserEvent;
-  [Events.USER_UPDATE]: UserEvent;
-}
 
 export declare interface EventBus extends NodeJS.EventEmitter {
   addListener<T extends keyof EventsTable, D = EventsTable[T]>(event: T, listener: (data: D) => any): this;

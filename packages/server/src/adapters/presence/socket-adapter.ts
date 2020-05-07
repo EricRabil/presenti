@@ -1,8 +1,8 @@
-import { PayloadType, AdapterState, Presence, FirstPartyPresenceData } from "@presenti/utils";
+import { PresenceList, PresenceDictionary, PayloadType, AdapterState, Presence, FirstPartyPresenceData } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
 import log from "@presenti/logging";
 import { SocketAPIAdapter, Handler, SocketContext, Authed, FIRST_PARTY_SCOPE, FirstParty, DenyFirstParty } from "../../structs/socket-api-base";
-import { PresenceList, PresenceDictionary, PresenceMagic } from "../../utils/presence-magic";
+import { PresenceMagic } from "../../utils/presence-magic";
 
 export class RemoteAdatpterV2 extends SocketAPIAdapter {
   log = log.child({ name: "RemoteAdapterV2" });

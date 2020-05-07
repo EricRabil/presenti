@@ -1,7 +1,8 @@
+import { Events } from "@presenti/utils";
 import deepEqual from "deep-equal";
-import { EventSubscriber, EntitySubscriberInterface, UpdateEvent } from "typeorm";
+import { EntitySubscriberInterface, EventSubscriber, UpdateEvent } from "typeorm";
+import { EventBus } from "../../event-bus";
 import { User } from "../entities/User";
-import { EventBus, Events } from "../../event-bus";
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<User> {

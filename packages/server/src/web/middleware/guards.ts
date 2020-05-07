@@ -1,5 +1,5 @@
-import { CONFIG } from "../utils/config";
-import { FIRST_PARTY_SCOPE } from "../structs/socket-api-base";
+import { CONFIG } from "../../utils/config";
+import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { RequestHandler } from "@presenti/web";
 
 /** Returns a 401 if the request is not authenticated */

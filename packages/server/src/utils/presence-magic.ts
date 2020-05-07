@@ -1,9 +1,6 @@
 import deepEqual from "deep-equal";
-import { PresenceStruct } from "@presenti/utils";
+import { PresenceList, PresenceDictionary } from "@presenti/utils";
 import { log as logger } from "./logging";
-
-export type PresenceList = Array<Partial<PresenceStruct>>;
-export type PresenceDictionary = Record<string, PresenceList>;
 
 /** A series of proxy builders that emit "updated" events when their contents are changed */
 export namespace PresenceMagic {

@@ -177,6 +177,26 @@ export class RemoteClient extends PresentiAPIClient {
     }).then(r => void 0);
   }
 
+  destroyPipe(platform: OAUTH_PLATFORM, userID: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  clearPipe(platform: OAUTH_PLATFORM, platformID: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  lookupPipes(platform: OAUTH_PLATFORM): Promise<import("@presenti/utils").PresentiPipe[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  lookupPipe(platform: OAUTH_PLATFORM, platformID: string): Promise<import("@presenti/utils").PresentiPipe | null> {
+    throw new Error("Method not implemented.");
+  }
+  
+  createPipe(platform: OAUTH_PLATFORM, scope: string): Promise<import("@presenti/utils").PresentiPipe | null> {
+    throw new Error("Method not implemented.");
+  }
+
   get headers() {
     return {
       authorization: this.options.token

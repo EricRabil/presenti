@@ -1,5 +1,4 @@
-import { Evented } from "@presenti/utils";
-import { StateAdapter } from "../structs/state";
+import { StateAdapter } from "../structs";
 import { Supervisor } from "../structs/supervisor";
 
 export let SharedStateSupervisor: StateSupervisor;

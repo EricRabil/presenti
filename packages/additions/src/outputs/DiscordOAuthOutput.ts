@@ -1,15 +1,14 @@
+import { PresenceOutput, PresenceProvider } from "@presenti/modules";
+import log from "@presenti/logging";
+import { OAUTH_PLATFORM, PresentiAPIClient } from "@presenti/utils";
+import { Get, PBRequest, PBResponse } from "@presenti/web";
 import fetch from "node-fetch";
 import qs from "querystring";
-import { OAUTH_PLATFORM } from "@presenti/utils";
-import { PBRequest, PBResponse, Get } from "@presenti/web";
-import { CONFIG } from "../../utils/config";
-import log from "@presenti/logging";
-import { notFoundAPI } from "../canned-responses";
-import { UserLoader } from "../loaders";
-import { DenyFirstPartyGuard, IdentityGuard } from "../middleware";
-import PresentiAPIFoundation, { API, GlobalGuards } from "./foundation.util";
-import { OAuthLink } from "../../database/entities/OAuthLink";
-import PresentiAPI from "./api";
+import PBRestAPIBase, { API, GlobalGuards } from "@presenti/server/dist/structs/rest-api-base";
+import { UserLoader } from "@presenti/server/dist/web/middleware/loaders";
+import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/server/dist/web/middleware/guards";
+import { TemplatedApp } from "uWebSockets.js";
+import { PresentiAdditionsConfig } from "../structs/config";
 
 const DISCORD_REDIRECT = (host: string) => `http://${host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;
@@ -17,50 +16,33 @@ const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/au
 /** API for linking with OAuth services */
 @API("/api/oauth")
 @GlobalGuards(UserLoader(), IdentityGuard, DenyFirstPartyGuard)
-export default class PresentiOAuthAPI extends PresentiAPIFoundation {
+export default class DiscordOAuthAPI extends PBRestAPIBase {
+  constructor(app: TemplatedApp, private client: PresentiAPIClient, private config: PresentiAdditionsConfig) {
+    super(app);
+  }
+
   log = log.child({ name: "OAuthAPI-REST" })
 
   /** Initialize Discord OAuth flow */
   @Get("/discord")
   async redirectToDiscord(req: PBRequest, res: PBResponse) {
-    if (this.disableDiscordAPIs) return notFoundAPI(res);
     res.redirect(DISCORD_CALLBACK(req.getHeader('host')));
   }
 
   /** Unlink from Discord */
   @Get("/discord/unlink")
   async unlinkDiscord(req: PBRequest, res: PBResponse) {
-    if (this.disableDiscordAPIs) return notFoundAPI(res);
-
-    await this.removeLinkIfExists({
+    await this.client.deleteLink({
       platform: OAUTH_PLATFORM.DISCORD,
       userUUID: res.user!.uuid
-    })
+    });
     
     res.redirect('/');
   }
-
-  @Get("/unlink/:platform")
-  async dropLink(req: PBRequest, res: PBResponse) {
-    const platform = req.getParameter(0);
-
-    res.json(await PresentiAPI.dropLink(platform as any, res.user!.uuid));
-  }
-
-  /**
-   * Removes an OAuth query if it exists
-   * @param query.platform the oauth platform to remove
-   * @param query.userUUID the user to clear the link for
-   */
-  async removeLinkIfExists(query: {platform: OAUTH_PLATFORM, userUUID: string}) {
-    const link = await OAuthLink.findOne(query);
-    if (link) await link.remove();
-  }
-
+  
   /** Called by Discord upon OAuth completion */
   @Get("/discord/callback")
   async discordCallback(req: PBRequest, res: PBResponse) {
-    if (this.disableDiscordAPIs) return notFoundAPI(res);
     const params = new URLSearchParams(req.getQuery());
     const code = params.get("code");
 
@@ -75,8 +57,8 @@ export default class PresentiOAuthAPI extends PresentiAPIFoundation {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: qs.stringify({
-        client_id: CONFIG.discord!.clientID,
-        client_secret: CONFIG.discord!.clientSecret,
+        client_id: this.config.discord.clientID,
+        client_secret: this.config.discord.clientSecret,
         grant_type: 'authorization_code',
         code,
         redirect_uri: DISCORD_REDIRECT(req.getHeader('host')),
@@ -98,23 +80,24 @@ export default class PresentiOAuthAPI extends PresentiAPIFoundation {
       }
     }).then(r => r.json());
     
-    await this.removeLinkIfExists({
+    await this.client.deleteLink({
       platform: OAUTH_PLATFORM.DISCORD,
       userUUID: res.user!.uuid
     });
 
-    const link = OAuthLink.create({
+    await this.client.createLink({
       platform: OAUTH_PLATFORM.DISCORD,
-      linkID: id
+      platformID: id,
+      userUUID: res.user!.uuid
     });
-    link.user = res.user!;
-    await link.save();
     
     res.redirect('/');
   }
+}
 
-  /** Whether Discord OAuth APIs should be enabled */
-  get disableDiscordAPIs() {
-    return !CONFIG.discord || !CONFIG.discord.clientID || !CONFIG.discord.clientSecret;
+export class DiscordOAuthOutput extends PresenceOutput {
+  constructor(provider: PresenceProvider, app: TemplatedApp, config: PresentiAdditionsConfig) {
+    super(provider, app);
+    this.api = new DiscordOAuthAPI(app, provider.client, config);
   }
 }

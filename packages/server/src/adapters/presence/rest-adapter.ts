@@ -1,15 +1,15 @@
-import { ScopedPresenceAdapter } from "../../structs/scoped-adapter";
-import { TemplatedApp } from "uWebSockets.js";
-import { PresenceList, PresenceDictionary, PresenceMagic } from "../../utils/presence-magic";
-import { AdapterState, PresenceStruct } from "@presenti/utils";
-import * as uuid from "uuid";
-import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
-import { SecurityKit } from "../../utils/security";
-import { User } from "../../database/entities";
 import log from "@presenti/logging";
-import { BodyParser, RouteData, RestAPIBase, Route, PBRequest, PBResponse, RequestHandler } from "@presenti/web";
-import { FirstPartyGuard } from "../../web/middleware";
-import PBRestAPIBase from "../../web/api/foundation.util";
+import { ScopedPresenceAdapter } from "@presenti/modules";
+import { AdapterState, PresenceDictionary, PresenceList } from "@presenti/utils";
+import { BodyParser, PBRequest, PBResponse, RequestHandler, Route, RouteData } from "@presenti/web";
+import * as uuid from "uuid";
+import { TemplatedApp } from "uWebSockets.js";
+import { User } from "../../database/entities";
+import PBRestAPIBase from "../../structs/rest-api-base";
+import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
+import { PresenceMagic } from "../../utils/presence-magic";
+import { SecurityKit } from "../../utils/security";
+import { FirstPartyGuard } from "../../web/middleware/guards";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();

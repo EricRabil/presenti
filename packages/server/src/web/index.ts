@@ -1,7 +1,7 @@
 import { TemplatedApp } from "uWebSockets.js";
-import Frontend from "./frontend";
-import PresentiAPI from "./api/api";
-import PresentiOAuthAPI from "./api/oauth-api";
+import Frontend from "./routes/frontend";
+import PresentiAPI from "./routes/api";
+import PresentiOAuthAPI from "./routes/oauth-api";
 
 export namespace WebRoutes {
   var initialized = false;

@@ -1,7 +1,6 @@
-import { PresenceOutput, PresenceProvider } from "../structs/output";
+import { PresenceOutput, PresenceProvider } from "@presenti/modules";
+import { Events, isRemotePayload, PayloadType } from "@presenti/utils";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
-import { isRemotePayload, PayloadType } from "@presenti/utils";
-import { Events } from "../event-bus";
 
 /**
  * Composes the Presence Streaming API, accessible via ws://<host>/presence/{scope}

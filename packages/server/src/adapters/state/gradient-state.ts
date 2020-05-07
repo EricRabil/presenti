@@ -1,9 +1,7 @@
-import { StateAdapter } from "../../structs/state";
-import { AdapterState, PresenceStruct } from "@presenti/utils";
-import { SharedAdapterSupervisor } from "../../supervisors/adapter-supervisor";
+import { PresenceProvider, StateAdapter } from "@presenti/modules";
+import { AdapterState, Events, PresenceStruct } from "@presenti/utils";
+import { EventBus } from "../../event-bus";
 import { PresentiKit } from "../../utils/renderer";
-import { PresenceProvider } from "../../structs/output";
-import { EventBus, Events } from "../../event-bus";
 export interface BackgroundData {
   color: string;
   transition: number;

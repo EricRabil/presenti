@@ -38,7 +38,7 @@ export default class PBRestAPIBase extends RestAPIBase {
     this._routes = this._routes.map(metadata => {
       metadata.path = `${(this.constructor as IPresentiAPIFoundation<this>).prefix}${metadata.path}`;
       return metadata;
-    })
+    });
 
     super.loadRoutes();
   }

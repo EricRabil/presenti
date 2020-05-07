@@ -1,7 +1,5 @@
 import { Message, Channel, Util, ClientApplication } from "discord.js";
-import { PresentiAdditionsService } from "..";
-import { OAUTH_PLATFORM, PresentiAPIClient } from "@presenti/utils";
-import { PresencePipe } from "../db/entities/Pipe";
+import { OAUTH_PLATFORM, PresentiAPIClient, PipeDirection } from "@presenti/utils";
 import { Approvals } from "../db/entities/Approvals";
 import { SpotifyInternalKit } from "../adapters/utils/SpotifyInternalKit";
 import { DiscordAdapter } from "../adapters";
@@ -130,7 +128,7 @@ export class DiscordAPI {
     const cookies = cookieParts.join(" ");
     if (cookies.length < 1) return message.reply("Please provide a valid set of Spotify cookies.");
 
-    await this.pipePrivateSpotify(scope.userID, cookies);
+    await this.pipePrivateSpotify(scope.uuid, cookies);
 
     return message.reply(Response(`Your Spotify presence will now pipe to \`${scope.userID}\``));
   }
@@ -163,7 +161,7 @@ export class DiscordAPI {
 
     if (!pipe) return message.reply("Your Discord presence does not pipe to anywhere.");
 
-    return message.reply(Response("This is how your Discord presence is being piped").items(`Discord ID: ${message.author.id}`, `Presenti ID: ${pipe.scope}`));
+    return message.reply(Response("This is how your Discord presence is being piped").items(`Discord ID: ${message.author.id}`, `Presenti ID: ${pipe.userID}`));
   }
 
   @Command("unpipe-discord")
@@ -198,7 +196,7 @@ export class DiscordAPI {
   }
   
   async loadProfileFromMessage(message: Message) {
-    const scope = await this.profileForDiscordID(message.author.id);
+    const scope = await this.discordPipeForMessage(message);
 
     if (!scope) {
       message.reply("Sorry, there's no Presenti account linked to your Discord account. You can link your Discord account on the Presenti panel.");
@@ -219,54 +217,45 @@ export class DiscordAPI {
     return true;
   }
 
-  async pipePrivateSpotify(scope: string, cookies: string) {
-    await this.unpipePrivateSpotify(scope);
+  async pipePrivateSpotify(userUUID: string, cookies: string) {
+    await this.unpipePrivateSpotify(userUUID);
 
-    const pipe = PresencePipe.create({
+    await this.client.createLink({
       platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL,
       platformID: await SpotifyInternalKit.encryptCookies(cookies, this.discordAdapter.options.spotifyInternal),
-      scope
+      pipeDirection: PipeDirection.PRESENTI,
+      userUUID
     });
-    await pipe.save();
-
-    return pipe;
   }
 
-  async unpipePrivateSpotify(scope: string) {
-    const pipe = await PresencePipe.find({ platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL, scope });
-    await Promise.all(pipe.map(p => p.remove()));
+  async unpipePrivateSpotify(userUUID: string) {
+    await this.client.deleteLink({
+      platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL,
+      userUUID
+    });
   }
 
-  async pipeDiscord(message: Message, scope: string) {
+  async pipeDiscord(message: Message, userUUID: string) {
     await this.unpipeDiscord(message);
 
-    const pipe = PresencePipe.create({
+    await this.client.updatePipeDirection({
       platform: OAUTH_PLATFORM.DISCORD,
       platformID: message.author.id,
-      scope
-    });
-    await pipe.save();
-
-    return pipe;
+      userUUID
+    }, PipeDirection.PRESENTI);
   }
   
   async unpipeDiscord(message: Message) {
-    const pipe = await PresencePipe.find({ platform: OAUTH_PLATFORM.DISCORD, platformID: message.author.id });
-    await Promise.all(pipe.map(p => p.remove()));
+    await this.client.updatePipeDirection({
+      platform: OAUTH_PLATFORM.DISCORD,
+      platformID: message.author.id
+    }, PipeDirection.NOWHERE);
   }
 
   async discordPipeForMessage(message: Message) {
-    return await PresencePipe.findOne({
+    return await this.client.lookupUserFromLink({
       platform: OAUTH_PLATFORM.DISCORD,
       platformID: message.author.id
     });
-  }
-
-  profileForDiscordID(id: string) {
-    return this.client.platformLookup(OAUTH_PLATFORM.DISCORD, id);
-  }
-  
-  discordIDForScope(scope: string) {
-    return this.client.lookupUser(scope).then(user => user?.platforms ? user.platforms[OAUTH_PLATFORM.DISCORD] : null);
   }
 }

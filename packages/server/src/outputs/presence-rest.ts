@@ -1,7 +1,7 @@
-import { PresenceOutput, PresenceProvider } from "../structs/output";
+import { PresenceOutput, PresenceProvider } from "@presenti/modules";
+import { Get, PBRequest, PBResponse } from "@presenti/web";
 import { TemplatedApp } from "uWebSockets.js";
-import { RestAPIBase, Get, PBRequest, PBResponse } from "@presenti/web";
-import PBRestAPIBase from "../web/api/foundation.util";
+import PBRestAPIBase from "../structs/rest-api-base";
 
 class RestAPI extends PBRestAPIBase {
   constructor(app: TemplatedApp, public readonly output: PresenceOutput) {

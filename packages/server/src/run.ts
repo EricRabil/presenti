@@ -1,17 +1,15 @@
-import { PresenceService } from ".";
-import Frontend from "./web/frontend";
-import { CONFIG } from "./utils/config";
 import log from "@presenti/logging";
+import { SharedAdapterSupervisor, SharedStateSupervisor } from "@presenti/modules";
+import { PresenceService } from ".";
 import { Database } from "./database/connector";
-import { Shell } from "./utils/shell";
 import * as entities from "./database/entities";
-import { SecurityKit } from "./utils/security";
-import { SharedAdapterSupervisor } from "./supervisors/adapter-supervisor";
-import { SharedStateSupervisor } from "./supervisors/state-supervisor";
 import { User } from "./database/entities";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
-import { WebRoutes } from "./web";
+import { CONFIG } from "./utils/config";
 import { loadModules } from "./utils/modules";
+import { SecurityKit } from "./utils/security";
+import { Shell } from "./utils/shell";
+import { WebRoutes } from "./web";
 
 process.on("unhandledRejection", e => {
   console.error(e);
@@ -33,9 +31,9 @@ console.clear();
 const routes = WebRoutes.initialize(service.app);
 const database = new Database();
 const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG });
-loadModules().then(({ Adapters, Entities, Configs, Outputs }) => {
+loadModules().then(({ Adapters, Entities, Configs, Outputs, OAuth }) => {
   database.connect(Object.values(Entities)).then(() => {
-    service.run({ Adapters, Entities, Configs, Outputs }).then(() => {
+    service.run({ Adapters, Entities, Configs, Outputs, OAuth }).then(() => {
       log.info('Service is running!');
       if (process.env.NODE_ENV !== "production") shell.run();
     });

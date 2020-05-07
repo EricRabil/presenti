@@ -1,5 +1,5 @@
 import { CONFIG, saveConfig } from "./config";
-import { isPresentiModule, PresentiModuleClasses } from "../structs/presenti-module";
+import { isPresentiModule, PresentiModuleClasses } from "@presenti/modules";
 import { observeObject } from "./object";
 
 export async function loadModules(): Promise<PresentiModuleClasses> {
@@ -8,12 +8,13 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
     Adapters: {},
     Entities: {},
     Configs: {},
-    Outputs: {}
+    Outputs: {},
+    OAuth: []
   }
 
   if (Object.keys(moduleNames).length === 0) return rootModule;
 
-  for (let [name, config] of Object.entries(moduleNames)) {
+  for (let [name, config] of Object.entries(moduleNames).filter(([name]) => !name.startsWith("_"))) {
     if (!config) continue;
     try {
       const rawModule = require(name);
@@ -27,6 +28,8 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
       for (let [outputName, outputClass] of Object.entries(rawModule.Outputs || {})) {
         rootModule.Outputs[`${name}.${outputName}`] = outputClass;
       }
+      rootModule.OAuth = rootModule.OAuth!.concat(rawModule.OAuth || [])
+
       if (typeof config === "object") rootModule.Configs[name] = observeObject(config, () => saveConfig());
     } catch(e) {
       console.debug(`Skipping module ${name} with error`, e);

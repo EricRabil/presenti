@@ -2068,6 +2068,21 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@presenti/web@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@presenti/web/-/web-0.0.1.tgz#b065f87c7bcaac7c3928ce3b0f3c29c7bcc90ed6"
+  integrity sha512-BGiW4FN5oHowJr/K8jhfcVRc6DgaBVcF5uSYQVEaITYfkWsTtDR799vNIzN+8LhrMna+MAZSjkwVIoF7erdpqw==
+  dependencies:
+    "@types/cookie" "^0.3.3"
+    "@types/fs-extra" "^8.1.0"
+    "@types/mime-types" "^2.1.0"
+    "@types/pug" "^2.0.4"
+    cookie "^0.4.1"
+    fs-extra "^9.0.0"
+    mime-types "^2.1.27"
+    pug "^2.0.4"
+    uWebSockets.js "github:uNetworking/uWebSockets.js#v17.4.0"
+
 "@sindresorhus/is@^2.0.0", "@sindresorhus/is@^2.1.0":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-2.1.1.tgz#ceff6a28a5b4867c2dd4a1ba513de278ccbe8bb1"

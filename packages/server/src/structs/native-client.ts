@@ -1,8 +1,9 @@
-import { PresentiAPIClient } from "@presenti/utils";
-import { RemotePayload, PayloadType, isFirstPartyPresencePayload, FirstPartyPresenceData, OAUTH_PLATFORM, PresentiUser, isPresencePayload } from "@presenti/utils";
-import PresentiAPI from "../web/api/api";
-import { APIError } from "@presenti/web";
 import log from "@presenti/logging";
+import { FirstPartyPresenceData, isFirstPartyPresencePayload, isPresencePayload, OAuthData, OAuthQuery, PayloadType, PipeDirection, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, OAUTH_PLATFORM, ResolvedPresentiLink } from "@presenti/utils";
+import { APIError } from "@presenti/web";
+import { OAuthAPI } from "../api/oauth";
+import { UserAPI } from "../api/user";
+import { EventBus } from "../event-bus";
 
 export declare interface NativeClient extends PresentiAPIClient {
   on(event: "updated", fn: (data: FirstPartyPresenceData) => any): this;
@@ -26,20 +27,52 @@ export class NativeClient extends PresentiAPIClient {
   }
 
   async lookupUser(userID: string): Promise<PresentiUser | null> {
-    const user = await PresentiAPI.userQuery(userID, true);
+    const user = await UserAPI.lookupUser(userID, true);
     if (user instanceof APIError) return null;
     return user as PresentiUser;
   }
-
-  async platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null> {
-    const user = await PresentiAPI.platformLookup(platform, linkID, true);
-    if (user instanceof APIError) return null;
-    return user as PresentiUser;
+  
+  async lookupLink(query: OAuthQuery): Promise<PresentiLink | null> {
+    const link = await OAuthAPI.lookupLink(query);
+    if (link instanceof APIError) return null;
+    return link;
   }
 
-  async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string) {
-    const result = await PresentiAPI.linkPlatform(platform, linkID, userID);
-    if (result instanceof APIError) throw result;
+  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
+    return OAuthAPI.lookupLinksForPlatform(platform);
+  }
+
+  async lookupUserFromLink(query: OAuthQuery): Promise<PresentiUser | null> {
+    const link = await OAuthAPI.lookupUser(query, true);
+    if (link instanceof APIError) return null;
+    return link;
+  }
+
+  async deleteLink(query: OAuthQuery): Promise<void> {
+    await OAuthAPI.deleteLink(query, true);
+  }
+
+  async createLink(data: OAuthData): Promise<PresentiLink | null> {
+    const link = await OAuthAPI.createLink(data);
+    if (link instanceof APIError) return null;
+    return link;
+  }
+
+  async updatePipeDirection(query: OAuthQuery, direction: PipeDirection): Promise<void> {
+    await OAuthAPI.updatePipeDirection(query, direction);
+  }
+
+  async resolveScopeFromUUID(uuid: string): Promise<string | null> {
+    const scope = await UserAPI.resolveScopeFromUUID(uuid);
+    return scope instanceof APIError ? null : scope;
+  }
+
+  subscribe(event, listener) {
+    EventBus.on(event, listener);
+  }
+
+  unsubscribe(event, listener) {
+    EventBus.off(event, listener);
   }
 
   send(payload: RemotePayload) {

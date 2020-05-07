@@ -1,5 +1,5 @@
 import { Evented, PresenceAdapter } from "./adapter";
-import { AdapterState, Presence, PayloadType, FirstPartyPresenceData, PresentiUser, OAUTH_PLATFORM, RemotePayload } from "./types";
+import { AdapterState, Presence, PayloadType, FirstPartyPresenceData, PresentiUser, OAUTH_PLATFORM, RemotePayload, PresentiLink, PipeDirection, OAuthQuery, OAuthData, ResolvedPresentiLink, Events, EventsTable } from "./types";
 
 export abstract class PresentiAPIClient extends Evented {
   adapters: PresenceAdapter[] = [];
@@ -83,22 +83,56 @@ export abstract class PresentiAPIClient extends Evented {
   /**
    * Query presenti for data related to a scope
    * @param userID scope/user ID
-   */  abstract lookupUser(userID: string): Promise<PresentiUser | null>;
-
-  /**
-   * Query presenti for a user given a platform and the platform ID
-   * @param platform platform
-   * @param linkID id
    */
-  abstract platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null>;
+  abstract lookupUser(userID: string): Promise<PresentiUser | null>;
   /**
-   * Establish a link between a user and a platform
-   * @param platform platform to create a link to
-   * @param linkID platform ID
-   * @param userID user ID
+   * Lookup the link data associated with an OAuth identity
+   * @param query query used to lookup the link
    */
-  abstract linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string): Promise<void>;
-
+  abstract lookupLink(query: OAuthQuery): Promise<PresentiLink | null>;
+  /**
+   * Lookup the links for the given platform
+   * @param platform platform to pull links for
+   */
+  abstract lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null>;
+  /**
+   * Lookup the user associated with an OAuth identity
+   * @param query query used to lookup the link
+   */
+  abstract lookupUserFromLink(query: OAuthQuery): Promise<PresentiUser | null>;
+  /**
+   * Deletes a connection between an OAuth identity and a Presenti user
+   * @param query query used to lookup the link
+   */
+  abstract deleteLink(query: OAuthQuery): Promise<void>;
+  /**
+   * Establishes a connection between an OAuth identity and a Presenti user
+   * @param data data defining the link
+   */
+  abstract createLink(data: OAuthData): Promise<PresentiLink | null>;
+  /**
+   * Updates the pipe direction for an oauth profile
+   * @param query data associated with an oauth profile
+   * @param direction 
+   */
+  abstract updatePipeDirection(query: OAuthQuery, direction: PipeDirection): Promise<void>;
+  /**
+   * Resolves the scope of a user given the UUID
+   * @param uuid user UUID
+   */
+  abstract resolveScopeFromUUID(uuid: string): Promise<string | null>;
+  /**
+   * Subscribe to a Presenti event
+   * @param event event code
+   * @param listener event handler
+   */
+  abstract subscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void;
+  /**
+   * Unsubscribe from a Presenti event
+   * @param event event code
+   * @param listener event handler
+   */
+  abstract unsubscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void;
   /**
    * Commit an action/message to Presenti
    * @param payload payload to commit

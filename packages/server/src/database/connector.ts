@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import { createConnection } from "typeorm";
 import { CONFIG, saveConfig } from "../utils/config";
-import { BaseEntityStatic } from "../structs/presenti-module";
+import { BaseEntityStatic } from "@presenti/modules";
 
 export class Database {
   async connect(extraEntities: BaseEntityStatic[] = []) {
@@ -23,6 +23,7 @@ export class Database {
       ],
       username: username!,
       password: password!,
+      logging: true,
       synchronize: true
     })
   }

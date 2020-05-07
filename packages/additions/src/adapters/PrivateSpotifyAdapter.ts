@@ -1,12 +1,9 @@
-import { PresenceDictionary, PresenceList } from "@presenti/server/dist/utils/presence-magic";
-import { AdapterState, OAUTH_PLATFORM } from "@presenti/utils";
-import { PresencePipe } from "../db/entities/Pipe";
-import { EventBus, Events } from "../event-bus";
+import { log } from "@presenti/logging";
+import { AdapterState, OAUTH_PLATFORM, PresenceDictionary, PresenceList, PresentiAPIClient, PipeDirection, Events } from "@presenti/utils";
 import { PresentiAdditionsConfig } from "../structs/config";
 import { StorageAdapter } from "../structs/StorageAdapter";
 import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";
 import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
-import log from "@presenti/server/dist/utils/logging";
 
 interface SpotifyStorage {
   /** Format of Record<scope, headers> */
@@ -26,7 +23,7 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   static configKey: string = "spotifyInternal";
   log = log.child({ name: "PrivateSpotify" })
 
-  constructor(private config: PresentiAdditionsConfig) {
+  constructor(private config: PresentiAdditionsConfig, private presenti: PresentiAPIClient) {
     super("com.ericrabil.spotify.private", DEFAULT_STORAGE);
   }
 
@@ -48,15 +45,32 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   }
 
   async run(): Promise<void> {
-    EventBus.on(Events.PIPE_CREATE, pipe => {
-      if (pipe.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
-      this.registerScope(pipe.scope, pipe.platformID);
+    this.presenti.subscribe(Events.LINK_CREATE, async link => {
+      if (link.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
+      if (link.pipeDirection !== PipeDirection.PRESENTI && link.pipeDirection !== PipeDirection.BIDIRECTIONAL) return;
+      const scope = await this.presenti.resolveScopeFromUUID(link.userUUID);
+      if (!scope) return;
+
+      this.deregisterScope(scope);
+      this.registerScope(scope, link.platformID);
     });
 
-    EventBus.on(Events.PIPE_DESTROY, pipe => {
-      if (pipe.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
-      this.deregisterScope(pipe.scope);
-      this.emit("updated", pipe.scope);
+    this.presenti.subscribe(Events.LINK_UPDATE, async link => {
+      if (link.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
+      const scope = await this.presenti.resolveScopeFromUUID(link.userUUID);
+      if (!scope) return;
+
+      this.deregisterScope(scope);
+      if (link.pipeDirection === PipeDirection.PRESENTI || link.pipeDirection === PipeDirection.BIDIRECTIONAL) this.registerScope(scope, link.platformID);
+    });
+
+    this.presenti.subscribe(Events.LINK_REMOVE, async link => {
+      if (link.platform !== OAUTH_PLATFORM.SPOTIFY_INTERNAL) return;
+      const scope = await this.presenti.resolveScopeFromUUID(link.userUUID);
+      console.log(scope);
+      if (!scope) return;
+
+      this.deregisterScope(scope);
     });
 
     await this.reloadClients();
@@ -65,9 +79,9 @@ export class PrivateSpotifyAdapter extends StorageAdapter<SpotifyStorage> {
   }
 
   async reloadClients() {
-    const pipes = await PresencePipe.find({
-      platform: OAUTH_PLATFORM.SPOTIFY_INTERNAL
-    });
+    let pipes = await this.presenti.lookupLinksForPlatform(OAUTH_PLATFORM.SPOTIFY_INTERNAL);
+    if (!pipes) return;
+    pipes = pipes.filter(pipe => pipe.pipeDirection === PipeDirection.BIDIRECTIONAL || pipe.pipeDirection === PipeDirection.PRESENTI);
 
     await Promise.all(pipes.map(({ scope, platformID: cookies }) => this.registerScope(scope, cookies)));
   }

@@ -1,5 +1,5 @@
 import { Presence } from "@presenti/utils";
-import { PresenceDictionary } from "../utils/presence-magic";
+import { PresenceDictionary } from "@presenti/utils";
 import { NativePresenceAdapter } from "./adapter";
 
 export declare interface ScopedPresenceAdapter {

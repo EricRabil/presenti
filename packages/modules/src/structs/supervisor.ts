@@ -1,7 +1,6 @@
 import log from "@presenti/logging";
-import { EventEmitter } from "events";
 import { AdapterState, Evented } from "@presenti/utils";
-import { AdapterStruct } from "./adapter";
+import { AdapterStruct } from ".";
 
 export declare interface Supervisor<T extends AdapterStruct> {
   on(event: "updated", listener: (scope?: string) => any): this;

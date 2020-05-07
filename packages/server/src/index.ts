@@ -1,20 +1,21 @@
 import log from "@presenti/logging";
+import { PresenceOutput, PresenceProvider, PresentiModuleClasses, StateAdapter, SubscribableEvents } from "@presenti/modules";
+import { Events, PresenceDictionary } from "@presenti/utils";
 import "reflect-metadata";
 import { App, TemplatedApp } from "uWebSockets.js";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
 import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
 import { GradientState } from "./adapters/state/gradient-state";
-import { EventBus, Events } from "./event-bus";
+import { EventBus } from "./event-bus";
 import { PresenceRESTOutput } from "./outputs/presence-rest";
 import { PresenceStreamOutput } from "./outputs/presence-stream";
 import NativeClient from "./structs/native-client";
-import { PresenceOutput, PresenceProvider } from "./structs/output";
-import { PresentiModuleClasses } from "./structs/presenti-module";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
-import { StateAdapter } from "./structs/state";
-import { AdapterSupervisor } from "./supervisors/adapter-supervisor";
-import { StateSupervisor } from "./supervisors/state-supervisor";
-import { PresenceDictionary } from "./utils/utils-index";
+import { AdapterSupervisor } from "@presenti/modules";
+import { StateSupervisor } from "@presenti/modules";
+import { debounce } from "./utils/utils-index";
+
+export var SharedPresenceService: PresenceService;
 
 /**
  * Tracks global and scoped (per-user presence)
@@ -29,23 +30,27 @@ export class PresenceService implements PresenceProvider {
   /** reference to the state supervisor */
   stateSupervisor: StateSupervisor;
   /** Native client for modules running on the server process */
-  nativeClient: NativeClient;
+  client: NativeClient;
   /** Array of outputs that send out assembled presence payloads */
   outputs: PresenceOutput[] = [];
 
   presences: PresenceDictionary = {};
   states: Record<string, Record<string, any>> = {};
 
+  oauthDefinitions: PresentiModuleClasses["OAuth"] = [];
+
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();
-    this.nativeClient = new NativeClient();
-    this.nativeClient.on("updated", ({ scope }) => {
+    this.client = new NativeClient();
+    this.client.on("updated", ({ scope }) => {
       this.adapterSupervisor.updated(scope);
     });
 
     this.registerAdapters();
     this.registerStates();
     this.registerOutputs();
+
+    SharedPresenceService = this;
   }
 
   /**
@@ -78,6 +83,11 @@ export class PresenceService implements PresenceProvider {
   registerOutputs() {
     this.outputs.push(new PresenceStreamOutput(this, this.app));
     this.outputs.push(new PresenceRESTOutput(this, this.app));
+  }
+
+  subscribe(output: PresenceOutput, events: SubscribableEvents[]) {
+    const handler = debounce(({ scope }) => output.updated(scope), 250);
+    events.forEach(event => EventBus.on(event, handler));
   }
 
   /**
@@ -118,11 +128,11 @@ export class PresenceService implements PresenceProvider {
   /**
    * Starts the presence service
    */
-  async run(modules: PresentiModuleClasses = {Adapters: {}, Entities: {}, Configs: {}, Outputs: {}}) {
+  async run(modules: PresentiModuleClasses = {Adapters: {}, Entities: {}, Configs: {}, Outputs: {}, OAuth: []}) {
     for (let [ name, adapterClass ] of Object.entries(modules.Adapters)) {
       this.log.info(`Loading module adapter ${name}`);
       const { [name.split(".")[0]]: config } = modules.Configs;
-      const adapter = new adapterClass(config, this.nativeClient);
+      const adapter = new adapterClass(config, this.client);
       if (adapter instanceof StateAdapter) this.stateSupervisor.register(adapter);
       else this.adapterSupervisor.register(adapter);
     }
@@ -133,6 +143,8 @@ export class PresenceService implements PresenceProvider {
       this.outputs.push(output);
     }
 
+    this.oauthDefinitions = modules.OAuth;
+
     await this.bootstrap();
     await new Promise(resolve => this.app.listen('0.0.0.0', this.port, resolve));
   }
@@ -141,12 +153,7 @@ export class PresenceService implements PresenceProvider {
 export * from "./adapters/presence/rest-adapter";
 export * from "./adapters/presence/socket-adapter";
 export * from "./adapters/state/gradient-state";
-export * from "./structs/adapter";
-export * from "./structs/scoped-adapter";
 export * from "./structs/socket-api-base";
-export * from "./structs/state";
-export * from "./structs/supervisor";
-export * from "./supervisors/adapter-supervisor";
-export * from "./supervisors/state-supervisor";
 export * from "./utils";
 export * from "./web";
+

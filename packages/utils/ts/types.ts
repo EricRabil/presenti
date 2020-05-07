@@ -17,6 +17,10 @@ export type PresenceTimeRange = {
   stop: number | null;
 } | null;
 
+
+export type PresenceList = Array<Partial<PresenceStruct>>;
+export type PresenceDictionary = Record<string, PresenceList>;
+
 export interface PresenceStruct {
   id?: string | null;
   title?: string;
@@ -42,9 +46,35 @@ export interface PresentiUser {
 
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;
 
+export enum PipeDirection {
+  NOWHERE, PRESENTI, PLATFORM, BIDIRECTIONAL
+}
 
-export interface RemoteAdapterOptions {
-  
+interface OAuthBaseQuery {
+  platform: OAUTH_PLATFORM;
+  pipeDirection?: PipeDirection;
+}
+
+interface OAuthPlatformIDQuery extends OAuthBaseQuery {
+  platformID: string;
+}
+
+interface OAuthUserUUIDQuery extends OAuthBaseQuery {
+  userUUID: string;
+}
+
+export type OAuthQuery = OAuthPlatformIDQuery | OAuthUserUUIDQuery;
+export type OAuthData = OAuthPlatformIDQuery & OAuthUserUUIDQuery;
+
+export interface PresentiLink {
+  platform: OAUTH_PLATFORM;
+  platformID: string;
+  userUUID: string;
+  pipeDirection: PipeDirection;
+}
+
+export interface ResolvedPresentiLink extends PresentiLink {
+  scope: string;
 }
 
 export interface RemotePayload {
@@ -100,7 +130,55 @@ export enum API_ROUTES {
 export enum OAUTH_PLATFORM {
   DISCORD = "DISCORD",
   SPOTIFY = "SPOTIFY",
-  SPOTIFY_INTERNAL = "SPOTIFY_INTERNAL"
+  SPOTIFY_INTERNAL = "SPOTIFY_INTERNAL",
+  SLACK = "SLACK"
+}
+
+export enum Events {
+  OAUTH_UPDATE,
+  LINK_CREATE,
+  LINK_UPDATE,
+  LINK_REMOVE,
+  USER_CREATE,
+  USER_UPDATE,
+  PRESENCE_UPDATE,
+  STATE_UPDATE
+}
+
+export interface OAuthEvent {
+  user: PresentiUser;
+  /** New array of OAuth connections */
+  platforms: Record<OAUTH_PLATFORM, string>;
+}
+
+export interface UserEvent {
+  /** User entity representing the user */
+  user: PresentiUser;
+}
+
+export interface PresenceUpdateEvent {
+  /** Scope for which the presence changed */
+  scope: string;
+  presence: PresenceList;
+}
+
+export interface StateUpdateEvent {
+  /** Scope for which the state changed */
+  scope: string;
+  state: Record<string, any>;
+}
+
+export interface LinkEvent extends PresentiLink {}
+
+export interface EventsTable {
+  [Events.OAUTH_UPDATE]: OAuthEvent;
+  [Events.PRESENCE_UPDATE]: PresenceUpdateEvent;
+  [Events.STATE_UPDATE]: StateUpdateEvent;
+  [Events.USER_CREATE]: UserEvent;
+  [Events.USER_UPDATE]: UserEvent;
+  [Events.LINK_UPDATE]: LinkEvent;
+  [Events.LINK_CREATE]: LinkEvent;
+  [Events.LINK_REMOVE]: LinkEvent;
 }
 
 export function isRemotePayload(payload: any): payload is RemotePayload {

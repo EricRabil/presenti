@@ -4,7 +4,7 @@ import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import log from "@presenti/logging";
 import { User } from "../database/entities";
 import { SecurityKit } from "../utils/security";
-import { ScopedPresenceAdapter } from "./scoped-adapter";
+import { ScopedPresenceAdapter } from "@presenti/modules";
 import { blackHat } from "../utils/object";
 
 export function Handler(payloadType: PayloadType) {

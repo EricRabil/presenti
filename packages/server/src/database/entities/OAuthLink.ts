@@ -1,5 +1,5 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, RelationId, ManyToOne } from "typeorm";
-import { OAUTH_PLATFORM } from "@presenti/utils";
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, RelationId, ManyToOne, ManyToMany, OneToMany } from "typeorm";
+import { OAUTH_PLATFORM, PipeDirection, PresentiLink, ResolvedPresentiLink } from "@presenti/utils";
 import { User } from "./User";
 
 @Entity()
@@ -14,11 +14,34 @@ export class OAuthLink extends BaseEntity {
   platform: OAUTH_PLATFORM;
 
   @Column()
-  linkID: string;
+  platformID: string;
 
-  @ManyToOne(type => User, user => user.oAuthLinks)
+  @ManyToOne(type => User, user => user.oAuthLinks, { lazy: true })
   user: User;
 
   @RelationId("user")
   userUUID: string;
+
+  @Column({
+    type: "enum",
+    enum: PipeDirection,
+    default: PipeDirection.NOWHERE
+  })
+  pipeDirection: PipeDirection;
+
+  get json(): PresentiLink {
+    return {
+      platform: this.platform,
+      platformID: this.platformID,
+      userUUID: this.userUUID,
+      pipeDirection: this.pipeDirection
+    }
+  }
+
+  async resolvedJson(): Promise<ResolvedPresentiLink> {
+    return {
+      ...this.json,
+      scope: (await this.user)?.userID
+    }
+  }
 }

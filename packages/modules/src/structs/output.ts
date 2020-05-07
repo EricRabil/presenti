@@ -1,20 +1,14 @@
-import { PresenceList } from "../utils/utils-index";
-import { EventBus, Events } from "../event-bus";
+import { PresenceList, PresentiAPIClient } from "@presenti/utils";
+import { Events } from "@presenti/utils";
 import { AdapterState } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
 import { RestAPIBase } from "@presenti/web";
 
-function debounce (fn: Function, wait = 1) {
-  let timeout
-  return function (...args) {
-		if (timeout) return;
-    timeout = setTimeout(() => {fn.call(null, ...args); timeout = null;}, wait)
-  }
-}
-
 export interface PresenceProvider {
   presence(scope: string, initial?: boolean): Promise<PresenceList>;
   state(scope: string, initial?: boolean): Promise<Record<string, any>>;
+  subscribe(output: PresenceOutput, events: SubscribableEvents[]): void;
+  client: PresentiAPIClient;
 }
 
 export type SubscribableEvents = Events.STATE_UPDATE | Events.PRESENCE_UPDATE;
@@ -23,9 +17,8 @@ export abstract class PresenceOutput {
   state: AdapterState = AdapterState.READY;
   private _api: RestAPIBase;
   
-  protected constructor(public provider: PresenceProvider, public app: TemplatedApp, subscribe: SubscribableEvents[] = [], private apiHeaders: string[] = []) {
-    const handler = debounce(({ scope }) => this.updated(scope), 250);
-    subscribe.forEach(event => EventBus.on(event, handler));
+  protected constructor(public provider: PresenceProvider, public app: TemplatedApp, events: SubscribableEvents[] = [], private apiHeaders: string[] = []) {
+    provider.subscribe(this, events);
   }
 
   updated(scope: string): any {}
