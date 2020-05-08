@@ -1,7 +1,7 @@
 import { TemplatedApp } from "uWebSockets.js";
 import Frontend from "./routes/frontend";
-import PresentiAPI from "./routes/api";
-import PresentiOAuthAPI from "./routes/oauth-api";
+import { RESTUserAPI } from "./routes/user-api";
+import { RestLinkAPI } from "./routes/link-api";
 
 export namespace WebRoutes {
   var initialized = false;
@@ -12,13 +12,13 @@ export namespace WebRoutes {
   export function initialize(app: TemplatedApp) {
     if (initialized) return;
     const frontend = new Frontend(app);
-    const api = new PresentiAPI(app);
-    const oauthAPI = new PresentiOAuthAPI(app);
+    const api = new RESTUserAPI(app);
+    const link = new RestLinkAPI(app);
 
     frontend.run();
     api.run();
-    oauthAPI.run();
+    link.run();
 
-    return { frontend, api, oauthAPI };
+    return { frontend, api, link };
   }
 }
