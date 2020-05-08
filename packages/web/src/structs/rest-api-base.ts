@@ -3,7 +3,7 @@ import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import { RequestHandler, HTTPMethod } from "../utils/types";
 import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
 
-export function Route(path: string, method: HTTPMethod, ...middleware: RequestHandler[]) {
+export function Route(path: string = "", method: HTTPMethod = "get", ...middleware: RequestHandler[]) {
   return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
     if (!target._routes) target._routes = [];
 
@@ -16,7 +16,7 @@ export function Route(path: string, method: HTTPMethod, ...middleware: RequestHa
   }
 }
 
-const BuildRouteShorthand = (method: HTTPMethod) => (path: string, ...middleware: RequestHandler[]) => Route(path, method, ...middleware);
+const BuildRouteShorthand = (method: HTTPMethod) => (path?: string, ...middleware: RequestHandler[]) => Route(path, method, ...middleware);
 export const Get = BuildRouteShorthand("get");
 export const Post = BuildRouteShorthand("post");
 export const Patch = BuildRouteShorthand("patch");
