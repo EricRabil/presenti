@@ -4,8 +4,8 @@
   "main": "dist/js/app.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "pwatch": "vue-cli-service build --watch --dest dist"
+    "build": "rm -rf dist; vue-cli-service build",
+    "watch": "vue-cli-service build --watch --dest dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.28",

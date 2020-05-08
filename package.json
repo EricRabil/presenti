@@ -2,7 +2,6 @@
 	"name": "presenti",
 	"private": true,
 	"devDependencies": {
-		"lerna": "^3.20.2",
 		"@types/bcrypt": "^3.0.0",
 		"@types/chrome": "0.0.100",
 		"@types/cookie": "^0.3.3",
@@ -18,24 +17,22 @@
 		"@types/pug": "^2.0.4",
 		"@types/uuid": "^7.0.2",
 		"@types/winston": "^2.4.4",
-		"@types/ws": "^7.2.3"
-  },
-  "workspaces": [
-    "packages/*"
+		"@types/ws": "^7.2.3",
+		"lerna": "^3.20.2"
+	},
+	"workspaces": [
+		"packages/*"
 	],
 	"scripts": {
-    "docker-dev": "docker-compose run presenti",
-    "docker-dev-init": "docker-compose build",
-    "docker-prod-init": "docker-compose -f docker-compose.yml build",
-    "docker-prod": "docker-compose up -d",
-    "setup": "npx lerna bootstrap --ci --hoist",
-    "watch:utils": "npx lerna exec --scope @presenti/utils -- tsc -p . --watch",
-    "watch:additions": "npx lerna exec --scope @presenti/additions -- tsc -p . --watch",
-    "watch:server": "npx lerna exec --scope @presenti/server -- tsc -p . --watch",
-    "watch:client": "npx lerna exec --scope @presenti/client -- tsc -p . --watch",
-    "watch:renderer": "npx lerna exec --scope @presenti/renderer -- vue-cli-service build --watch --dest dist",
-    "run:server": "npx lerna exec --scope @presenti/server -- npm run dev"
-  },
+		"docker-dev": "docker-compose run presenti",
+		"docker-dev-init": "docker-compose build",
+		"docker-prod-init": "docker-compose -f docker-compose.yml build",
+		"docker-prod": "docker-compose up -d",
+		"watch": "lerna run --ignore @presenti/client --ignore @presenti/renderer --parallel watch",
+		"build": "lerna run --ignore @presenti/chrome --parallel build",
+		"watch:full": "lerna run --parallel watch",
+		"clean-modules": "rm -rf node_modules; rm -rf packages/**/node_modules; rm -rf yarn.lock; rm -rf packages/**/yarn.lock;"
+	},
 	"dependencies": {
 		"@clusterws/cws": "github:EricRabil/cWS#pre-gyp",
 		"@fortawesome/fontawesome-svg-core": "^1.2.28",

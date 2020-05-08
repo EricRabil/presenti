@@ -11,7 +11,8 @@
     "url": "git+https://github.com/EricRabil/presenti-monorepo.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "watch": "tsc -p . --watch --preserveWatchOutput",
+    "build": "rm -rf dist; tsc -p ."
   },
   "bugs": {
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"

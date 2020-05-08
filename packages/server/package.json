@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc -p .",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p . --watch --preserveWatchOutput",
     "prod": "NODE_ENV=production node --experimental-repl-await dist/run.js",
     "dev": "NODE_ENV=development node --experimental-repl-await dist/run.js",
     "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME"
@@ -65,7 +65,6 @@
     "@types/node-fetch": "^2.5.7",
     "@types/pug": "^2.0.4",
     "@types/uuid": "^7.0.2",
-    "@types/winston": "^2.4.4",
     "@types/ws": "^7.2.3",
     "typedoc": "^0.17.6",
     "typescript": "^3.8.3"

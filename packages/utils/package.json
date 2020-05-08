@@ -5,7 +5,7 @@
   "main": "js/index.js",
   "scripts": {
     "build": "tsc -p .",
-    "watch": "tsc -p . --watch"
+    "watch": "tsc -p . --watch --preserveWatchOutput"
   },
   "repository": {
     "type": "git",
