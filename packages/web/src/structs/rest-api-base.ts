@@ -1,7 +1,9 @@
 import path from "path";
+import * as uuid from "uuid";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import { RequestHandler, HTTPMethod } from "../utils/types";
 import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
+import logger from "@presenti/logging";
 
 export function Route(path: string = "", method: HTTPMethod = "get", ...middleware: RequestHandler[]) {
   return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
@@ -82,9 +84,12 @@ function build(app: RestAPIBase, method: HTTPMethod) {
   }
 }
 
+const log = logger.child({ name: "@presenti/web" })
+
 /** Foundation for any HTTP-based service */
 export class RestAPIBase {
   _routes: RouteData[];
+  protected timedExecution: boolean = false;
 
   constructor(readonly app: TemplatedApp, private viewsDirectory: string = process.cwd(), private headers: string[] = []) {
   }
@@ -122,9 +127,18 @@ export class RestAPIBase {
    */
   protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
     return handler(async (res, req) => {
+      if (this.timedExecution) {
+        var id = uuid.v4();
+        log.profile(id);
+      }
       const nRes = wrapResponse(res, this.resolveTemplate.bind(this)), nReq = wrapRequest(req, nRes);
 
       await runMiddleware(metadata, nReq, nRes, middleware);
+      if (this.timedExecution) log.profile(id!, {
+        message: `Processing for route completed`,
+        level: 'debug',
+        route: nReq.getUrl()
+      });
     }, ['content-type', 'cookie'].concat(headers || []));
   }
 

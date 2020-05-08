@@ -31,6 +31,7 @@ export default class PBRestAPIBase extends RestAPIBase {
 
   constructor(app: TemplatedApp, headers: string[] = []) {
     super(app, VIEWS_DIRECTORY, headers);
+    this.timedExecution = process.env.NODE_ENV === "development";
   }
 
   loadRoutes() {
