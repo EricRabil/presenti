@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { SecurityKit } from "../../utils/security";
 import { OAuthLink } from "./OAuthLink";
-import { OAUTH_PLATFORM } from "@presenti/utils";
+import { OAUTH_PLATFORM, PresentiLink, PresentiUser } from "@presenti/utils";
 
 @Entity()
 export class User extends BaseEntity {
@@ -21,17 +21,13 @@ export class User extends BaseEntity {
   @Column("simple-array", { default: '' })
   excludes: string[];
 
-  json(full = false) {
+  json(full = false): PresentiUser {
     return {
       uuid: this.uuid,
       userID: this.userID,
-      platforms: full ? this.platforms : null,
+      platforms: full ? this.oAuthLinks.reduce((acc, link) => Object.assign(acc, { [link.platform]: link.json }), {} as Record<OAUTH_PLATFORM, PresentiLink>) : null,
       excludes: this.excludes
     }
-  }
-  
-  get platforms(): Record<OAUTH_PLATFORM, string> {
-    return (this.oAuthLinks || []).reduce((acc, { platform, platformID: linkID }) => Object.assign(acc, { [platform]: linkID }), {} as Record<OAUTH_PLATFORM, string>);
   }
 
   async setPassword(password: string) {

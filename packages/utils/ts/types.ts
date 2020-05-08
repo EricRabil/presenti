@@ -40,7 +40,7 @@ export interface PresenceStruct {
 export interface PresentiUser {
   uuid: string;
   userID: string;
-  platforms: Record<OAUTH_PLATFORM, string> | null;
+  platforms: Record<OAUTH_PLATFORM, PresentiLink> | null;
   excludes: string[];
 }
 
@@ -153,7 +153,7 @@ export enum Events {
 export interface OAuthEvent {
   user: PresentiUser;
   /** New array of OAuth connections */
-  platforms: Record<OAUTH_PLATFORM, string>;
+  platforms: Record<OAUTH_PLATFORM, PresentiLink> | null;
 }
 
 export interface UserEvent {
