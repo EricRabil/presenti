@@ -49,7 +49,7 @@ export namespace OAuthAPI {
 
     await link.save();
 
-    return link;
+    return link.json;
   }
 
   /**
