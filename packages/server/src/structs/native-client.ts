@@ -27,7 +27,7 @@ export class NativeClient extends PresentiAPIClient {
   }
 
   async lookupUser(userID: string): Promise<PresentiUser | null> {
-    const user = await UserAPI.lookupUser(userID, true);
+    const user = await UserAPI.queryUser({ userID }, true);
     if (user instanceof APIError) return null;
     return user as PresentiUser;
   }
