@@ -115,7 +115,7 @@ export namespace OAuthAPI {
   export async function createLink({ platform, platformID, userUUID, pipeDirection }: OAuthData): Promise<PresentiLink | APIError> {
     if (!platform || !platformID || !userUUID) return APIError.badRequest("The platform, platformID, and userUUID are required.");
     if (!isValidOAuthQuery({ platform, platformID, userUUID, pipeDirection })) return MALFORMED_BODY;
-    if (await linkExists({ platform, platformID, userUUID })) return APIError.badRequest("A link describing this relationship already exists.");
+    if (await linkExists({ platform, userUUID })) return APIError.badRequest("A link describing this relationship already exists.");
     if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
     
     log.debug(`Creating OAuth link between [${platform}:${platformID}] <-> [PRESENTI:${userUUID}]`)
@@ -144,7 +144,7 @@ export namespace OAuthAPI {
 
   async function linkExists(query: OAuthQuery) {
     query = removeEmptyFields(query) as any;
-    if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
+    if (!isValidOAuthQuery(query, false)) return MALFORMED_BODY;
 
     const count = await OAuthLink.count(query);
     return count !== 0;
