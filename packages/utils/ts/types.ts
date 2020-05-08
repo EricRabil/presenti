@@ -63,7 +63,11 @@ interface OAuthUserUUIDQuery extends OAuthBaseQuery {
   userUUID: string;
 }
 
-export type OAuthQuery = OAuthPlatformIDQuery | OAuthUserUUIDQuery;
+interface OAuthUUIDQuery {
+  uuid: string;
+}
+
+export type OAuthQuery = OAuthPlatformIDQuery | OAuthUserUUIDQuery | OAuthUUIDQuery;
 export type OAuthData = OAuthPlatformIDQuery & OAuthUserUUIDQuery;
 
 export interface PresentiLink {
