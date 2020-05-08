@@ -18,6 +18,8 @@ export interface PBRequest extends HttpRequest {
   stream: Readable;
   pipe: Readable['pipe'];
 
+  getSearch(): Record<string, string>;
+
   /** Setting yield to true is to say that this route handler did not handle the route, causing the router to continue looking for a matching route handler, or fail. */
   setYield(shouldYield: boolean): this;
   /** Read a cookie */

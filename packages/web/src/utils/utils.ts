@@ -50,6 +50,14 @@ export function wrapRequest(req: HttpRequest, res: PBResponse): PBRequest {
     return res._reqQuery;
   }
 
+  newRequest.getSearch = function() {
+    if (!res._searchParams) {
+      const params = new URLSearchParams(this.getQuery());
+      res._searchParams = Array.from(params.entries()).reduce((acc, [ key, value ]) => Object.assign(acc, { [key]: value }), {});
+    }
+    return res._searchParams;
+  }
+
   newRequest.getHeader = function (key) {
     return res._reqHeaders[key as any];
   }
