@@ -31,6 +31,7 @@ export class OAuthLink extends BaseEntity {
 
   get json(): PresentiLink {
     return {
+      uuid: this.uuid,
       platform: this.platform,
       platformID: this.platformID,
       userUUID: this.userUUID,
