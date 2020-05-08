@@ -13,7 +13,7 @@ export namespace SecurityKit {
   async function ensureSecret() {
     if (!CONFIG.crypto.jwtSecret) {
       log.info('Generating JWT secret...');
-      CONFIG.crypto.jwtSecret = await bcrypt.genSalt(10);
+      CONFIG.crypto.jwtSecret = await bcrypt.genSalt(3);
       await saveConfig();
     }
   }
@@ -22,7 +22,7 @@ export namespace SecurityKit {
   async function ensureFirstPartyKey() {
     if (!CONFIG.crypto.firstPartyKey) {
       log.info('Generating first-party key...');
-      CONFIG.crypto.firstPartyKey = await bcrypt.genSalt(10);
+      CONFIG.crypto.firstPartyKey = await bcrypt.genSalt(3);
       await saveConfig();
     }
   }
@@ -74,7 +74,7 @@ export namespace SecurityKit {
   export async function firstPartyApiKey(): Promise<string> {
     await ensureFirstPartyKey();
 
-    return sign({ uuid: null, key: await bcrypt.hash(CONFIG.crypto.firstPartyKey!, 10), firstParty: true });
+    return sign({ uuid: null, key: await bcrypt.hash(CONFIG.crypto.firstPartyKey!, 3), firstParty: true });
   }
 
   /**
