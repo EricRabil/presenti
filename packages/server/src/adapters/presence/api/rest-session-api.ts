@@ -7,6 +7,7 @@ import { FIRST_PARTY_SCOPE } from "../../../structs/socket-api-base";
 import { SecurityKit } from "../../../utils/security";
 import { FirstPartyGuard } from "../../../web/middleware/guards";
 import { RESTAdapterV2 } from "../rest-adapter";
+import { MALFORMED_BODY } from "../../../Constants";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();
@@ -120,7 +121,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
 
   private async updatePresence(scope: string, req: PBRequest, res: PBResponse) {
     if (!req.body?.presences) {
-      res.writeStatus(400).json({ error: "Malformed body data." });
+      res.json(MALFORMED_BODY);
       return;
     }
 

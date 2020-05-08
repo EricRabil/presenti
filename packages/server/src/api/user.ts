@@ -2,6 +2,7 @@ import { PresentiUser } from "@presenti/utils";
 import { APIError } from "@presenti/web";
 import { User } from "../database/entities";
 import { removeEmptyFields } from "../utils/object";
+import { MALFORMED_BODY } from "../Constants";
 
 type UUIDQuery = { uuid: string };
 type UserIDQuery = { userID: string };
@@ -24,7 +25,7 @@ export namespace UserAPI {
    */
   export async function queryUser(query: UserQuery, full: boolean = false) {
     query = removeEmptyFields(query) as any;
-    if (!isValidQuery(query)) return APIError.badRequest("Malformed body.");
+    if (!isValidQuery(query)) return MALFORMED_BODY;
     
     /**
      * @optimization findOne() currently selects all columns *twice*, which can double server load in certain circumstances.
