@@ -6,16 +6,34 @@ import { UserAPI } from "./user";
 import logger from "@presenti/logging";
 import { removeEmptyFields } from "../utils/object";
 import { MALFORMED_BODY } from "../Constants";
+import uuidValidate from "uuid-validate";
 
 export namespace OAuthAPI {
   const log = logger.child({ name: "OAuthAPI" });
   const UNKNOWN_LINK = APIError.notFound("Unknown link.");
   const LEGAL_KEYS = ["platform", "pipeDirection", "platformID", "userUUID", "uuid"];
 
-  function isValidOAuthQuery(query: any): query is OAuthQuery {
+  const PLATFORM_KEYS = ["platform", "platformID"];
+  function isValidPlatformQuery(query: any): query is OAuthQuery {
+    const keys = Object.keys(query);
+    if (keys.length !== PLATFORM_KEYS.length) return false;
+    if (!keys.every(key => PLATFORM_KEYS.includes(key))) return false;
+    return true;
+  }
+
+  function isValidOAuthQuery(query: any, checkMutuals: boolean = true): query is OAuthQuery {
     const keys = Object.keys(query);
     if (keys.length === 0) return false;
-    return keys.every(key => LEGAL_KEYS.includes(key));
+    if (!keys.every(key => LEGAL_KEYS.includes(key))) return false;
+    if (query.uuid && !uuidValidate(query.uuid)) return false;
+    if (query.userUUID && !uuidValidate(query.userUUID)) return false;
+    if (query.platform && !OAUTH_PLATFORM[query.platform]) return false;
+    if (checkMutuals) {
+      if (query["platform"] && !query["platformID"]) return false;
+      if (query["platformID"] && !query["platform"]) return false;
+      if (query["userUUID"] && !(query["platform"] || query["uuid"])) return false;
+    }
+    return true;
   }
 
   /**
@@ -49,7 +67,8 @@ export namespace OAuthAPI {
    * Returns links for the given platform
    * @param platform platform to query for
    */
-  export async function lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[]> {
+  export async function lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | APIError> {
+    if (!isValidOAuthQuery({ platform }, false)) return MALFORMED_BODY;
     return Promise.all(await OAuthLink.createQueryBuilder("link")
                     .leftJoinAndSelect("link.user", "user")
                     .where("platform = :platform", { platform })
@@ -94,7 +113,9 @@ export namespace OAuthAPI {
    * @param userUUID user UUID
    */
   export async function createLink({ platform, platformID, userUUID, pipeDirection }: OAuthData): Promise<PresentiLink | APIError> {
-    if (!platform || !platformID) return APIError.badRequest("The platform and link id are required.");
+    if (!platform || !platformID || !userUUID) return APIError.badRequest("The platform, platformID, and userUUID are required.");
+    if (!isValidOAuthQuery({ platform, platformID, userUUID, pipeDirection })) return MALFORMED_BODY;
+    if (await linkExists({ platform, platformID, userUUID })) return APIError.badRequest("A link describing this relationship already exists.");
     if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
     
     log.debug(`Creating OAuth link between [${platform}:${platformID}] <-> [PRESENTI:${userUUID}]`)
@@ -112,10 +133,20 @@ export namespace OAuthAPI {
   async function queryLink(query: OAuthQuery) {
     query = removeEmptyFields(query) as any;
     if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
-
+    if (query["userUUID"]) query["user"] = { uuid: query["userUUID"] }
+    delete query["userUUID"];
+    
     const link = await OAuthLink.findOne(query);
     if (!link) return UNKNOWN_LINK;
 
     return link;
+  }
+
+  async function linkExists(query: OAuthQuery) {
+    query = removeEmptyFields(query) as any;
+    if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
+
+    const count = await OAuthLink.count(query);
+    return count !== 0;
   }
 }
