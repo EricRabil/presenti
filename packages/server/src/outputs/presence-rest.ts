@@ -1,14 +1,15 @@
 import { PresenceOutput, PresenceProvider } from "@presenti/modules";
 import { Get, PBRequest, PBResponse } from "@presenti/web";
 import { TemplatedApp } from "uWebSockets.js";
-import PBRestAPIBase from "../structs/rest-api-base";
+import PBRestAPIBase, { API } from "../structs/rest-api-base";
 
+@API("/api/presence")
 class RestAPI extends PBRestAPIBase {
   constructor(app: TemplatedApp, public readonly output: PresenceOutput) {
     super(app);
   }
 
-  @Get("/presence/:id")
+  @Get("/:id")
   async getPresence(req: PBRequest, res: PBResponse) {
     const scope = req.getParameter(0);
 
