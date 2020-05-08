@@ -119,8 +119,23 @@ export interface GreetingsPayload {
   type: PayloadType.GREETINGS;
 }
 
+export interface SubscriptionPayload {
+  type: PayloadType.SUBSCRIBE | PayloadType.UNSUBSCRIBE;
+  data: {
+    event: Events | Events[];
+  }
+}
+
+export interface DispatchPayload<T extends Events = any> {
+  type: PayloadType.DISPATCH;
+  data: {
+    event: T;
+    data: EventsTable[T];
+  };
+}
+
 export enum PayloadType {
-  PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4, PRESENCE_FIRST_PARTY = 5
+  PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4, PRESENCE_FIRST_PARTY = 5, SUBSCRIBE = 6, UNSUBSCRIBE = 7, DISPATCH = 8
 }
 
 export enum API_ROUTES {
@@ -173,7 +188,7 @@ export interface StateUpdateEvent {
   state: Record<string, any>;
 }
 
-export interface LinkEvent extends PresentiLink {}
+export interface LinkEvent extends PresentiLink { }
 
 export interface EventsTable {
   [Events.OAUTH_UPDATE]: OAuthEvent;

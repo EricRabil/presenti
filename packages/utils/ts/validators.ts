@@ -1,4 +1,4 @@
-import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange } from "./types";
+import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange, SubscriptionPayload, DispatchPayload } from "./types";
 import { PayloadType } from "./types";
 
 export function isPresencePayload(payload: RemotePayload): payload is RemotePresencePayload {
@@ -27,6 +27,20 @@ export function isPongPayload(payload: RemotePayload): payload is PongPayload {
 
 export function isGreetingsPayload(payload: RemotePayload): payload is GreetingsPayload {
   return payload.type === PayloadType.GREETINGS;
+}
+
+export function isSubscriptionPayload(payload: RemotePayload): payload is SubscriptionPayload {
+  return (payload.type === PayloadType.SUBSCRIBE || payload.type === PayloadType.UNSUBSCRIBE)
+      && typeof payload.data === "object"
+      && (typeof payload.data.event === "number"
+      || (typeof payload.data.event === "object" && Array.isArray(payload.data.event) && payload.data.event.every((item: any) => typeof item === "number")));
+}
+
+export function isDispatchPayload(payload: RemotePayload): payload is DispatchPayload {
+  return (payload.type === PayloadType.DISPATCH)
+      && typeof payload.data === "object"
+      && typeof payload.data.event === "number"
+      && typeof payload.data.data !== "undefined";
 }
 
 export function isPresentiText(obj: any): obj is PresenceText {
@@ -121,5 +135,8 @@ export const PayloadValidators: Record<PayloadType, (payload: RemotePayload) => 
   [PayloadType.IDENTIFY]: isIdentifyPayload,
   [PayloadType.PING]: isPingPayload,
   [PayloadType.PONG]: isPongPayload,
-  [PayloadType.GREETINGS]: isGreetingsPayload
+  [PayloadType.GREETINGS]: isGreetingsPayload,
+  [PayloadType.SUBSCRIBE]: isSubscriptionPayload,
+  [PayloadType.UNSUBSCRIBE]: isSubscriptionPayload,
+  [PayloadType.DISPATCH]: isDispatchPayload,
 };

@@ -121,6 +121,7 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
    */
   sockets: Map<WebSocket, string | typeof FIRST_PARTY_SCOPE> = new Map();
   contexts: Map<WebSocket, SocketContext> = new Map();
+  contextsByID: Map<string, SocketContext> = new Map();
   handlers: Record<PayloadType, HandlerStruct<this>>;
   handlerMetadata: Record<keyof this, HandlerMetadata>;
   log = log.child({ name: "SocketAPIAdapter "});
@@ -130,12 +131,16 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
 
     app.ws(path, {
       open: (ws) => {
-        this.contexts.set(ws, new SocketContext(ws, this));
+        const ctx = new SocketContext(ws, this);
+        this.contexts.set(ws, ctx);
+        this.contextsByID.set(ctx.id, ctx);
         this.log.debug("Socket connected", { socketID: this.contexts.get(ws)!.id })
       },
       close: (ws) => {
-        this.closed(this.contexts.get(ws)!.id);
+        const ctxID = this.contexts.get(ws)!.id;
+        this.closed(ctxID);
         this.contexts.delete(ws);
+        this.contextsByID.delete(ctxID);
         this.sockets.delete(ws);
       },
       message: (ws, message) => {

@@ -1,8 +1,9 @@
-import { PresenceList, PresenceDictionary, PayloadType, AdapterState, Presence, FirstPartyPresenceData } from "@presenti/utils";
+import { PresenceList, PresenceDictionary, PayloadType, AdapterState, Presence, FirstPartyPresenceData, SubscriptionPayload, Events, EventsTable } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
 import log from "@presenti/logging";
 import { SocketAPIAdapter, Handler, SocketContext, Authed, FIRST_PARTY_SCOPE, FirstParty, DenyFirstParty } from "../../structs/socket-api-base";
 import { PresenceMagic } from "../../utils/presence-magic";
+import { EventBus } from "../../event-bus";
 
 export class RemoteAdatpterV2 extends SocketAPIAdapter {
   log = log.child({ name: "RemoteAdapterV2" });
@@ -26,6 +27,9 @@ export class RemoteAdatpterV2 extends SocketAPIAdapter {
   /** Object that merges all first-party presences into the format of Record<scope, PresenceList> */
   firstPartyPresences: PresenceDictionary;
 
+  /** Mapping of event-code to listening socket contexts */
+  subscriptions: Record<Events, string[]> = {} as any;
+  listeningTable: Record<Events, boolean | undefined> = {} as any;
 
   run() {
     this.state = AdapterState.RUNNING;
@@ -52,6 +56,57 @@ export class RemoteAdatpterV2 extends SocketAPIAdapter {
     presence = presence.filter(p => !!p);
     
     this.firstPartyPresenceLedger[ws.id][scope] = presence as PresenceList;
+  }
+
+  @Handler(PayloadType.SUBSCRIBE)
+  @FirstParty()
+  subscribeHandler(ws: SocketContext, { event: events }: SubscriptionPayload['data']) {
+    const { id } = ws;
+    
+    if (!Array.isArray(events)) events = [events];
+    events.forEach(event => {
+      if (!this.subscriptions[event]) this.subscriptions[event] = [];
+      if (this.subscriptions[event].includes(id)) return;
+      this.subscriptions[event].push(id);
+
+      /** Register that event on the EventBus if it hasn't already */
+      if (!this.listeningTable[event]) {
+        EventBus.on(event, data => this.handleEvent(event, data));
+        this.listeningTable[event] = true;
+      }
+    })
+  }
+
+  @Handler(PayloadType.UNSUBSCRIBE)
+  @FirstParty()
+  unsubscribeHandler(ws: SocketContext, { event: events }: SubscriptionPayload['data']) {
+    const { id } = ws;
+
+    if (!Array.isArray(events)) events = [events];
+    events.forEach(event => {
+      if (!this.subscriptions[event]) return;
+      if (!this.subscriptions[event].includes(id)) return;
+      this.subscriptions[event].splice(this.subscriptions[event].indexOf(id), 1);
+    });
+  }
+
+  /**
+   * Dispatches EventBus event to the socket connection
+   * @param event event code
+   * @param data event data
+   */
+  handleEvent<T extends Events>(event: T, data: EventsTable[T]) {
+    console.log({ event, data, subscriptions: this.subscriptions });
+    if (!this.subscriptions[event]) return;
+    if (this.subscriptions[event].length === 0) return;
+    this.subscriptions[event].forEach(ctxID => {
+      if (!this.contextsByID.has(ctxID)) return;
+      const context = this.contextsByID.get(ctxID)!;
+      context.send(PayloadType.DISPATCH, {
+        event,
+        data
+      });
+    });
   }
 
   /**

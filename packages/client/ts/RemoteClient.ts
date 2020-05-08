@@ -1,5 +1,4 @@
-import { Presence, PresenceAdapter, AdapterState, Evented, PresentiUser, OAUTH_PLATFORM } from "@presenti/utils";
-import { isRemotePayload, PayloadType, RemotePayload, FirstPartyPresenceData, API_ROUTES, PresentiAPIClient } from "@presenti/utils";
+import { Events, EventsTable, isDispatchPayload, isRemotePayload, OAuthData, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload } from "@presenti/utils";
 import winston from "winston";
 
 export interface RemoteClientOptions {
@@ -24,12 +23,20 @@ export declare interface RemoteClient {
   emit(event: string, ...args: any[]): boolean;
 }
 
+type ParamsStruct = Record<string, string | number | boolean | any>;
+type BodyStruct = object;
+interface RequestOptions {
+  params?: ParamsStruct;
+  body?: BodyStruct;
+}
+
 /**
  * Connects to a PresenceServer and allows you to funnel presence updates through it
  */
 export class RemoteClient extends PresentiAPIClient {
   socket: WebSocket;
   log: winston.Logger;
+  private subscriptions: Record<Events, Function[]> = {} as any;
 
   constructor(private options: RemoteClientOptions) {
     super();
@@ -122,6 +129,13 @@ export class RemoteClient extends PresentiAPIClient {
         case PayloadType.PONG:
           this.deferredPing();
           break;
+        case PayloadType.DISPATCH:
+          if (isDispatchPayload(payload)) {
+            const event = payload.data.event as Events, data = payload.data.data;
+            if (!this.subscriptions[event]) break;
+            this.subscriptions[event].forEach(fn => fn(data));
+          }
+          break;
       }
     }
 
@@ -157,44 +171,54 @@ export class RemoteClient extends PresentiAPIClient {
     setTimeout(() => this.ping(), 1000 * 30);
   }
 
-  async lookupUser(userID: string): Promise<PresentiUser | null> {
-    return fetch(`${this.ajaxBase}/api/users/${userID}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+  lookupUser(userID: string): Promise<PresentiUser | null> {
+    return this.get("/user/lookup", { scope: userID });
   }
 
-  async platformLookup(platform: OAUTH_PLATFORM, linkID: string): Promise<PresentiUser | null> {
-    const params = new URLSearchParams();
-    params.set('platform', platform);
-    params.set('id', linkID);
-
-    return fetch(`${this.ajaxBase}/api/users/lookup?${params.toString()}`, { headers: this.headers }).then(r => r.json()).catch(e => null);
+  lookupLink(query: OAuthQuery): Promise<import("@presenti/utils").PresentiLink | null> {
+    return this.get("/link", query);
   }
 
-  async linkPlatform(platform: OAUTH_PLATFORM, linkID: string, userID: string): Promise<void> {
-    return fetch(`${this.ajaxBase}/api/user/${userID}/platform`, {
-      headers: Object.assign({}, this.headers, { 'Content-Type': 'application/json' }),
-      method: "put",
-      body: JSON.stringify({ platform, linkID })
-    }).then(r => void 0);
+  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<import("@presenti/utils").ResolvedPresentiLink[] | null> {
+    return this.get(`/link/bulk/${platform}`).then(res => res?.links || null);
   }
 
-  destroyPipe(platform: OAUTH_PLATFORM, userID: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  lookupUserFromLink(query: OAuthQuery): Promise<PresentiUser | null> {
+    return this.get("/link/user", query);
   }
 
-  clearPipe(platform: OAUTH_PLATFORM, platformID: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  deleteLink(query: OAuthQuery): Promise<void> {
+    return this.delete("/link", { params: query });
   }
 
-  lookupPipes(platform: OAUTH_PLATFORM): Promise<import("@presenti/utils").PresentiPipe[]> {
-    throw new Error("Method not implemented.");
+  createLink(data: OAuthData): Promise<PresentiLink | null> {
+    return this.post("/link", { body: data });
   }
 
-  lookupPipe(platform: OAUTH_PLATFORM, platformID: string): Promise<import("@presenti/utils").PresentiPipe | null> {
-    throw new Error("Method not implemented.");
+  updatePipeDirection(query: OAuthQuery, direction: PipeDirection): Promise<void> {
+    const uuid = (query as { uuid: string }).uuid;
+    if (!uuid) throw new Error("UUID must be provided in OAuth query.");
+    return this.patch(`/link/${uuid}/pipe`, { body: { direction }});
   }
-  
-  createPipe(platform: OAUTH_PLATFORM, scope: string): Promise<import("@presenti/utils").PresentiPipe | null> {
-    throw new Error("Method not implemented.");
+
+  resolveScopeFromUUID(uuid: string): Promise<string | null> {
+    return this.get("/user/resolve", { uuid });
+  }
+
+  subscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void {
+    (this.subscriptions[event] || (this.subscriptions[event] = [])).push(listener);
+    this.send({ type: PayloadType.SUBSCRIBE, data: { event }});
+  }
+
+  unsubscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void {
+    if (!this.subscriptions[event]) return;
+
+    const idx = this.subscriptions[event].indexOf(listener);
+    if (idx > -1) {
+      this.subscriptions[event].splice(this.subscriptions[event].indexOf(listener), 1);
+    }
+
+    this.send({ type: PayloadType.UNSUBSCRIBE, data: { event }});
   }
 
   get headers() {
@@ -209,6 +233,42 @@ export class RemoteClient extends PresentiAPIClient {
 
   get ajaxBase() {
     return `http${this.options.host}`;
+  }
+
+  private get(url: string, params: ParamsStruct = {}) {
+    return this.fetchJSON(url, "get", { params });
+  }
+
+  private post(url: string, opts: RequestOptions = {}) {
+    return this.fetchJSON(url, "post", opts);
+  }
+
+  private ["delete"](url: string, opts: RequestOptions = {}) {
+    return this.fetchJSON(url, "delete", opts);
+  }
+
+  private patch(url: string, opts: RequestOptions = {}) {
+    return this.fetchJSON(url, "patch", opts);
+  }
+
+  private async fetchJSON(url: string, method: string, { params, body }: { params?: ParamsStruct, body?: BodyStruct } = {}) {
+    const urlComponents = new URL(url, this.ajaxBase);
+    if (params) {
+      Object.entries(params).forEach(([ key, value ]) => (typeof value !== "undefined") && urlComponents.searchParams.set(key, value.toString()));
+    }
+
+    try {
+      const r = await fetch(urlComponents.toString(), {
+        method,
+        headers: body ? {
+          'Content-Type': 'application/json'
+        } : undefined,
+        body: body ? JSON.stringify(body) : undefined
+      });
+      return await r.json();
+    } catch {
+      return null;
+    }
   }
 
   /**
