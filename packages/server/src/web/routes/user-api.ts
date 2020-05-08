@@ -11,7 +11,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     const { uuid, scope } = req.getSearch();
     const full = (res.user?.uuid === uuid) || (res.user === FIRST_PARTY_SCOPE);
 
-    res.json(await UserAPI.queryUser({ uuid, userID: scope }));
+    res.json(await UserAPI.queryUser({ uuid, userID: scope }, full));
   }
 
   @Get("/resolve")
