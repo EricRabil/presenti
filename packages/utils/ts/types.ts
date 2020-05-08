@@ -71,6 +71,7 @@ export type OAuthQuery = OAuthPlatformIDQuery | OAuthUserUUIDQuery | OAuthUUIDQu
 export type OAuthData = OAuthPlatformIDQuery & OAuthUserUUIDQuery;
 
 export interface PresentiLink {
+  uuid: string;
   platform: OAUTH_PLATFORM;
   platformID: string;
   userUUID: string;
