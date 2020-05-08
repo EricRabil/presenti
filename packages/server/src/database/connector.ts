@@ -24,7 +24,12 @@ export class Database {
       username: username!,
       password: password!,
       logging: true,
-      synchronize: true
+      synchronize: true,
+      cache: (typeof CONFIG.db.cache === "object" || CONFIG.db.cache === true) ? {
+        type: "ioredis",
+        alwaysEnabled: true,
+        ...(typeof CONFIG.db.cache === "object" ? CONFIG.db.cache : {})
+      } : false
     })
   }
 

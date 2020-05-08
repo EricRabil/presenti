@@ -22,6 +22,9 @@ export interface ConfigurationStruct {
     name: string;
     username: string | null;
     password: string | null;
+    cache?: boolean | {
+      type: "ioredis",
+    };
   };
   modules: Record<string, object | boolean>;
 }
@@ -42,7 +45,8 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     port: +process.env.DB_PORT! || 5432,
     name: process.env.DB_NAME || 'presenti',
     username: process.env.DB_USERNAME || null,
-    password: process.env.DB_PASSWORD || null
+    password: process.env.DB_PASSWORD || null,
+    cache: false
   },
   modules: {}
 }
