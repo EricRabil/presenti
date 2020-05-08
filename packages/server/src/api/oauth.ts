@@ -4,9 +4,19 @@ import { APIError } from "@presenti/web";
 import { User } from "../database/entities";
 import { UserAPI } from "./user";
 import logger from "@presenti/logging";
+import { removeEmptyFields } from "../utils/object";
+import { MALFORMED_BODY } from "../Constants";
 
 export namespace OAuthAPI {
   const log = logger.child({ name: "OAuthAPI" });
+  const UNKNOWN_LINK = APIError.notFound("Unknown link.");
+  const LEGAL_KEYS = ["platform", "pipeDirection", "platformID", "userUUID", "uuid"];
+
+  function isValidOAuthQuery(query: any): query is OAuthQuery {
+    const keys = Object.keys(query);
+    if (keys.length === 0) return false;
+    return keys.every(key => LEGAL_KEYS.includes(key));
+  }
 
   /**
    * Updates the pipe configuration for an OAuth link profile
@@ -100,10 +110,11 @@ export namespace OAuthAPI {
    * @param query query to use when looking up the link
    */
   async function queryLink(query: OAuthQuery) {
-    if (!OAUTH_PLATFORM[query.platform]) return APIError.notFound("Unknown platform.");
+    query = removeEmptyFields(query) as any;
+    if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
 
     const link = await OAuthLink.findOne(query);
-    if (!link) return APIError.notFound("Unknown link.");
+    if (!link) return UNKNOWN_LINK;
 
     return link;
   }
