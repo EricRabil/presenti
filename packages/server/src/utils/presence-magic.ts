@@ -85,6 +85,7 @@ export namespace PresenceMagic {
     return new Proxy(ledger, {
       get(target, prop, receiver) {
         return Object.values(target)
+                     .filter(p => !!p)
                      .map(p => p[prop as any])
                      .filter(p => !!p)
                      .reduce((a,c) => a.concat(c), [])
