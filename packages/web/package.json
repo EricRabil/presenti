@@ -1,6 +1,6 @@
 {
   "name": "@presenti/web",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Web framework for Presenti packages",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
