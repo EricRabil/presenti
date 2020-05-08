@@ -38,8 +38,10 @@ export class NativeClient extends PresentiAPIClient {
     return link;
   }
 
-  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
-    return OAuthAPI.lookupLinksForPlatform(platform);
+  async lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
+    const links = await OAuthAPI.lookupLinksForPlatform(platform);
+    if (links instanceof APIError) return null;
+    return links;
   }
 
   async lookupUserFromLink(query: OAuthQuery): Promise<PresentiUser | null> {
