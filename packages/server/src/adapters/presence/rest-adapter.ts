@@ -1,11 +1,11 @@
 import log from "@presenti/logging";
 import { ScopedPresenceAdapter } from "@presenti/modules";
 import { AdapterState, PresenceDictionary, PresenceList } from "@presenti/utils";
-import { BodyParser, PBRequest, PBResponse, RequestHandler, Route, RouteData } from "@presenti/web";
+import { BodyParser, PBRequest, PBResponse, RequestHandler, Route, RouteData, Put, Get, Delete } from "@presenti/web";
 import * as uuid from "uuid";
 import { TemplatedApp } from "uWebSockets.js";
 import { User } from "../../database/entities";
-import PBRestAPIBase from "../../structs/rest-api-base";
+import PBRestAPIBase, { API } from "../../structs/rest-api-base";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { PresenceMagic } from "../../utils/presence-magic";
 import { SecurityKit } from "../../utils/security";
@@ -43,16 +43,14 @@ const SessionGuard: RequestHandler = async (req, res, next) => {
     return next(true);
   }
   
-  if (user instanceof User) {
-    res.user = user;
-  }
+  res.user = user;
   res.sessionID = sessionID;
   next();
 }
 
 const DenyFirstParties: RequestHandler = (req, res, next) => {
   const { adapter, sessionID } = res;
-  if (adapter.sessionIndex?.sessionID === FIRST_PARTY_SCOPE) {
+  if (adapter.sessionIndex[sessionID] === FIRST_PARTY_SCOPE as any) {
     res.writeStatus(400).json({ error: "First parties are not permitted to use this endpoint." });
     return next(true);
   }
@@ -60,7 +58,7 @@ const DenyFirstParties: RequestHandler = (req, res, next) => {
   next();
 }
 
-export class RESTPresenceAPI extends PBRestAPIBase {
+class RESTPresenceAPI extends PBRestAPIBase {
   log = log.child({ name: "RESTPresenceAPI" })
 
   constructor(app: TemplatedApp, private adapter: RESTAdapterV2) {
@@ -71,7 +69,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
     return super.buildStack(metadata, [InsertAdapterGuard(() => this.adapter), AdapterRunningGuard].concat(middleware), headers);
   }
 
-  @Route("/session", "get")
+  @Get("/session")
   async createSession(req: PBRequest, res: PBResponse) {
     const params = new URLSearchParams(req.getQuery());
     const token = clean(params.get('token'));
@@ -96,21 +94,28 @@ export class RESTPresenceAPI extends PBRestAPIBase {
     });
   }
 
-  @Route("/session", "put", SessionGuard, DenyFirstParties, BodyParser)
+  @Put("/session", SessionGuard, DenyFirstParties, BodyParser)
   async updateSession(req: PBRequest, res: PBResponse) {
     await this.updatePresence(res.adapter.sessionIndex[res.sessionID], req, res);
   }
 
-  @Route("/session/:scope", "put", SessionGuard, FirstPartyGuard, BodyParser)
+  @Delete("/session", SessionGuard)
+  async endSession(req: PBRequest, res: PBResponse) {
+    this.adapter.destroySession(res.sessionID);
+
+    res.json({ ok: true });
+  }
+
+  @Put("/session/:scope", SessionGuard, FirstPartyGuard, BodyParser)
   async updateSessionScope(req: PBRequest, res: PBResponse) {
     await this.updatePresence(req.getParameter(0), req, res);
   }
 
-  @Route("/session/refresh", "put", SessionGuard)
+  @Put("/session/refresh", SessionGuard)
   async refreshSession(req: PBRequest, res: PBResponse) {
     const { sessionID } = res;
 
-    res.adapter.scheduleExpiry(sessionID);
+    this.adapter.scheduleExpiry(sessionID);
 
     res.json({ ok: true });
   }
@@ -121,7 +126,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
       return;
     }
 
-    res.adapter.presenceLedger[res.sessionID][scope] = req.body.presences;
+    this.adapter.presenceLedger[res.sessionID][scope] = req.body.presences;
 
     res.json({ ok: true });
   }
@@ -141,6 +146,7 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
 
   /** Format of Record<sessionID, PresenceList> */
   presenceLedger: Record<string, PresenceDictionary> = {};
+  presences: PresenceDictionary;
 
   sessionExpiryMS = RESTAdapterV2.DEFAULT_EXPIRY_MS;
   api: RESTPresenceAPI;
@@ -149,6 +155,7 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
   constructor(app: TemplatedApp) {
     super();
     this.api = new RESTPresenceAPI(app, this);
+    this.presences = PresenceMagic.createPresenceDictCondenser(this.presenceLedger);
   }
 
   /**
@@ -178,9 +185,13 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
   destroySession(session: string) {
     this.log.debug("Destroying session", { sessionID: session, user: this.sessionIndex[session] });
 
+    const keys = Object.keys(this.presenceLedger[session]);
+
     this.clearExpiry(session);
     this.sessionIndex[session] = undefined!;
     this.presenceLedger[session] = undefined!;
+
+    keys.forEach(scope => this.emit("updated", scope));
   }
   
   /**
@@ -212,8 +223,7 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
   }
 
   async activityForUser(id: string) {
-    const activities = Object.entries(this.sessionIndex).filter(([, user]) => user === id).map(([session]) => this.presenceLedger[session][id]).reduce((a, c) => a.concat(c), []);
-    return activities;
+    return this.presences[id];
   }
 
   async activities() {
