@@ -4,7 +4,8 @@
   "description": "Utility functions and types for the Remote Presence API",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist; tsc -p .",
+    "build": "tsc -p .",
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
     "watch": "tsc -p . --watch --preserveWatchOutput"
   },
   "repository": {

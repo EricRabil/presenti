@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "run": "node dist/run.js",
     "dev": "NODE_ENV=development node dist/run.js",
-    "build": "rm -rf dist; tsc -p .",
+    "build": "tsc -p .",
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
     "watch": "tsc -p . --watch --preserveWatchOutput"
   },
   "repository": {

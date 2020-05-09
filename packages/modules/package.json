@@ -16,13 +16,15 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
     "watch": "tsc -p . --watch --preserveWatchOutput",
-    "build": "rm -rf dist; tsc -p ."
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
+    "build": "tsc -p ."
   },
   "bugs": {
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"
   },
   "dependencies": {
     "@presenti/utils": "^1.0.9",
+    "@presenti/web": "^0.0.4",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.4.0"
   }
 }

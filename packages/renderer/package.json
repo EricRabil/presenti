@@ -4,7 +4,8 @@
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "rm -rf dist; vue-cli-service build",
+    "build": "vue-cli-service build",
+    "clean": "rm -rf dist",
     "watch": "vue-cli-service build --watch --dest dist"
   },
   "dependencies": {

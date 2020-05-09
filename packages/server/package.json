@@ -4,10 +4,11 @@
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist && tsc -p .",
+    "build": "tsc -p .",
     "watch": "tsc -p . --watch --preserveWatchOutput",
     "prod": "NODE_ENV=production node --experimental-repl-await dist/run.js",
     "dev": "NODE_ENV=development node --experimental-repl-await dist/run.js",
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
     "docs": "typedoc --out docs src; touch docs/.nojekyll; echo 'docs.presenti.app' > docs/CNAME"
   },
   "repository": {

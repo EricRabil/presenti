@@ -12,7 +12,8 @@
   },
   "scripts": {
     "watch": "tsc -p . --watch --preserveWatchOutput",
-    "build": "rm -rf dist; tsc -p ."
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
+    "build": "tsc -p ."
   },
   "bugs": {
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"

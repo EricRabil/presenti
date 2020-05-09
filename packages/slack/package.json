@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "watch": "tsc -p . --watch --preserveWatchOutput",
-    "build": "rm -rf dist; tsc -p ."
+    "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
+    "build": "tsc -p ."
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,7 @@
     "@presenti/modules": "^0.0.1",
     "@presenti/server": "^1.0.4",
     "@presenti/utils": "^1.0.9",
-    "@presenti/web": "^0.0.1",
+    "@presenti/web": "^0.0.4",
     "@slack/events-api": "^2.3.2",
     "@slack/interactive-messages": "^1.6.0",
     "@slack/oauth": "^1.0.0",
@@ -33,5 +34,8 @@
     "@speee-js/jsx-slack": "^2.1.0",
     "pg": "^8.0.3",
     "typeorm": "^0.2.24"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.6"
   }
 }

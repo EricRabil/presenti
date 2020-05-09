@@ -1,0 +1,32 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/additions"
+    },
+    {
+      "path": "packages/client"
+    },
+    {
+      "path": "packages/logging"
+    },
+    {
+      "path": "packages/modules"
+    },
+    {
+      "path": "packages/renderer"
+    },
+    {
+      "path": "packages/server"
+    },
+    {
+      "path": "packages/slack"
+    },
+    {
+      "path": "packages/utils"
+    },
+    {
+      "path": "packages/web"
+    }
+  ]
+}

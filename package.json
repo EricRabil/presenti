@@ -18,7 +18,8 @@
 		"@types/uuid": "^7.0.2",
 		"@types/winston": "^2.4.4",
 		"@types/ws": "^7.2.3",
-		"lerna": "^3.20.2"
+		"lerna": "^3.20.2",
+		"strip-json-comments": "^3.1.0"
 	},
 	"workspaces": [
 		"packages/*"
@@ -29,8 +30,10 @@
 		"docker-prod-init": "docker-compose -f docker-compose.yml build",
 		"docker-prod": "docker-compose up -d",
 		"watch": "lerna run --ignore @presenti/client --ignore @presenti/renderer --parallel watch",
-		"build": "lerna run --ignore --parallel build",
+		"build": "lerna run --ignore @presenti/renderer build",
+		"prepare": "node scripts/configure-references",
 		"watch:full": "lerna run --parallel watch",
+		"clean": "lerna run --parallel clean",
 		"clean-modules": "rm -rf node_modules; rm -rf packages/**/node_modules; rm -rf yarn.lock; rm -rf packages/**/yarn.lock;"
 	},
 	"dependencies": {
