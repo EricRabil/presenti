@@ -1,6 +1,6 @@
 import { PresenceOutput } from "@presenti/modules";
-import { UserLoader } from "@presenti/server/dist/web/loaders";
-import { IdentityGuardFrontend } from "@presenti/server/dist/web/middleware";
+import { UserLoader } from "@presenti/server/dist/web/middleware/loaders";
+import { IdentityGuardFrontend } from "@presenti/server/dist/web/middleware/guards";
 import { OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
 import { APIError, BodyParser, PBRequest, PBResponse, RequestHandler } from "@presenti/web";
 import { createEventAdapter } from "@slack/events-api";
@@ -169,7 +169,11 @@ export class AppOutput extends PresenceOutput {
 
       if (typeof response.authed_user !== 'object' || response.authed_user === null || !("id" in response.authed_user)) return res.json(APIError.badRequest("Missing Slack user in response data"));
 
-      await this.presentiClient.linkPlatform(OAUTH_PLATFORM.SLACK, (response.authed_user as any).id, res.user!.userID);
+      await this.presentiClient.createLink({
+        platform: OAUTH_PLATFORM.SLACK,
+        platformID: (response.authed_user as any).id,
+        userUUID: res.user!.uuid
+      })
 
       res.redirect("/");
     });
@@ -205,7 +209,11 @@ export class AppOutput extends PresenceOutput {
     switch (event.tab) {
       case "home":
         const data = await this.installer.authorize({ teamId: details.team_id });
-        const user = await this.presentiClient.platformLookup(OAUTH_PLATFORM.SLACK, event.user);
+        const user = await this.presentiClient.lookupUserFromLink({
+          platform: OAUTH_PLATFORM.SLACK,
+          platformID: event.user
+        });
+
         const web = new WebClient(data.botToken);
 
         await web.views.publish({
