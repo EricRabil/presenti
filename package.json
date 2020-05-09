@@ -29,7 +29,7 @@
 		"docker-prod-init": "docker-compose -f docker-compose.yml build",
 		"docker-prod": "docker-compose up -d",
 		"watch": "lerna run --ignore @presenti/client --ignore @presenti/renderer --parallel watch",
-		"build": "lerna run --ignore @presenti/chrome --parallel build",
+		"build": "lerna run --ignore --parallel build",
 		"watch:full": "lerna run --parallel watch",
 		"clean-modules": "rm -rf node_modules; rm -rf packages/**/node_modules; rm -rf yarn.lock; rm -rf packages/**/yarn.lock;"
 	},
