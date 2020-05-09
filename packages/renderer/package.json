@@ -12,7 +12,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
     "@presenti/client": "^1.0.7",
-    "@presenti/server": "^1.0.4",
     "@presenti/utils": "^1.0.9",
     "babel-loader": "^8.1.0",
     "core-js": "^3.6.4",
