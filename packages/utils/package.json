@@ -2,7 +2,7 @@
   "name": "@presenti/utils",
   "version": "1.0.9",
   "description": "Utility functions and types for the Remote Presence API",
-  "main": "js/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . --watch --preserveWatchOutput"
