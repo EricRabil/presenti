@@ -31,6 +31,8 @@
 		"docker-prod": "docker-compose up -d",
 		"watch": "lerna run --ignore @presenti/renderer --parallel watch",
 		"build": "lerna run --ignore @presenti/renderer build",
+		"build:renderer": "lerna run --scope @presenti/renderer build",
+		"watch:renderer": "lerna run --scope @presenti/renderer watch",
 		"prepare": "node scripts/configure-references",
 		"watch:full": "lerna run --parallel watch",
 		"clean": "lerna run --parallel clean",

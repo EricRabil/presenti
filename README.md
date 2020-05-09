@@ -36,3 +36,22 @@ To watch the packages, run
 # Watch packages
 yarn run watch
 ```
+
+#### Renderer Development
+
+Because the renderer is much heavier to compile (given it is a webpack project undergoing transpilation, minification, and concatenation into just a few files), build commands for that project are isolated into their own scripts.
+
+To build the renderer, run the following command:
+
+```bash
+# Build renderer
+yarn run build:renderer
+```
+
+To watch the renderer, run:
+
+```bash
+# Watch renderer
+yarn run watch:renderer
+```
+
