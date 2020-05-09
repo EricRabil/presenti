@@ -63,5 +63,19 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
     "resolveJsonModule": true
-  }
+  },
+  "references": [
+    {
+      "path": "../modules"
+    },
+    {
+      "path": "../logging"
+    },
+    {
+      "path": "../web"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
 }
