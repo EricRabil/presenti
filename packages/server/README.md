@@ -32,30 +32,44 @@ Presenti is easy to deploy. My favorite method for maintaining an active process
         "port": 5432,
         "name": "presenti",
         "username": "",
-        "password": ""
-    }
+        "password": "",
+        "cache": false
+    },
+    "modules": {}
 }
 ```
 
-5. To setup Discord integration, replace
-```json
-{
-  "discord": null
-}
-```
-with
-```json
-{
-  "discord": {
-    "clientID": "<client id>",
-    "clientSecret": "<client secret>"
-  }
-}
-```
-
-6. To generate a first-party API key for modules like [presenti-additions](https://github.com/ericrabil/presenti-additions), run the following in the Presenti shell and copy the results (I will be adding an admin panel for this eventually):
+5. To generate a first-party API key for modules like [presenti-additions](https://github.com/ericrabil/presenti-additions), run the following in the Presenti shell and copy the results (I will be adding an admin panel for this eventually):
 ```js
 (Presenti) % await SecurityKit.firstPartyApiKey()
+```
+
+### Modules
+Presenti is built around modules, which can run in the server process or in their own process. If you'd like to load in modules, specify them and their configuration in the `modules` property of the config file.
+
+#### Examples
+
+***
+
+#### Presenti Additions
+
+Add the following entry to your `modules` file to add the `@presenti/additions` module, which includes Discord and Spotify integration.
+
+```json5
+{
+  "modules": {
+    "@presenti/additions": {
+      "discord": {
+          "token": "your token",
+          "prefix": ">",
+          "clientID": "your client ID",
+          "clientSecret": "your client secret"
+      },
+      // It's important that you include this property, or spotifyInternal may not work correctly. Config generation for modules is coming soon.
+      "spotifyInternal": {}
+    }
+  }
+}
 ```
 
 ## Streaming API
