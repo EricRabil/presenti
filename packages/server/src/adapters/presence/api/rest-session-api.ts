@@ -89,7 +89,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
 
     res.json({
       sessionID,
-      expres: res.adapter.sessionExpiryMS
+      expires: res.adapter.sessionExpiryMS
     });
   }
 
