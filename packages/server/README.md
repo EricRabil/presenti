@@ -77,35 +77,37 @@ Presence updates look like this, and are also sent upon connection:
 {
   "activities": [
     {
-      "title": "Listening to Spotify",
-      "largeText": {
-          "text": "Issues/Hold On",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      "smallTexts": [
-          {
+      "presences": [
+        {
+          "title": "Listening to Spotify",
+          "largeText": {
+            "text": "Issues/Hold On",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "smallTexts": [
+            {
               "text": "by Teyana Taylor",
               "link": "https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a"
-          },
-          {
+            },
+            {
               "text": "on K.T.S.E.",
               "link": "https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU"
-          }
-      ],
-      "image": {
-          "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      // unix timestamp representing start/stop of media, omit for no timer
-      "timestamps": {
-          "start": 1587431026177,
-          "stop": 1587431296243
-      },
-      "gradient": {
-          "enabled": true
-      },
-      "isPaused": true,
-      "effective": 1587420294386
+            }
+          ],
+          "image": {
+            "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "timestamps": {
+            "start": 1589001619550,
+            "stop": 1589002629550
+          },
+          "gradient": {
+            "enabled": true
+          },
+          "isPaused": true
+        }
+      ]
     }
   ]
 }
@@ -148,39 +150,37 @@ Call this endpoint to update the presence state for the session. Calling this en
 {
   "presences": [
     {
-      "title": "Listening to Spotify",
-      "largeText": {
-          "text": "Issues/Hold On",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      "smallTexts": [
-          {
+      "presences": [
+        {
+          "title": "Listening to Spotify",
+          "largeText": {
+            "text": "Issues/Hold On",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "smallTexts": [
+            {
               "text": "by Teyana Taylor",
               "link": "https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a"
-          },
-          {
+            },
+            {
               "text": "on K.T.S.E.",
               "link": "https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU"
-          }
-      ],
-      "image": {
-          "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      // unix timestamp representing start/stop of media, omit for no timer
-      "timestamps": {
-          "start": 1587431026177,
-          "stop": 1587431296243
-      },
-      // if you would like a gradient background to be generated for this presence, set enabled to true.
-      // if you dont need a gradient, you can omit this or set it to null.
-      "gradient": {
-          "enabled": true,
-          // priority can be increased to take precedence over other gradient presences
-          "priority": 0
-      },
-      "isPaused": true,
-      "effective": 1587420294386
+            }
+          ],
+          "image": {
+            "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "timestamps": {
+            "start": 1589001619550,
+            "stop": 1589002629550
+          },
+          "gradient": {
+            "enabled": true
+          },
+          "isPaused": true
+        }
+      ]
     }
   ]
 }
@@ -258,35 +258,37 @@ Though not required, these can help prevent a connection time-out and unnecessar
   "type":2,
   "data": [
     {
-      "title": "Listening to Spotify",
-      "largeText": {
-          "text": "Issues/Hold On",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      "smallTexts": [
-          {
+      "presences": [
+        {
+          "title": "Listening to Spotify",
+          "largeText": {
+            "text": "Issues/Hold On",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "smallTexts": [
+            {
               "text": "by Teyana Taylor",
               "link": "https://open.spotify.com/artist/4ULO7IGI3M2bo0Ap7B9h8a"
-          },
-          {
+            },
+            {
               "text": "on K.T.S.E.",
               "link": "https://open.spotify.com/album/0mwf6u9KVhZDCNVyIi6JuU"
-          }
-      ],
-      "image": {
-          "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
-          "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
-      },
-      // unix timestamp representing start/stop of media, omit for no timer
-      "timestamps": {
-          "start": 1587431026177,
-          "stop": 1587431296243
-      },
-      "gradient": {
-          "enabled": true
-      },
-      "isPaused": true,
-      "effective": 1587420294386
+            }
+          ],
+          "image": {
+            "src": "https://i.scdn.co/image/ab67616d0000b273abca6b34e370af95f3b926bd",
+            "link": "https://open.spotify.com/track/0bxmVPKnEopTyuMMkaTvUb"
+          },
+          "timestamps": {
+            "start": 1589001619550,
+            "stop": 1589002629550
+          },
+          "gradient": {
+            "enabled": true
+          },
+          "isPaused": true
+        }
+      ]
     }
   ]
 }
