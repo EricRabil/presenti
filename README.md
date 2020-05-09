@@ -55,3 +55,4 @@ To watch the renderer, run:
 yarn run watch:renderer
 ```
 
+To see server-specific documentation, head on over to [@presenti/server](https://github.com/EricRabil/presenti/tree/master/packages/server)
