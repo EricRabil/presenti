@@ -113,7 +113,7 @@ Presence updates look like this, and are also sent upon connection:
 
 This is how that would be rendered
 
-![Rendered Presence](assets/rendered.png)
+![Rendered Presence](resources/rendered.png)
 
 These are the only messages that will be sent by the server. If the connection closes, simply re-open the connection. There is no authentication necessary for this endpoint.
 
@@ -188,7 +188,7 @@ Call this endpoint to update the presence state for the session. Calling this en
 
 This is how that would be rendered
 
-![Rendered Presence](assets/rendered.png)
+![Rendered Presence](resources/rendered.png)
 
 *Example Response*
 ```json
@@ -294,7 +294,7 @@ Though not required, these can help prevent a connection time-out and unnecessar
 
 This is how that would be rendered
 
-![Rendered Presence](assets/rendered.png)
+![Rendered Presence](resources/rendered.png)
 
 ## Pre-requisites
 - Node 12
