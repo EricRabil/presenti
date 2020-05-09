@@ -1,5 +1,10 @@
 # Presenti
+
 Presenti is a flexible data aggregation service for statuses across platforms. It is designed to be plug-n-play with a Module API allowing you to integrate any platform to fit your needs. It can be used to make a status page for your personal website, or to aggregate the status of your services into one endpoint.
+
+> **Heads up!**
+>
+> Presenti is in very early development, and this is mostly a one-man show. You may find a lack of documentation in certain areas, as I am still working through the project and writing documentation for it. This project is still coming out of the prototyping phase, which is why there is not much documentation at this time. If you have any questions, feel free to open an issue and I will get back to you as soon as I can.
 
 ## Getting Started
 
