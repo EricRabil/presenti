@@ -1,5 +1,4 @@
-import { Events, EventsTable, isDispatchPayload, isRemotePayload, OAuthData, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload } from "@presenti/utils";
-import winston from "winston";
+import { Events, EventsTable, isDispatchPayload, isRemotePayload, OAuthData, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink } from "@presenti/utils";
 
 export interface RemoteClientOptions {
   /** Format of "://localhost:8138", "s://api.ericrabil.com" */
@@ -35,33 +34,11 @@ interface RequestOptions {
  */
 export class RemoteClient extends PresentiAPIClient {
   socket: WebSocket;
-  log: winston.Logger;
   private subscriptions: Record<Events, Function[]> = {} as any;
 
   constructor(private options: RemoteClientOptions) {
     super();
     this.options.reconnectInterval = options.reconnectInterval || 5000;
-    this.log = winston.createLogger({
-      levels: {
-        emerg: 0,
-        alert: 1,
-        crit: 2,
-        error: 3,
-        warn: 4,
-        notice: 5,
-        info: 6,
-        debug: 7
-      },
-      transports: options.logging ? [
-        new winston.transports.Console({
-          level: "debug",
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          )
-        })
-      ] : []
-    });
   }
 
   /**
@@ -88,7 +65,7 @@ export class RemoteClient extends PresentiAPIClient {
     this.ready = false;
 
     if (this.options.reconnect && this._retryCounter > this.options.reconnectGiveUp!) {
-      this.log.error(`Failed to reconnect to the server after ${this.options.reconnectGiveUp} tries.`);
+      console.error(`Failed to reconnect to the server after ${this.options.reconnectGiveUp} tries.`);
       return;
     }
 
@@ -109,7 +86,7 @@ export class RemoteClient extends PresentiAPIClient {
       try {
         payload = JSON.parse(data.toString());
       } catch (e) {
-        this.log.debug('Failed to parse server payload', {
+        console.debug('Failed to parse server payload', {
           e,
           data
         });
@@ -123,7 +100,7 @@ export class RemoteClient extends PresentiAPIClient {
           this.emit("ready");
           this._retryCounter = 0;
           this.deferredPing();
-          this.log.info('Connected to the server.');
+          console.info('Connected to the server.');
           break;
         // on pong, schedule the next ping
         case PayloadType.PONG:
@@ -141,7 +118,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     let dealtWith = false;
     this.socket.onerror = e => {
-      this.log.error(`Socket errored! ${(e as any).error?.code}`, (e as any).error?.code ? '' : e);
+      console.error(`Socket errored! ${(e as any).error?.code}`, (e as any).error?.code ? '' : e);
       if (!dealtWith) {
         dealtWith = true;
         this.terminationHandler();
@@ -154,13 +131,13 @@ export class RemoteClient extends PresentiAPIClient {
       if (dealtWith) return;
       dealtWith = true;
       if ((this.options.reconnect === false) || this._killed) return;
-      this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
+      console.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
       setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
     }
   }
   
   terminationHandler() {
-    this.log.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
+    console.warn(`Disconnected from the server, attempting a reconnection in ${this.options.reconnectInterval}ms`);
     setTimeout(() => this._buildSocket(), this.options.reconnectInterval);
   }
 
@@ -175,11 +152,11 @@ export class RemoteClient extends PresentiAPIClient {
     return this.get("/user/lookup", { scope: userID });
   }
 
-  lookupLink(query: OAuthQuery): Promise<import("@presenti/utils").PresentiLink | null> {
+  lookupLink(query: OAuthQuery): Promise<PresentiLink | null> {
     return this.get("/link", query);
   }
 
-  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<import("@presenti/utils").ResolvedPresentiLink[] | null> {
+  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
     return this.get(`/link/bulk/${platform}`).then(res => res?.links || null);
   }
 

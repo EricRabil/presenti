@@ -3,11 +3,14 @@
   "version": "1.0.8",
   "description": "Utility library that allows you to use the Remote Presence API in Presenti",
   "main": "dist/index.js",
+  "browser": "dist/browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p .",
+    "build": "yarn run build:browser && tsc -p .",
     "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",
-    "watch": "tsc -p . --watch --preserveWatchOutput"
+    "watch": "tsc -p . --watch --preserveWatchOutput",
+    "watch:browser": "rollup -cw",
+    "build:browser": "rollup -c"
   },
   "repository": {
     "type": "git",
