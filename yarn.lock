@@ -12955,6 +12955,14 @@ sactivity@^1.0.3:
     "@clusterws/cws" "github:EricRabil/cWS#pre-gyp"
     got "^10.7.0"
 
+sactivity@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/sactivity/-/sactivity-1.0.4.tgz#b1f274f6fed07335a155b66438d8b86e0d59e50b"
+  integrity sha512-Uxc60y3Xnm5FZfRLIHARfLWs4nwtKr0mOTl7BRZHg6i35TdM7/FDN/oW5j9Oe7py33oURvoH4LnNPYvRkGTWDQ==
+  dependencies:
+    "@clusterws/cws" "github:EricRabil/cWS#pre-gyp"
+    got "^10.7.0"
+
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"

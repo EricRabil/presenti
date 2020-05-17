@@ -51,6 +51,7 @@
     "node-fetch": "^2.6.0",
     "pg": "^8.0.3",
     "pug": "^2.0.4",
+    "sactivity": "^1.0.4",
     "splashy": "^5.0.2",
     "typeorm": "^0.2.24",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.4.0",
