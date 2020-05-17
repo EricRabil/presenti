@@ -10,7 +10,7 @@ import { SharedPresenceService } from "../..";
 export const UserLoader: (includeAuthorization?: boolean) => RequestHandler = includeAuth => async (req, res, next) => {
   const identity = req.cookie('identity'), authorization = (includeAuth ? req.getHeader('authorization') : null);
   if (!identity && !authorization) return next();
-  res.user = authorization ? await SecurityKit.validateApiKey(authorization) : identity ? await User.userForToken(identity) : null;
+  res.user = identity ? await User.userForToken(identity) : authorization ? await SecurityKit.validateApiKey(authorization) : null;
   
   next();
 }

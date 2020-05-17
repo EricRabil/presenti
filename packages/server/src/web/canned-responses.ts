@@ -1,4 +1,4 @@
-import { PBResponse } from "@presenti/web";
+import { PBResponse, APIError } from "@presenti/web";
 
 /** Renders a 404 error page */
 export function notFound(res: PBResponse) {
@@ -7,5 +7,5 @@ export function notFound(res: PBResponse) {
 
 /** Returns a 404 error response */
 export function notFoundAPI(res: PBResponse) {
-  res.writeStatus(404).json({ error: "Unknown endpoint." });
+  res.json(APIError.notFound("Unknown endpoint."));
 }

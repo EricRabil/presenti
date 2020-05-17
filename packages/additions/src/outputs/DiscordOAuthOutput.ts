@@ -9,13 +9,15 @@ import { UserLoader } from "@presenti/server/dist/web/middleware/loaders";
 import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/server/dist/web/middleware/guards";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresentiAdditionsConfig } from "../structs/config";
+import { User } from "@presenti/server/src/database/entities";
+import { SharedPresenceService } from "@presenti/server";
 
-const DISCORD_REDIRECT = (host: string) => `http://${host}/api/oauth/discord/callback`;
+const DISCORD_REDIRECT = (host: string) => `http${SharedPresenceService.config.web.host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;
 
 /** API for linking with OAuth services */
 @API("/api/oauth")
-@GlobalGuards(UserLoader(), IdentityGuard, DenyFirstPartyGuard)
+@GlobalGuards(UserLoader(true), IdentityGuard, DenyFirstPartyGuard)
 export default class DiscordOAuthAPI extends PBRestAPIBase {
   constructor(app: TemplatedApp, private client: PresentiAPIClient, private config: PresentiAdditionsConfig) {
     super(app);
@@ -26,7 +28,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
   /** Initialize Discord OAuth flow */
   @Get("/discord")
   async redirectToDiscord(req: PBRequest, res: PBResponse) {
-    res.redirect(DISCORD_CALLBACK(req.getHeader('host')));
+    res.json({ url: DISCORD_CALLBACK(req.getHeader('host')) });
   }
 
   /** Unlink from Discord */
@@ -37,7 +39,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
       userUUID: res.user!.uuid
     });
     
-    res.redirect('/');
+    res.json({ ok: true });
   }
   
   /** Called by Discord upon OAuth completion */
@@ -91,7 +93,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
       userUUID: res.user!.uuid
     });
     
-    res.redirect('/');
+    res.redirect(SharedPresenceService.config.web.oauthSuccessRedirect);
   }
 }
 

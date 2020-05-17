@@ -1,4 +1,4 @@
-import { Events, EventsTable, isDispatchPayload, isRemotePayload, OAuthData, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink } from "@presenti/utils";
+import { APIErrorResponse, Events, EventsTable, isDispatchPayload, isRemotePayload, OAuthData, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink, OAuthModuleDefinition } from "@presenti/utils";
 
 export interface RemoteClientOptions {
   /** Format of "://localhost:8138", "s://api.ericrabil.com" */
@@ -8,6 +8,7 @@ export interface RemoteClientOptions {
   reconnectGiveUp?: number;
   reconnectInterval?: number;
   logging?: boolean;
+  fetchOptions?: RequestOptions;
 }
 
 export declare interface RemoteClient {
@@ -24,9 +25,20 @@ export declare interface RemoteClient {
 
 type ParamsStruct = Record<string, string | number | boolean | any>;
 type BodyStruct = object;
-interface RequestOptions {
+interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: ParamsStruct;
   body?: BodyStruct;
+}
+
+export interface ErrorResponse {
+  error: string;
+  code: number;
+}
+
+export function isErrorResponse(obj: any): obj is ErrorResponse {
+  return typeof obj === "object"
+      && typeof obj.error === "string"
+      && typeof obj.code === "number";
 }
 
 /**
@@ -178,8 +190,45 @@ export class RemoteClient extends PresentiAPIClient {
     return this.patch(`/link/${uuid}/pipe`, { body: { direction }});
   }
 
+  updateMyPipeDirection(pipeUUID: string, direction: PipeDirection): Promise<void> {
+    return this.patch(`/user/me/pipe/${pipeUUID}`, { body: { direction }});
+  }
+
+  deleteMyPipe(pipeUUID: string): Promise<boolean> {
+    return this.delete(`/user/me/pipe/${pipeUUID}`).then(body => !!body.ok);
+  }
+
   resolveScopeFromUUID(uuid: string): Promise<string | null> {
     return this.get("/user/resolve", { uuid });
+  }
+
+  whoami(): Promise<PresentiUser | ErrorResponse> {
+    return this.get("/user/me");
+  }
+
+  login(body: { id: string, password: string }): Promise<PresentiUser | ErrorResponse> {
+    return this.post("/user/auth", { body });
+  }
+
+  logout(): Promise<void> {
+    return this.get("/user/logout");
+  }
+
+  signup(body: { id: string, password: string }): Promise<PresentiUser | ErrorResponse> {
+    return this.post("/user/new", { body });
+  }
+
+  createAPIKey(): Promise<string> {
+    return this.get("/user/me/key").then(({ key }) => key);
+  }
+
+  changePassword(body: { password: string, newPassword: string }): Promise<{ ok: true } | APIErrorResponse> {
+    return this.patch("/user/me/password", { body });
+  }
+
+  async platforms(): Promise<OAuthModuleDefinition[]> {
+    const { platforms } = await this.get("/platforms");
+    return platforms;
   }
 
   subscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void {
@@ -209,39 +258,47 @@ export class RemoteClient extends PresentiAPIClient {
   }
 
   get ajaxBase() {
-    return `http${this.options.host}`;
+    return this.options.host;
   }
 
-  private get(url: string, params: ParamsStruct = {}) {
+  get(url: string, params: ParamsStruct = {}) {
     return this.fetchJSON(url, "get", { params });
   }
 
-  private post(url: string, opts: RequestOptions = {}) {
+  post(url: string, opts: RequestOptions = {}) {
     return this.fetchJSON(url, "post", opts);
   }
 
-  private ["delete"](url: string, opts: RequestOptions = {}) {
+  ["delete"](url: string, opts: RequestOptions = {}) {
     return this.fetchJSON(url, "delete", opts);
   }
 
-  private patch(url: string, opts: RequestOptions = {}) {
+  patch(url: string, opts: RequestOptions = {}) {
     return this.fetchJSON(url, "patch", opts);
   }
 
-  private async fetchJSON(url: string, method: string, { params, body }: { params?: ParamsStruct, body?: BodyStruct } = {}) {
-    const urlComponents = new URL(url, this.ajaxBase);
+  async fetchJSON(url: string, method: string, { params, body, ...options }: RequestOptions = {}) {
+    method = method.toUpperCase();
+    const urlComponents = new URL(`${url.startsWith('/api') ? '' : '/api'}${url.startsWith('/') ? '' : '/'}${url}`, this.ajaxBase);
     if (params) {
       Object.entries(params).forEach(([ key, value ]) => (typeof value !== "undefined") && urlComponents.searchParams.set(key, value.toString()));
     }
+    
+    const fetchOptions = {
+      method,
+      headers: body ? {
+        'Content-Type': 'application/json',
+        ...this.headers
+      } : this.headers,
+      body: body ? JSON.stringify(body) : undefined,
+      ...(this.options.fetchOptions || {}) as any,
+      ...options
+    };
+
+    console.log({ fetchOptions, options: this.options });
 
     try {
-      const r = await fetch(urlComponents.toString(), {
-        method,
-        headers: body ? {
-          'Content-Type': 'application/json'
-        } : undefined,
-        body: body ? JSON.stringify(body) : undefined
-      });
+      const r = await fetch(urlComponents.toString(), fetchOptions);
       return await r.json();
     } catch {
       return null;

@@ -21,6 +21,7 @@
   "dependencies": {
     "@presenti/logging": "^0.0.1",
     "cookie": "^0.4.1",
+    "cors": "^2.8.5",
     "fs-extra": "^9.0.0",
     "mime-types": "^2.1.27",
     "pug": "^2.0.4",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@types/cookie": "^0.3.3",
+    "@types/cors": "^2.8.6",
     "@types/fs-extra": "^8.1.0",
     "@types/mime-types": "^2.1.0",
     "@types/pug": "^2.0.4",

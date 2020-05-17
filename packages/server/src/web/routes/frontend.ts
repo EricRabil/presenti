@@ -1,10 +1,10 @@
-import { Any, BodyParser, Get, PBRequest, PBResponse, Post, RequestHandler, RouteData, RouteDataShell } from "@presenti/web";
+import { Any, BodyParser, Get, PBRequest, PBResponse, Post, RequestHandler, RouteData, RouteDataShell, Options } from "@presenti/web";
 import fs from "fs-extra";
 import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
 import { User } from "../../database/entities";
 import { CONFIG } from "../../utils/config";
-import PBRestAPIBase from "../../structs/rest-api-base";
+import PBRestAPIBase, { API, GlobalGuards } from "../../structs/rest-api-base";
 import { notFound } from "../canned-responses";
 import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "../../Constants";
 import { UserLoader, OAuthLoader } from "../middleware/loaders";
@@ -99,7 +99,7 @@ export default class Frontend extends PBRestAPIBase {
   /** Called upon login form submission, accepts "id" and "password" in form submission */
   @Post("/login", BodyParser)
   async loginComplete(req: PBRequest, res: PBResponse) {
-    const fail = () => res.render('login', { error: 'Invalid credentials.' });
+    const fail = () => res.status(401).render('login', { error: 'Invalid credentials.' });
     if (!req.body || !req.body.id || !req.body.password) {
       return fail();
     }

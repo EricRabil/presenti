@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { PresenceStream } from '@presenti/client'
 import { PresenceStruct } from '@presenti/utils'
 import PresentiPresence from './PresentiPresence.vue'
@@ -63,7 +63,7 @@ interface PresenceState {
     PresentiPresence
   }
 })
-export default class DiscordStatus extends Vue {
+export default class PresenceRenderer extends Vue {
   presences: PresenceStruct[] = [];
   presenceState: PresenceState = {};
   stream: PresenceStream = null!;
@@ -80,6 +80,16 @@ export default class DiscordStatus extends Vue {
     this.respawnSocket()
   }
 
+  @Watch("presences")
+  presencesChanged() {
+    this.$emit("changed", this.presences.length);
+  }
+
+  @Watch("state")
+  stateChanged() {
+    this.$emit("changed", this.presences.length);
+  }
+
   respawnSocket () {
     this.stream = new PresenceStream(this.scope, { url: this.url })
     this.stream.on('presence', (activities) => {
@@ -87,7 +97,7 @@ export default class DiscordStatus extends Vue {
       Vue.set(this, "presences", activities)
     })
     this.stream.on('state', (state) => { Vue.set(this, "state", state) })
-    this.stream.connect()
+    this.stream.connect();
   }
 }
 </script>
@@ -98,9 +108,6 @@ $min-row: 800px;
 
 body {
   margin: 0;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background: none transparent;
 }
 
@@ -188,7 +195,7 @@ body {
 
   .presence-detail {
     display: grid;
-    grid-template-columns: min-content minmax(0, 175px);
+    grid-template-columns: max-content minmax(0, 175px);
     column-gap: $presence-spacing;
 
     &.presence-single {

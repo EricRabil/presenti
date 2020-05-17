@@ -24,12 +24,17 @@ export default {
     replace({
       'process.env.VUE_APP_EXISTS': 'true'
     }),
+    resolve({ 'jsnext:main': true, preferBuiltins: true }),
+    commonjs({
+      include: /node_modules/
+    }),
     typescript({
       typescript: require('typescript')
     }),
-    resolve({ 'jsnext:main': true, preferBuiltins: true }),
     babel(),
-    commonjs(),
     terser()
-  ]
+  ],
+  watch: {
+    clearScreen: false
+  }
 }

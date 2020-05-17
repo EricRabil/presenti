@@ -57,8 +57,8 @@ export namespace SecurityKit {
    * @param id user ID
    * @param password password
    */
-  export async function token(id: string, password: string): Promise<string | null> {
-    const user = await User.findOne({ userID: id });
+  export async function token(id: string | User, password: string): Promise<string | null> {
+    const user = typeof id === "string" ? await User.findOne({ userID: id }) : id;
     if (!user) return null;
 
     if (await user.checkPassword(password)) {
@@ -83,6 +83,7 @@ export namespace SecurityKit {
    * @param key user-based secret
    */
   export async function apiKey(uuid: string, key: string) {
+    console.log(key);
     return sign({ uuid, key, firstParty: false });
   }
 

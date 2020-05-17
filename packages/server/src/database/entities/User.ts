@@ -12,6 +12,9 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   userID: string;
 
+  @Column({ type: "varchar", default: null, nullable: true })
+  displayName: string | null;
+
   @Column()
   passwordHash: string;
   
@@ -24,8 +27,9 @@ export class User extends BaseEntity {
   json(full = false): PresentiUser {
     return {
       uuid: this.uuid,
+      displayName: this.displayName,
       userID: this.userID,
-      platforms: full ? this.oAuthLinks.reduce((acc, link) => Object.assign(acc, { [link.platform]: link.json }), {} as Record<OAUTH_PLATFORM, PresentiLink>) : null,
+      platforms: full ? this.oAuthLinks?.reduce((acc, link) => Object.assign(acc, { [link.platform]: link.json }), {} as Record<OAUTH_PLATFORM, PresentiLink>) || {} : null,
       excludes: this.excludes
     }
   }
@@ -43,7 +47,7 @@ export class User extends BaseEntity {
    * @param password password
    */
   async token(password: string) {
-    return SecurityKit.token(this.userID, password);
+    return SecurityKit.token(this, password);
   }
 
   /**
@@ -57,7 +61,7 @@ export class User extends BaseEntity {
    * Raw API key - not useful on its own, can't be used to query for a user.
    */
   async rawApiKey() {
-    return await bcrypt.hash(this.passwordHash, 10);
+    return await bcrypt.hash(this.passwordHash, 3);
   }
 
   /**

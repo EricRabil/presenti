@@ -65,7 +65,7 @@ export class GradientState extends StateAdapter {
 
     if (!color) return {};
 
-    // this will respawn the interval if it changed, or start the interval if this hasnt been watched yet.
+    // this will restart the interval if it changed, or start the interval if this hasnt been watched yet.
     if (!sameShades) this.resetRotationTimer(scope);
 
     var transition =  (sameShades && !newSocket) ? GradientState.TRANSITION_TIME : GradientState.GREETINGS_TRANSITION;
@@ -95,7 +95,7 @@ export class GradientState extends StateAdapter {
    * @param scope scope to query for gradient shades
    */
   async shadesForScope(scope: string): Promise<{shades: string[], currentShade: string, same: boolean, presencePaused: boolean} | undefined> {
-    const presence = await this.provider.presence(scope).then(presences => presences.find(presence => truthful(presence.gradient, "enabled")));
+    const presence = await this.provider.presence(scope).then(presences => presences.find(presence => truthful(presence?.gradient, "enabled")));
     if (!presence) return;
 
     const shades = await GradientState.shadeForPresence(presence);

@@ -26,16 +26,17 @@ const service = new PresenceService(CONFIG.port, async token => SecurityKit.vali
 
   return null;
 }));
-console.clear();
 
 const routes = WebRoutes.initialize(service.app);
 const database = new Database();
 const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG });
 loadModules().then(({ Adapters, Entities, Configs, Outputs, OAuth }) => {
-  database.connect(Object.values(Entities)).then(() => {
-    service.run({ Adapters, Entities, Configs, Outputs, OAuth }).then(() => {
+  database.connect(Object.values(Entities)).then(async () => {
+    try {
+      service.run({ Adapters, Entities, Configs, Outputs, OAuth });
+    } finally {
       log.info('Service is running!');
       if (process.env.NODE_ENV !== "production") shell.run();
-    });
+    }
   });  
 })

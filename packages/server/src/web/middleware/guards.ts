@@ -1,11 +1,11 @@
 import { CONFIG } from "../../utils/config";
 import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
-import { RequestHandler } from "@presenti/web";
+import { RequestHandler, APIError } from "@presenti/web";
 
 /** Returns a 401 if the request is not authenticated */
 export const IdentityGuard: RequestHandler = async (req, res, next) => {
   if (!res.user) {
-    res.error("Invalid identity token.", 401);
+    res.json(APIError.unauthorized("Invalid identity token."));
     return next(true);
   }
   next();

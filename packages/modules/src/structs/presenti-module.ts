@@ -1,4 +1,4 @@
-import { PresenceAdapter, PresentiAPIClient, OAUTH_PLATFORM } from "@presenti/utils";
+import { PresenceAdapter, PresentiAPIClient, OAUTH_PLATFORM, OAuthModuleDefinition } from "@presenti/utils";
 import { BaseEntity } from "typeorm";
 import { NativePresenceAdapter } from "./adapters/adapter";
 import { StateAdapter } from "./adapters/state-adapter";
@@ -22,12 +22,11 @@ export interface PresentiModuleClasses {
   Entities: Record<string, BaseEntityStatic>;
   Outputs: Record<string, PresentiOutputStatic>;
   Configs: Record<string, Record<string, any>>;
-  OAuth: {
-    asset: string;
-    name: string;
-    key: OAUTH_PLATFORM;
-  }[];
+  OAuth: OAuthModuleDefinition[];
+  ConfigView?: string;
 }
+
+export type PresentiOAuthDefinition = PresentiModuleClasses["OAuth"][0];
 
 type Constructor = Function & { prototype: any }
 function cmp(obj: any, clazz: Constructor): obj is PresentiModuleStatic {

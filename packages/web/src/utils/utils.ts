@@ -5,6 +5,7 @@ import mime from "mime-types";
 import pug from "pug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import log from "@presenti/logging";
+import { APIErrorResponse } from "@presenti/utils";
 import body from "./normalizers/body";
 import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 import params from "./normalizers/params";
@@ -177,18 +178,32 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
     return this;
   }
 
+  const oldWriteHeader = newResponse.writeHeader;
+
   /** Interoperability function for express */
-  newResponse.setHeader = newResponse.writeHeader;
+  newResponse.setHeader = newResponse.writeHeader = function(key, value) {
+    if (!this._resHeaders) this._resHeaders = {};
+    /** uWS computes content-length, and we can't interfere with her. */
+    if (key.toString().toLowerCase() === "content-length") return this;
+    this._resHeaders[key as any] = value;
+    return this;
+  };
+
+  /** Interoperability function for express */
+  newResponse.getHeader = function(header) {
+    if (typeof this._resHeaders !== "object") return;
+    return this._resHeaders[header];
+  }
 
   const oldWriteStatus: any = newResponse.writeStatus;
 
   /** Maps status numbers to their fully-qualified strings to meet uWS requirements */
   newResponse.writeStatus = newResponse.status = function (status: string | number) {
-    this._status = status;
     if (typeof status === "number") status = `${status} ${STATUS_CODES[status]}`
-    oldWriteStatus.call(this, status);
+    this._status = status;
     return this;
   }
+
   Object.defineProperty(newResponse, "statusCode", {
     get() {
       return newResponse._status;
@@ -215,10 +230,17 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
       this.writeStatus(200);
     }
 
+    oldWriteStatus.call(this, this._status);
+
     if (this.cookieWrites && Object.keys(this.cookieWrites).length > 0) {
       Object.values(this.cookieWrites).forEach(write => this.writeHeader('Set-Cookie', write));
     }
+
+    for (let [key, value] of Object.entries(this._resHeaders || {})) {
+      oldWriteHeader.call(this, key, value as any);
+    }
     
+    this._ended = true;
     return oldEnd.call(this, body);
   }
 
@@ -229,12 +251,18 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
  * Structure for API-related errors, to be serialized/handled in whatever context needed
  */
 export class APIError {
-  constructor(public message: string, public code: number = 400) {}
+  constructor(public message: string, public code: number = 400, public items: string[] = []) {}
 
-  public get json() {
+  public fields(...fields: string[] | string[][]) {
+    this.items = this.items.concat(...fields);
+    return this;
+  }
+
+  public get json(): APIErrorResponse {
     return {
       error: this.message,
-      code: this.code
+      code: this.code,
+      fields: this.items.length > 0 ? this.items : undefined
     }
   }
 
@@ -259,6 +287,14 @@ export class APIError {
   public static timeout(message: string = "Service timeout.") {
     return new APIError(message, 502);
   }
+
+  public static unauthorized(message: string = "Unauthorized.") {
+    return new APIError(message, 401);
+  }
+
+  public static forbidden(message: string = "Forbidden.") {
+    return new APIError(message, 403);
+  }
 }
 
 /**
@@ -280,12 +316,13 @@ export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PB
         if (middleware.indexOf(fn) !== (middleware.length - 1)) {
           /** Halts execution if a middleware takes longer than 2.5s */
           setTimeout(() => {
-            if (didComplete) return;
+            if (didComplete || res._ended) return;
             res.writeStatus(502).json({ error: "Execution timeout." });
             reject(new MiddlewareTimeoutError('Middleware did not complete within the timeout.'));
           }, 2500);
           await fn(req, res, resolve, reject);
         } else {
+          /** Final handler in stack */
           await fn(req, res, () => null, () => null);
           resolve();
         }

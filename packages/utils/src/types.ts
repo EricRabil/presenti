@@ -17,6 +17,11 @@ export type PresenceTimeRange = {
   stop: number | null;
 } | null;
 
+export interface APIErrorResponse {
+  error: string;
+  code: number;
+  fields: string[] | undefined;
+};
 
 export type PresenceList = Array<Partial<PresenceStruct>>;
 export type PresenceDictionary = Record<string, PresenceList>;
@@ -39,6 +44,7 @@ export interface PresenceStruct {
 
 export interface PresentiUser {
   uuid: string;
+  displayName: string | null;
   userID: string;
   platforms: Record<OAUTH_PLATFORM, PresentiLink> | null;
   excludes: string[];
@@ -203,4 +209,20 @@ export interface EventsTable {
 
 export function isRemotePayload(payload: any): payload is RemotePayload {
   return "type" in payload;
+}
+
+/** Modules */
+
+export interface PresentiOAuthSchema {
+  type: "oauth" | "entry" | "custom";
+  contentsVisible?: boolean;
+}
+
+export interface OAuthModuleDefinition {
+  asset: string;
+  name: string;
+  key: OAUTH_PLATFORM;
+  link: string;
+  unlink: string;
+  schema: PresentiOAuthSchema;
 }

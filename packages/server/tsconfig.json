@@ -17,6 +17,9 @@
   },
   "references": [
     {
+      "path": "../client"
+    },
+    {
       "path": "../logging"
     },
     {

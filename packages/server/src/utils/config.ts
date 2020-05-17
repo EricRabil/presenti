@@ -15,6 +15,7 @@ export interface ConfigurationStruct {
   } | null,
   web: {
     host: string;
+    oauthSuccessRedirect: string;
   };
   db: {
     host: string;
@@ -25,6 +26,7 @@ export interface ConfigurationStruct {
     cache?: boolean | {
       type: "ioredis",
     };
+    logging?: boolean;
   };
   modules: Record<string, object | boolean>;
 }
@@ -38,7 +40,8 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     firstPartyKey: null
   },
   web: {
-    host: "://localhost:8138"
+    host: "://localhost:8138",
+    oauthSuccessRedirect: "http://presenti.me"
   },
   db: {
     host: process.env.DB_HOST || 'localhost',
@@ -46,7 +49,8 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     name: process.env.DB_NAME || 'presenti',
     username: process.env.DB_USERNAME || null,
     password: process.env.DB_PASSWORD || null,
-    cache: false
+    cache: false,
+    logging: false
   },
   modules: {}
 }

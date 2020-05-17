@@ -13,7 +13,7 @@ import NativeClient from "./structs/native-client";
 import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
 import { AdapterSupervisor } from "@presenti/modules";
 import { StateSupervisor } from "@presenti/modules";
-import { debounce } from "./utils/utils-index";
+import { debounce, CONFIG } from "./utils/utils-index";
 
 export var SharedPresenceService: PresenceService;
 
@@ -38,6 +38,10 @@ export class PresenceService implements PresenceProvider {
   states: Record<string, Record<string, any>> = {};
 
   oauthDefinitions: PresentiModuleClasses["OAuth"] = [];
+
+  get config() {
+    return CONFIG;
+  }
 
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     this.app = App();

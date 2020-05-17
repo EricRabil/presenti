@@ -28,6 +28,7 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
       for (let [outputName, outputClass] of Object.entries(rawModule.Outputs || {})) {
         rootModule.Outputs[`${name}.${outputName}`] = outputClass;
       }
+
       rootModule.OAuth = rootModule.OAuth!.concat(rawModule.OAuth || [])
 
       if (typeof config === "object") rootModule.Configs[name] = observeObject(config, () => saveConfig());

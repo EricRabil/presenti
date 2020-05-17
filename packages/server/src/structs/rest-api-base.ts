@@ -1,5 +1,5 @@
 import { TemplatedApp } from "uWebSockets.js";
-import { RequestHandler, RestAPIBase, RouteData } from "@presenti/web";
+import { RequestHandler, RestAPIBase, RouteData, Options, PBRequest, PBResponse } from "@presenti/web";
 import { VIEWS_DIRECTORY } from "../Constants";
 
 interface IPresentiAPIFoundation<T> {
@@ -46,6 +46,6 @@ export default class PBRestAPIBase extends RestAPIBase {
   
   buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
     /** Prepends all middleware with the configured middleware */
-    return super.buildStack(metadata, (this.constructor as IPresentiAPIFoundation<this>).middleware.concat(middleware), headers.concat('authorization', 'host'));
+    return super.buildStack(metadata, (this.constructor as IPresentiAPIFoundation<this>).middleware.concat(middleware), headers.concat('authorization', 'host', 'origin'));
   }
 }

@@ -61,6 +61,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   log = log.child({ name: "DiscordAdapter" });
   clientData: ClientApplication;
   botAPI: DiscordAPI;
+  /** Map of <snowflake, scope> */
   pipeLedger: Record<string, string> = {};
 
   static configKey: string = "discord";
@@ -128,11 +129,6 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
       this.emit("updated", scope);
     });
 
-    this.client.on("message", async (message) => {
-      if (!message.cleanContent.startsWith(this.options.discord.prefix)) return;
-      this.botAPI.handleMessage(message, message.cleanContent.substring(this.options.discord.prefix.length).split(" ")[0]);
-    });
-
     await ready;
 
     this.clientData = await this.client.fetchApplication();
@@ -145,7 +141,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   async reloadPipeLedger() {
     let pipes = await this.remoteClient.lookupLinksForPlatform(OAUTH_PLATFORM.DISCORD);
     if (!pipes) return;
-    pipes = pipes.filter(pipe => pipe.pipeDirection === PipeDirection.PLATFORM || pipe.pipeDirection === PipeDirection.BIDIRECTIONAL);
+    pipes = pipes.filter(pipe => pipe.pipeDirection === PipeDirection.PRESENTI || pipe.pipeDirection === PipeDirection.BIDIRECTIONAL);
 
     this.pipeLedger = pipes.reduce((acc, { platformID, scope }) => Object.assign(acc, { [platformID]: scope }), {});
 
@@ -192,11 +188,10 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
    * Returns all activities, useful for service initialization
    */
   async activities() {
-    const container = await this.container();
-    /** Maps a discord snowflake to all bound scopes */
-    const snowflakes = Object.values(container.data.scopeBindings).filter((s, i, a) => a.indexOf(s) === i);
-    const activities = snowflakes.reduce((acc, snowflake) => Object.assign(acc, { [snowflake]: this.activityForUser(this.pipeLedger[snowflake]) }), {} as Record<string, PresenceStruct[]>);
+    const presences: Record<string, PresenceStruct[]> = {};
 
-    return Object.entries(container.data.scopeBindings).reduce((acc, [scope, snowflake]) => Object.assign(acc, { [scope]: activities[snowflake] }), {} as PresenceDictionary);
+    await Promise.all(Object.values(this.pipeLedger).map(async (scope) => presences[scope] = await this.activityForUser(scope)));
+
+    return presences;
   }
 }

@@ -27,7 +27,6 @@
 import moment from 'moment'
 import VueSlider from 'vue-slider-component'
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Presence } from './StatusRenderer.vue'
 import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from './TimeBar.vue'
@@ -40,7 +39,7 @@ import { PresenceStruct } from '@presenti/utils'
     TimeBar
   }
 })
-export default class PresentiChromePresence extends Vue {
+export default class PresentiPresence extends Vue {
   @Prop()
   presence: PresenceStruct;
 

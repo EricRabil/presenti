@@ -1,6 +1,6 @@
 import log from "@presenti/logging";
 import { ScopedPresenceAdapter } from "../structs";
-import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct } from "@presenti/utils";
+import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct, Presence } from "@presenti/utils";
 import { Supervisor } from "../structs/supervisor";
 
 export let SharedAdapterSupervisor: AdapterSupervisor;
@@ -29,11 +29,9 @@ export class AdapterSupervisor extends Supervisor<PresenceAdapter> {
         (adapter as ScopedPresenceAdapter).activityForUser(scope)
       ))
     ).then(activities => (
-      activities.filter(activity => (
-        !!activity
-      )).map(activity => (
-        Array.isArray(activity) ? activity : [activity]
-      )).reduce((a, c) => a.concat(c), [])
+      activities.map(presences => (
+        AdapterSupervisor.filterPresences(presences)
+      )).reduce((a: Partial<PresenceStruct>[], c) => a.concat(c as PresenceStruct | PresenceStruct[]), [])
     ));
   }
 
@@ -41,6 +39,7 @@ export class AdapterSupervisor extends Supervisor<PresenceAdapter> {
     const activities = await Promise.all(this.adapters.filter(adapter => adapter instanceof ScopedPresenceAdapter).map((adapter) => (adapter as unknown as ScopedPresenceAdapter).activities()));
     return activities.reduce((acc, c) => {
       Object.entries(c).forEach(([scope, presences]) => {
+        presences = AdapterSupervisor.filterPresences(presences);
         if (acc[scope]) acc[scope] = acc[scope].concat(presences);
         else acc[scope] = presences;
       });
@@ -62,5 +61,11 @@ export class AdapterSupervisor extends Supervisor<PresenceAdapter> {
         Array.isArray(activity) ? activity : [activity]
       )).reduce((a, c) => a.concat(c), [])
     ));
+  }
+
+  static filterPresences(presences: Presence): PresenceStruct[] {
+    if (!presences) return [];
+    if (!Array.isArray(presences)) presences = [];
+    return presences.filter(presence => typeof presence === "object" && presence !== null);
   }
 }

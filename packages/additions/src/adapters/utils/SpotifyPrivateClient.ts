@@ -22,7 +22,7 @@ export class SpotifyPrivateClient extends PresenceAdapter {
     if (!this.track) return;
     return new PresenceBuilder()
                 .title(SpotifyPrivateClient.NAME)
-                .image(this.imageURL ? scdn(this.imageURL.split(':')[1]) : null, this.songLink)
+                .image(this.imageURL || null, this.songLink)
                 .largeText(this.trackName, this.songLink)
                 .smallText(`by ${this.artist.name}`, this.artist.external_urls.spotify)
                 .smallText(`on ${this.albumName}`, this.albumLink)
@@ -98,7 +98,7 @@ export class SpotifyPrivateClient extends PresenceAdapter {
   }
 
   get imageURL(): string | undefined {
-    return (this.client.shallowTrack.metadata.image_xlarge_url || this.client.shallowTrack.metadata.image_large_url || this.client.shallowTrack.metadata.image_url || this.client.shallowTrack.metadata.image_small_url)?.replace(':image', '');
+    return (this.client.track.images || this.client.track.album?.images)[0].url;
   }
 
   get artist() {

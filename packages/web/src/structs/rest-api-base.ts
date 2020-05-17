@@ -1,9 +1,18 @@
+import cors from "cors";
 import path from "path";
 import * as uuid from "uuid";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
-import { RequestHandler, HTTPMethod } from "../utils/types";
+import { RequestHandler, HTTPMethod, PBRequest, PBResponse } from "../utils/types";
 import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
 import logger from "@presenti/logging";
+
+export const CORSMiddleware: RequestHandler = cors({
+  origin: (origin, cb) => cb(null, true),
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  allowedHeaders: ['content-type', 'authorization'],
+  optionsSuccessStatus: 200
+}) as any as RequestHandler;
 
 export function Route(path: string = "", method: HTTPMethod = "get", ...middleware: RequestHandler[]) {
   return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
@@ -102,6 +111,7 @@ export class RestAPIBase {
   del = build(this, "del");
   patch = build(this, "patch");
   any = build(this, "any");
+  options = build(this, "options");
 
   run() {
     this.loadRoutes();
@@ -126,6 +136,8 @@ export class RestAPIBase {
    * @param headers headers to be loaded
    */
   protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
+    middleware = [CORSMiddleware].concat(middleware);
+
     return handler(async (res, req) => {
       if (this.timedExecution) {
         var id = uuid.v4();

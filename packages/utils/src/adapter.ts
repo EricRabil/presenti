@@ -32,7 +32,7 @@ var Evented = class EventedPolyfill implements IEvented {
   }
 }
 
-if (globalThis?.process?.release?.name) {
+if (typeof globalThis === "undefined" || globalThis?.process?.release?.name) {
   Evented = require("events").EventEmitter;
 }
 
