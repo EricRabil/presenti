@@ -1,6 +1,6 @@
 {
   "name": "@presenti/utils",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Utility functions and types for the Remote Presence API",
   "main": "dist/index.js",
   "scripts": {
@@ -23,7 +23,6 @@
     "url": "https://github.com/EricRabil/remote-presence-utils/issues"
   },
   "homepage": "https://github.com/EricRabil/remote-presence-utils#readme",
-  "dependencies": {},
   "devDependencies": {
     "typescript": "^3.8.3"
   }
