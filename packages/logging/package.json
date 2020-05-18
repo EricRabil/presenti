@@ -29,5 +29,6 @@
   "dependencies": {
     "chalk": "^4.0.0",
     "winston": "^3.2.1"
-  }
+  },
+  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5"
 }

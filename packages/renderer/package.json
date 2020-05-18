@@ -41,5 +41,6 @@
     "sass-loader": "^8.0.2",
     "typescript": "~3.8.3",
     "vue-template-compiler": "^2.6.11"
-  }
+  },
+  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5"
 }

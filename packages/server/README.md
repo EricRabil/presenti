@@ -1,5 +1,5 @@
 # presenti
-Lightweight REST API for retrieving the presence of a set list of Discord users.
+Service for tracking presences across various platforms.
 
 ## Getting Started
 Presenti is easy to deploy. My favorite method for maintaining an active process is pm2, though the process is unlikely to die, so you could run it in a detached screen if you watned.

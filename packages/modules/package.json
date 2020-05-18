@@ -26,5 +26,6 @@
     "@presenti/utils": "^1.1.0",
     "@presenti/web": "^1.1.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.4.0"
-  }
+  },
+  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5"
 }

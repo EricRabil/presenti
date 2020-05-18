@@ -75,5 +75,6 @@
     "@types/ws": "^7.2.3",
     "typedoc": "^0.17.6",
     "typescript": "^3.8.3"
-  }
+  },
+  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5"
 }
