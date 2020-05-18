@@ -29,6 +29,8 @@ export default class App extends Vue {
     if (me && this.$store.getters["router/loginRedirect"]) {
       this.$router.push(this.$store.getters["router/loginRedirect"]);
       this.$store.commit("router/updateLoginRedirect", null);
+    } else if (!me && this.$route.path.toString() !== "/login") {
+      this.$router.push("/login");
     }
 
     this.isLoading = false;
