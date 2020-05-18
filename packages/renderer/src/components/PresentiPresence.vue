@@ -1,21 +1,23 @@
 <template>
   <div :class="['presence presenti-presence', {'presence-asset-only': assetOnly}]">
     <span class="presence-cta presence-cta-split">
-      {{title}}
+      <template v-if="title">{{title}}</template>
       <font-awesome-icon v-if="typeof paused === 'boolean'" :icon="['fa', paused ? 'pause' : 'play']" />
     </span>
     <time-bar v-if="assetOnly" :stopped="paused === true" :start="start" :end="end"></time-bar>
     <div :class="['presence-detail', {'presence-single': assetOnly}]">
-      <c-link v-if="image" class="asset-holder" :link="image.link">
+      <c-link v-if="image && image.src" class="asset-holder" :link="image.link">
         <img class="detail-asset" :src="image.src" alt="Image" />
       </c-link>
       <div class="detail-text">
-        <c-link class="detail-major" :link="largeText.link">
+        <c-link v-if="largeText.text" class="detail-major" :link="largeText.link">
           {{largeText.text}}
         </c-link>
-        <c-link v-for="({ text, link }, index) of smallTexts" :key="index" class="detail-minor" :link="link">
-          {{text}}
-        </c-link>
+        <template v-for="({ text, link }, index) of smallTexts" >
+          <c-link v-if="text" :key="index" class="detail-minor" :link="link">
+            {{text}}
+          </c-link>
+        </template>
         <time-bar v-if="!(assetOnly || (start && end))" :stopped="paused === true" :start="start" :end="end" :effective="effective"></time-bar>
       </div>
     </div>
@@ -30,7 +32,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from './TimeBar.vue'
-import { PresenceStruct } from '@presenti/utils'
+import { PresenceStruct, PresenceText } from '@presenti/utils'
 
 @Component({
   components: {
@@ -44,6 +46,7 @@ export default class PresentiPresence extends Vue {
   presence: PresenceStruct;
 
   get image () {
+    if (!this.presence.image) return { src: null };
     if (typeof this.presence.image === 'string') {
       return {
         src: this.presence.image
@@ -54,6 +57,7 @@ export default class PresentiPresence extends Vue {
   }
 
   get largeText () {
+    if (!this.presence.largeText) return { text: null };
     if (typeof this.presence.largeText === 'string') {
       return {
         text: this.presence.largeText
@@ -82,6 +86,7 @@ export default class PresentiPresence extends Vue {
   }
 
   get gradient () {
+    if (!this.presence.gradient) return { enabled: false };
     if (typeof this.presence.gradient === 'boolean') {
       return {
         enabled: this.presence.gradient
@@ -92,7 +97,7 @@ export default class PresentiPresence extends Vue {
   }
 
   get title () {
-    return this.presence.title
+    return this.presence.title;
   }
 
   get assetOnly () {
@@ -112,3 +117,100 @@ export default class PresentiPresence extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+$presence-spacing: 15px;
+
+.presence {
+  display: flex;
+  flex-flow: column;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  padding: $presence-spacing;
+
+  @media screen and (max-width: 350px) {
+    font-size: 0.85rem;
+  }
+
+  a[href] {
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .presence-cta {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    font-weight: bolder;
+    padding-bottom: $presence-spacing;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15px;
+    column-gap: $presence-spacing;
+  }
+
+  &.presence-asset-only {
+    min-width: 125px;
+
+    .presence-cta {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding-bottom: 0;
+    }
+
+    .time-bar {
+      font-size: 0.75em;
+
+      .timer-timestamp {
+        margin: 0 auto;
+      }
+    }
+
+    .presence-detail {
+      padding-top: $presence-spacing;
+    }
+  }
+
+  .presence-detail {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: $presence-spacing;
+
+    &.presence-single {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-asset {
+      height: 75px;
+      border-radius: 5px;
+    }
+
+    .asset-holder {
+      display: flex;
+      justify-content: center;
+    }
+
+    .detail-text {
+      display: flex;
+      flex-flow: column;
+      font-size: 0.9em;
+      line-height: 1.2rem;
+
+      .detail-major {
+        font-weight: bold;
+      }
+
+      .detail-minor {
+      }
+
+      .detail-muted {
+        // font-weight: bold;
+        font-size: 0.8em;
+        line-height: 1rem;
+      }
+    }
+  }
+}
+</style>
