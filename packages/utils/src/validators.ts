@@ -70,12 +70,13 @@ export function isPresentiImage(obj: any): obj is PresenceImage {
 export function isPresentiTimeRange(obj: any): obj is PresenceTimeRange {
   if (typeof obj !== "object") return false;
   if (obj === null) return true;
-  const keys = ["start", "stop"];
+  const keys = ["start", "stop", "effective"];
   const objKeys = Object.keys(obj);
   const fastInvalid = objKeys.find(key => !keys.includes(key));
   if (fastInvalid) return false;
   if (typeof obj.start !== "number" && obj.start !== null) return false;
   if (typeof obj.stop !== "number" && obj.stop !== null) return false;
+  if (typeof obj.effective !== "undefined" ? typeof obj.effective !== "number" && obj.number !== null : false) return false;
   return true;
 }
 

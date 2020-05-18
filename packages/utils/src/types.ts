@@ -14,6 +14,7 @@ export type PresenceImage = string | null | {
 
 export type PresenceTimeRange = {
   start: number | null;
+  effective: number | null;
   stop: number | null;
 } | null;
 

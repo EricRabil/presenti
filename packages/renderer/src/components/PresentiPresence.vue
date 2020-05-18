@@ -16,7 +16,7 @@
         <c-link v-for="({ text, link }, index) of smallTexts" :key="index" class="detail-minor" :link="link">
           {{text}}
         </c-link>
-        <time-bar v-if="!(assetOnly || (start && end))" :stopped="paused === true" :start="start" :end="end"></time-bar>
+        <time-bar v-if="!(assetOnly || (start && end))" :stopped="paused === true" :start="start" :end="end" :effective="effective"></time-bar>
       </div>
     </div>
     <time-bar v-if="(start && end)" :stopped="paused === true" :start="start" :end="end"></time-bar>
@@ -105,6 +105,10 @@ export default class PresentiPresence extends Vue {
 
   get end () {
     return this.presence.timestamps?.stop
+  }
+
+  get effective() {
+    return this.presence.timestamps?.effective
   }
 }
 </script>

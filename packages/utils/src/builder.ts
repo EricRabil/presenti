@@ -12,6 +12,7 @@ export class PresenceBuilder {
     image: null,
     timestamps: {
       start: null,
+      effective: Date.now(),
       stop: null
     },
     gradient: {

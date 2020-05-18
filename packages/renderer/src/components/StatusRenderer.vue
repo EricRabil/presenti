@@ -1,7 +1,7 @@
 <template>
   <div class="status-holder" v-if="presences.length > 0">
     <div class="presence-root" v-for="(presence, idx) of presences" :key="idx">
-      <presenti-presence :effective="effective" :presence="presence"></presenti-presence>
+      <presenti-presence :presence="presence"></presenti-presence>
     </div>
   </div>
 </template>
@@ -67,7 +67,6 @@ export default class PresenceRenderer extends Vue {
   presences: PresenceStruct[] = [];
   presenceState: PresenceState = {};
   stream: PresenceStream = null!;
-  effective: number = Date.now();
   state: any = null;
   
   @Prop()

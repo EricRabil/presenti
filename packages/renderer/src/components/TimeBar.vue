@@ -36,7 +36,6 @@ export default class TimeBar extends Vue {
 
   mounted () {
     this.interval = setInterval(() => {
-      if (this.stopped === true) return
       this.updateTime()
     }, 1000)
     this.updateTime()
@@ -54,6 +53,10 @@ export default class TimeBar extends Vue {
     return this.end ? new Date(this.end) : null
   }
 
+  get effective() {
+    return (this.$parent as any).effective;
+  }
+
   elapsed () {
     if (!this.startDate) return
     const elapsed = moment.duration(moment().diff(this.startDate)).humanize()
@@ -62,7 +65,7 @@ export default class TimeBar extends Vue {
 
   updateTime () {
     if (!this.startDate) return
-    this.currentTime = moment(moment().diff(moment(this.startDate))).format(
+    this.currentTime = moment(moment(this.stopped ? this.effective : undefined).diff(moment(this.startDate))).format(
       'mm:ss'
     )
     if (!this.endDate) {
@@ -71,7 +74,7 @@ export default class TimeBar extends Vue {
     }
     let newProgress =
       100 *
-      ((Date.now() - this.startDate.getTime()) /
+      (((this.stopped ? this.effective || Date.now() : Date.now()) - this.startDate.getTime()) /
         (this.endDate.getTime() - this.startDate.getTime()))
     if (newProgress >= 100) newProgress = 100
     this.progress = newProgress
