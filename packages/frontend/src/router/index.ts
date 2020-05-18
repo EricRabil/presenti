@@ -14,6 +14,11 @@ const routes: RouteConfig[] = [
     component: Home,
   },
   {
+    path: "/developer",
+    name: "Developer",
+    component: () => import("../views/Developer.vue")
+  },
+  {
     path: "/login",
     name: "Login",
     component: Login,

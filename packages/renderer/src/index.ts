@@ -3,6 +3,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StatusRenderer from './components/StatusRenderer.vue';
+import PresentiPresence from './components/PresentiPresence.vue';
 
 library.add(faPlay, faPause)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -10,6 +11,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 const StatusRendererElements = {
     install(vue: typeof Vue): void {
       vue.component('StatusRenderer', StatusRenderer);
+      vue.component('PresentiPresence', PresentiPresence);
     },
 };
 
@@ -28,5 +30,5 @@ if (typeof window !== 'undefined' && window.Vue) {
     }
 }
 
-export { StatusRenderer };
+export { StatusRenderer, PresentiPresence };
 export default StatusRendererElements;

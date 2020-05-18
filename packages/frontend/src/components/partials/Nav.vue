@@ -9,6 +9,9 @@
       <b-navbar-item tag="router-link" active-class="is-active" to="/" exact>
         Home
       </b-navbar-item>
+      <b-navbar-item tag="router-link" active-class="is-active" to="/developer" exact>
+        Developer
+      </b-navbar-item>
     </template>
     <template slot="end">
       <fade>
