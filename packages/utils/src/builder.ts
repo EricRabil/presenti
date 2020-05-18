@@ -28,11 +28,13 @@ export class PresenceBuilder {
   }
 
   largeText(text: string, link?: string | null) {
-    this.presence.largeText = { text, link };
+    this.presence.largeText = text ? { text, link } : null;
     return this;
   }
 
   smallText(text: string, link?: string | null) {
+    if (!text) return this;
+    
     this.presence.smallTexts!.push({ text, link });
     return this;
   }
@@ -48,10 +50,10 @@ export class PresenceBuilder {
   }
 
   gradient(setting: boolean, priority?: number | null) {
-    this.presence.gradient = {
+    this.presence.gradient = setting ? {
       enabled: setting,
       priority
-    };
+    } : null;
     return this;
   }
 
