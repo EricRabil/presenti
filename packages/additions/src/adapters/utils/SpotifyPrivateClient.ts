@@ -24,8 +24,8 @@ export class SpotifyPrivateClient extends PresenceAdapter {
                 .title(SpotifyPrivateClient.NAME)
                 .image(this.imageURL || null, this.songLink)
                 .largeText(this.trackName, this.songLink)
-                .smallText(`by ${this.artist.name}`, this.artist.external_urls.spotify)
-                .smallText(`on ${this.albumName}`, this.albumLink)
+                .smallText({ text: `by ${this.artistsMarkdown}`, type: "md" })
+                .smallText({ text: `on [${this.albumName}](${this.albumLink})`, type: "md"})
                 .gradient(true)
                 .start(this.start)
                 .stop(this.stop)
@@ -103,6 +103,10 @@ export class SpotifyPrivateClient extends PresenceAdapter {
 
   get artist() {
     return this.client.track.artists[0];
+  }
+
+  get artistsMarkdown() {
+    return this.client.track.artists.map(artist => `[${artist.name}](${artist.external_urls.spotify})`).join(', ');
   }
 
   get track() {
