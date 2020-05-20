@@ -10,4 +10,11 @@ export class RestTopAPI extends PBRestAPIBase {
       platforms: SharedPresenceService.oauthDefinitions
     });
   }
+
+  @Get("/presence/:scope")
+  async getPresence(req: PBRequest, res: PBResponse) {
+    const presences = await SharedPresenceService.presence(req.getParameter(0));
+
+    res.json({ presences });
+  }
 }
