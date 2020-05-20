@@ -11,6 +11,7 @@ export class Shell {
     for (let [key, value] of Object.entries(this.scope)) {
       shell.context[key] = value;
     }
+    shell.context.__dirname = __dirname;
     shell.context.shell = shell;
 
     shell.on('exit', () => process.exit());

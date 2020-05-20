@@ -10,6 +10,7 @@ import { loadModules } from "./utils/modules";
 import { SecurityKit } from "./utils/security";
 import { Shell } from "./utils/shell";
 import { WebRoutes } from "./web";
+import * as Constants from "./Constants";
 
 process.on("unhandledRejection", e => {
   console.error(e);
@@ -29,7 +30,7 @@ const service = new PresenceService(CONFIG.port, async token => SecurityKit.vali
 
 const routes = WebRoutes.initialize(service.app);
 const database = new Database();
-const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG });
+const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG, Constants });
 loadModules().then(({ Adapters, Entities, Configs, Outputs, OAuth }) => {
   database.connect(Object.values(Entities)).then(async () => {
     try {
