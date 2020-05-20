@@ -1,6 +1,6 @@
 <template>
   <c-link v-if="text" :link="link">
-    <vue-markdown v-if="markdown" :source="text" />
+    <vue-markdown v-if="markdown" :html="false" :breaks="false" :source="text" />
     <template v-else>{{text}}</template>
   </c-link>
 </template>
