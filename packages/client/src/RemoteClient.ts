@@ -13,7 +13,7 @@ export function isErrorResponse(obj: any): obj is APIErrorResponse {
 }
 
 /**
- * Connects to a PresenceServer and allows you to funnel presence updates through it
+ * Interacts with the REST API and allows presence data to be funnelled through it
  */
 export class RemoteClient extends PresentiAPIClient {
   ajax: AJAXClient;

@@ -17,11 +17,17 @@ export declare interface SocketClient {
   on(event: string, listener: Function): this;
 }
 
+/**
+ * Connects to the Presenti API using the socket protocol
+ */
 export class SocketClient extends BaseClient<SocketClientOptions> {
   public socket: WebSocket;
 
+  /** number of reconnects attempted since last disconnect */
   private retryCounter: number = 0;
+  /** whether the last disconnect was from .close() */
   private killed: boolean = false;
+  /** whether the connection is ready */
   private _ready: boolean = false;
 
   constructor(options: SocketClientOptions) {
@@ -53,6 +59,10 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     this.send({ type: PayloadType.PING });
   }
 
+  /**
+   * Connects to the Presenti API on the given endpoint
+   * @param path endpoint to connect with
+   */
   connect(path: string) {
     if (this.connected) this.close();
 
@@ -146,19 +156,32 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     };
   }
 
+  /**
+   * Constructs a fully resolved URL for a given endpoint
+   * @param path endpoint to resolve
+   */
   url(path: string) {
     const url = new URL(path, this.baseURL);
     return url.toString();
   }
 
+  /**
+   * Whether the socket is connected
+   */
   get connected() {
     return this.socket?.readyState === WebSocket.OPEN;
   }
 
+  /**
+   * Base URL for the socket connection
+   */
   get baseURL() {
     return `${this.secure ? 'wss' : 'ws'}://${this.host}`;
   }
 
+  /**
+   * Whether another reconnect attempt should be made
+   */
   get continueReconnecting() {
     if (this.killed) return false;
     if (this.retryCounter > this.reconnectAttempts) return false;
@@ -166,6 +189,9 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     return true;
   }
 
+  /**
+   * The number of reconnect attempts that may be made
+   */
   get reconnectAttempts() {
     return typeof this.options.reconnectAttempts === "number" ? this.options.reconnectAttempts : 5;
   }
@@ -174,6 +200,9 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     this.options.reconnectAttempts = attempts;
   }
 
+  /**
+   * The time, in milliseconds, between each reconnect attempt
+   */
   get reconnectInterval() {
     return typeof this.options.reconnectInterval === "number" ? this.options.reconnectInterval : 5000;
   }
@@ -182,6 +211,9 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     this.options.reconnectInterval = interval;
   }
 
+  /**
+   * Whether the connection is ready for communications
+   */
   get ready() {
     return this._ready;
   }
@@ -194,6 +226,9 @@ export class SocketClient extends BaseClient<SocketClientOptions> {
     }
   }
 
+  /**
+   * The time, in milliseconds, between each ping/pong exchange
+   */
   get pingInterval() {
     return typeof this.options.pingInterval === "number" ? this.options.pingInterval : 30000;
   }

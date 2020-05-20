@@ -2,6 +2,13 @@ import { BaseClient, BaseClientOptions } from "./base-client";
 
 export type ParamsStruct = Record<string, string | number | boolean | any>;
 export type BodyStruct = object;
+
+/**
+ * Represents request options for AJAXKit.
+ * 
+ * The body properties differ as the serialization is done when the request is actually made, meaning
+ * implementations can simply call .post('/url', { body: { myobject } });
+ */
 export interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: ParamsStruct;
   body?: BodyStruct;
@@ -9,6 +16,9 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
   base?: string;
 }
 
+/**
+ * Core functions for making AJAX requests
+ */
 export namespace AJAXKit {
   export function get(url: string, opts: RequestOptions = {}) {
     return fetchJSON(url, "get", opts);
@@ -60,6 +70,9 @@ export interface AJAXClientOptions extends BaseClientOptions {
   authorizationToken?: string;
 }
 
+/**
+ * Makes Presenti AJAX requests, and calls AJAXKit while mixing in any configured options
+ */
 export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXProtocol {
   constructor(options: AJAXClientOptions) {
     super(options);
@@ -90,25 +103,35 @@ export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXPro
   }
 
   async fetchJSON(url: string, method: string, options: RequestOptions = {}) {
-    options.headers = options.headers ? { ...options.headers, ...this.mixinHeaders } : this.mixinHeaders;
-    return AJAXKit.fetchJSON(url, method, { ...options, base: this.baseURL });
+    const headers = options.headers ? { ...options.headers, ...this.mixinHeaders } : this.mixinHeaders;
+    return AJAXKit.fetchJSON(url, method, { ...options, ...this.ajax, headers, base: this.baseURL });
   }
 
+  /**
+   * The base URL for making requests
+   */
   get baseURL() {
     return `${this.secure ? 'https' : 'http'}://${this.host}`;
   }
 
+  /**
+   * Options to be mixed in when making any requests
+   */
   get ajax() {
     return this.options.ajax || {};
   }
 
-  get mixinHeaders() {
-    const headers: Record<string, string> = {};
-    if (this.options.authorizationToken) headers.authorization = this.options.authorizationToken;
-    return headers;
-  }
-
   set ajax(ajax) {
     this.options.ajax = ajax;
+  }
+
+  /**
+   * Headers to be mixed in when making any requests
+   */
+  get mixinHeaders() {
+    var headers: Record<string, string> = {};
+    if (this.options.authorizationToken) headers.authorization = this.options.authorizationToken;
+    if (this.ajax && this.ajax.headers) headers = { ...headers, ...this.ajax.headers };
+    return headers;
   }
 }
