@@ -43,6 +43,18 @@ export class PresenceStreamOutput extends PresenceOutput {
     });
   }
 
+  async payload(id, newClient) {
+    const { presence, state } = await super.payload(id, newClient);
+
+    return {
+      type: PayloadType.PRESENCE,
+      data: {
+        presence,
+        state
+      }
+    } as any
+  }
+
   /**
    * Dispatches the latest presence state to the given selector
    * @param selector selector to dispatch to
