@@ -96,7 +96,10 @@ export interface RemotePayload {
 
 export interface RemotePresencePayload {
   type: PayloadType.PRESENCE;
-  data: Presence[];
+  data: {
+    presence: PresenceStruct[];
+    state: Record<string, any>;
+  };
 }
 
 export interface FirstPartyPresenceData {
