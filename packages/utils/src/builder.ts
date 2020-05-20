@@ -1,4 +1,4 @@
-import { Presence, PresenceStruct } from "./types";
+import { Presence, PresenceStruct, PresenceText } from "./types";
 
 export interface PresenceTransport {
   presence(presence: Presence[]): Promise<any>;
@@ -27,15 +27,18 @@ export class PresenceBuilder {
     return JSON.stringify(this.presence);
   }
 
-  largeText(text: string, link?: string | null) {
-    this.presence.largeText = text ? { text, link } : null;
+  largeText(text: PresenceText): PresenceBuilder
+  largeText(text: string, link?: string | null): PresenceBuilder
+  largeText(text: PresenceText | string, link?: string | null): PresenceBuilder {
+    this.presence.largeText = typeof text === "object" ? text : { text, link };
     return this;
   }
 
-  smallText(text: string, link?: string | null) {
+  smallText(text: PresenceText): PresenceBuilder
+  smallText(text: string, link?: string | null): PresenceBuilder
+  smallText(text: PresenceText | string, link?: string | null): PresenceBuilder {
     if (!text) return this;
-    
-    this.presence.smallTexts!.push({ text, link });
+    this.presence.smallTexts!.push(typeof text === "object" ? text : { text, link });
     return this;
   }
 
@@ -57,8 +60,10 @@ export class PresenceBuilder {
     return this;
   }
 
-  title(title: string) {
-    this.presence.title = title;
+  title(title: PresenceText): PresenceBuilder
+  title(text: string, link?: string | null): PresenceBuilder
+  title(title: PresenceText | string | null, link?: string | null): PresenceBuilder {
+    this.presence.title = typeof title === "object" ? title : { text: title, link };
     return this;
   }
   

@@ -46,12 +46,13 @@ export function isDispatchPayload(payload: RemotePayload): payload is DispatchPa
 export function isPresentiText(obj: any): obj is PresenceText {
   if (typeof obj === "string" || obj === null) return true;
   if (typeof obj !== "object") return false;
-  const keys = ["text", "link"];
+  const keys = ["text", "link", "type"];
   const objKeys = Object.keys(obj);
   const fastInvalid = objKeys.find(key => !keys.includes(key));
   if (fastInvalid) return false;
   if (typeof obj.text !== "string") return false;
   if (obj.link && !(typeof obj.link === "string" || obj.link === null)) return false;
+  if (obj.type && !(obj.type === "text" || obj.type === "md")) return false;
   return true;
 }
 
@@ -92,7 +93,7 @@ export function isPresentiStruct(obj: any): obj is PresenceStruct {
         if (typeof obj.id === "string" || obj.id === null) continue;
         return false;
       case "title":
-        if (typeof obj.title === "string" || obj.title === null) continue;
+        if (isPresentiText(obj.title)) continue;
         return false;
       case "largeText":
         if (isPresentiText(obj.largeText)) continue;

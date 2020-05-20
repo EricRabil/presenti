@@ -4,6 +4,8 @@ export enum AdapterState {
 
 export type PresenceText = string | null | {
   text: string;
+  /** if omitted, defaults to text */
+  type?: "text" | "md";
   link?: string | null;
 }
 
@@ -29,7 +31,7 @@ export type PresenceDictionary = Record<string, PresenceList>;
 
 export interface PresenceStruct {
   id?: string | null;
-  title?: string;
+  title?: PresenceText;
   largeText?: PresenceText;
   smallTexts?: PresenceText[];
   image?: PresenceImage;

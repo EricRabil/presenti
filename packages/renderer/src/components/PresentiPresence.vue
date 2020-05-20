@@ -1,7 +1,7 @@
 <template>
   <div :class="['presence presenti-presence', {'presence-asset-only': assetOnly}]">
     <span class="presence-cta presence-cta-split">
-      <template v-if="title">{{title}}</template>
+      <presence-text v-model="title" />
       <font-awesome-icon v-if="typeof paused === 'boolean'" :icon="['fa', paused ? 'pause' : 'play']" />
     </span>
     <time-bar v-if="assetOnly" :stopped="paused === true" :start="start" :end="end"></time-bar>
@@ -10,14 +10,8 @@
         <img class="detail-asset" :src="image.src" alt="Image" />
       </c-link>
       <div class="detail-text">
-        <c-link v-if="largeText.text" class="detail-major" :link="largeText.link">
-          {{largeText.text}}
-        </c-link>
-        <template v-for="({ text, link }, index) of smallTexts" >
-          <c-link v-if="text" :key="index" class="detail-minor" :link="link">
-            {{text}}
-          </c-link>
-        </template>
+        <presence-text class="detail-major" v-model="largeText" />
+        <presence-text class="detail-minor" v-for="(_, index) of smallTexts" :key="index" v-model="smallTexts[index]" />
         <time-bar v-if="!(assetOnly || (start && end))" :stopped="paused === true" :start="start" :end="end" :effective="effective"></time-bar>
       </div>
     </div>
@@ -33,10 +27,12 @@ import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from './TimeBar.vue'
 import { PresenceStruct, PresenceText } from '@presenti/utils'
+import PresenceTextRenderer from "./PresenceTextRenderer.vue";
 
 @Component({
   components: {
     CLink: ConditionalLink,
+    PresenceText: PresenceTextRenderer,
     VueSlider,
     TimeBar
   }

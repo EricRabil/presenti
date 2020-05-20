@@ -17,6 +17,7 @@ import del from 'rollup-plugin-delete'
 import css from 'rollup-plugin-css-porter';
 import sass from 'rollup-plugin-sass';
 import postcss from 'rollup-plugin-postcss';
+import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 
 export default {
@@ -84,7 +85,7 @@ export default {
             tsconfigOverride: { exclude: [ "node_modules" ] }
         }),
         commonjs(),
-
+        json(),
         // [Rollup Plugin Vue](https://rollup-plugin-vue.vuejs.org/)
         vue({
             css: true, // Dynamically inject css as a <style> tag
