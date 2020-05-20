@@ -36,7 +36,7 @@
           <h6
             class="subtitle is-6 presence-holder-notice" v-show="!showRenderer"
           >You don't have any presences! Connect a platform to get started.</h6>
-          <status-renderer v-show="showRenderer" @changed="showRenderer = $event > 0" :scope="model.userID" :url="streamingEndpoint" ref="renderer" />
+          <status-renderer v-show="showRenderer" @changed="showRenderer = $event > 0" :scope="model.userID" :logging="true" :host="streamingHost" ref="renderer" />
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@ import { mapGetters } from "vuex";
 import LinkDetail from "../components/partials/LinkDetail.vue";
 import LinkButton from "../components/partials/LinkButton.vue";
 import { OAuthModuleDefinition, PresentiUser } from "@presenti/utils";
-import { apiEndpoint } from "../api";
+import { apiEndpoint, apiHost } from "../api";
 import { StatusRenderer } from "@presenti/renderer";
 
 @Component({
@@ -92,11 +92,8 @@ export default class Home extends Vue {
     );
   }
 
-  get streamingEndpoint() {
-    const endpoint = "ws://127.0.0.1:8138";
-    const url = new URL(`${endpoint}/presence/`);
-    url.protocol = "ws:";
-    return url.href;
+  get streamingHost() {
+    return apiHost;
   }
 }
 </script>

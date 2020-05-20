@@ -9,7 +9,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { PresenceStream } from '@presenti/client'
-import { PresenceStruct } from '@presenti/utils'
+import { PresenceStruct, WebLogger } from '@presenti/utils'
 import PresentiPresence from './PresentiPresence.vue'
 
 export interface Presence {
@@ -70,13 +70,20 @@ export default class PresenceRenderer extends Vue {
   state: any = null;
   
   @Prop()
-  url: string;
+  host: string;
 
   @Prop()
   scope: string;
 
+  @Prop({ default: false })
+  logging: boolean;
+
   created () {
     this.respawnSocket()
+  }
+
+  destroyed() {
+    this.stream?.close();
   }
 
   @Watch("presences")
@@ -90,7 +97,7 @@ export default class PresenceRenderer extends Vue {
   }
 
   respawnSocket () {
-    this.stream = new PresenceStream(this.scope, { url: this.url })
+    this.stream = new PresenceStream(this.scope, { host: this.host, log: this.logging ? new WebLogger("PresenceStream", console) : undefined })
     this.stream.on('presence', (activities) => {
       window.parent.postMessage(JSON.stringify({presence: activities}), location.origin);
       Vue.set(this, "presences", activities)
