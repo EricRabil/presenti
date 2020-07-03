@@ -56,7 +56,7 @@ import { StatusRenderer } from "@presenti/renderer";
 @Component({
   computed: mapGetters({
     model: "user/model",
-    platforms: "platforms/platforms"
+    platforms: "platforms/all"
   }),
   components: {
     UserProfile,

@@ -1,7 +1,7 @@
 import { PlatformState } from ".";
 
-const platforms = (state: PlatformState) => state.platforms;
+const all = (state: PlatformState) => state.platforms;
 
 export default {
-  platforms
+  all
 };

@@ -3,7 +3,7 @@ import { PlatformState } from ".";
 import apiClient from "@/api";
 
 const getPlatforms = async (context: ActionContext<PlatformState, any>) => {
-  const platforms = await apiClient.platforms();
+  const platforms = Object.values(await apiClient.platforms());
   context.commit("updatePlatforms", platforms);
   return platforms;
 };

@@ -20,7 +20,7 @@ export type PresenceTimeRange = {
   stop: number | null;
 } | null;
 
-export interface APIErrorResponse {
+export interface ErrorResponse {
   error: string;
   code: number;
   fields: string[] | undefined;
@@ -43,6 +43,55 @@ export interface PresenceStruct {
   } | null;
   shades?: string[];
   isPaused?: boolean | null;
+}
+
+export enum TransformationType {
+  SET = "set", REPLACE = "replace", DELETE = "delete"
+}
+
+export interface PresenceTransformation {
+  type: TransformationType;
+  value?: string;
+  property?: keyof PresenceStruct;
+  match?: string;
+}
+
+export interface DynamicTransformation extends PresenceTransformation {
+  /** are we setting, replacing, deleting */
+  type: TransformationType;
+  /** value to be used in the transformation */
+  value?: string;
+  /** value to use when matching transformations */
+  match: string;
+  /** properties cant be targeted in a dynamic transformation, its just whatever matches is applied to */
+  property?: undefined;
+}
+
+export interface PropertyTransformation extends PresenceTransformation {
+  /** are we setting, replacing, deleting */
+  type: TransformationType;
+  /** property targeted for the transformation */
+  property: keyof PresenceStruct;
+  /** value to be used in the transformation if this is setting or replacing */
+  value?: string;
+  /** matching string to be used if this is targeted at a property */
+  match?: string;
+}
+
+export interface PresenceTransformationRecord {
+  uuid: string;
+  rule: PresenceTransformation | null;
+  ids: string[];
+}
+
+export interface TransformationModelUpdateOptions {
+  ids?: string[] | null | undefined;
+  rule?: PresenceTransformation | null | undefined;
+}
+
+export interface TransformationModelCreateOptions {
+  ids: string[];
+  rule: PresenceTransformation;
 }
 
 export interface PresentiUser {
@@ -231,4 +280,8 @@ export interface OAuthModuleDefinition {
   link: string;
   unlink: string;
   schema: PresentiOAuthSchema;
+}
+
+export interface SuccessResponse {
+  ok: true;
 }

@@ -14,6 +14,8 @@ import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
 import { AdapterSupervisor } from "@presenti/modules";
 import { StateSupervisor } from "@presenti/modules";
 import { debounce, CONFIG } from "./utils/utils-index";
+import { TransformationsAPI } from "./api/transformations";
+import { APIError } from "@presenti/web";
 
 export var SharedPresenceService: PresenceService;
 
@@ -99,7 +101,13 @@ export class PresenceService implements PresenceProvider {
    * @param scope scope
    */
   async presence(scope: string, initial: boolean = false, refresh: boolean = false) {
-    if (!this.presences[scope] || refresh) this.presences[scope] = await this.adapterSupervisor.scopedData(scope);
+    if (!this.presences[scope] || refresh) {
+      let presences = await this.adapterSupervisor.scopedData(scope);
+
+      const transformed = await TransformationsAPI.applyTransformationsForScope(scope, presences);
+
+      return this.presences[scope] = transformed instanceof APIError ? presences : transformed;
+    }
 
     return this.presences[scope];
   }

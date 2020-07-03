@@ -6,7 +6,7 @@ import { OAUTH_PLATFORM } from "@presenti/utils";
 import platforms from "../platforms";
 
 const getUser = async (context: ActionContext<any, any>) => {
-  const me = await apiClient.whoami().then((r) => isErrorResponse(r) ? null : r);
+  const me = await apiClient.whoami().then((r) => isErrorResponse(r) ? null : r).catch(() => null);
 
   context.commit("update", me);
   return me;

@@ -30,18 +30,16 @@ interface ModuleMetadata {
 
 @Component
 export default class Settings extends Vue {
-  static modules: Record<string, SettingsModule> = {
+  public static modules: Record<string, SettingsModule> = {
     security: Security
-  }
+  };
 
   get moduleMetadata(): ModuleMetadata[] {
-    return Object.entries(Settings.modules).reduce((acc, [ section, { displayName } ]) => acc.concat({ section, displayName }), [])
+    return Object.entries(Settings.modules).reduce((acc, [ section, { displayName } ]) => acc.concat({ section, displayName }), [] as ModuleMetadata[]);
   }
 
   get activeModule(): SettingsModule | null {
     return Settings.modules[this.$route.params.section] || null;
   }
 }
-
-new Settings()
 </script>

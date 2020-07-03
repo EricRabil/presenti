@@ -3,6 +3,7 @@ import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "t
 import { SecurityKit } from "../../utils/security";
 import { OAuthLink } from "./OAuthLink";
 import { OAUTH_PLATFORM, PresentiLink, PresentiUser } from "@presenti/utils";
+import { Transformation } from "./Transformation";
 
 @Entity()
 export class User extends BaseEntity {

@@ -68,6 +68,7 @@ import { ValidationObserver } from "vee-validate";
 import BInputWithValidation from "../inputs/BInputWithValidation.vue";
 import APIKeyGenerator from "../partials/APIKeyGenerator.vue";
 import apiClient from "../../api";
+import { PresentiError } from "@presenti/client";
 
 @Component({
   components: {
@@ -77,57 +78,54 @@ import apiClient from "../../api";
   }
 })
 export default class Security extends Vue {
-  static displayName = "Security";
-  isAPIKeyModalActive = false;
+  public static displayName = "Security";
+  public isAPIKeyModalActive = false;
 
-  password: string = '';
-  newPassword: string = '';
-  confirmation: string = '';
+  public password: string = "";
+  public newPassword: string = "";
+  public confirmation: string = "";
 
-  passwordError: string | null = null;
-  newPasswordError: string | null = null;
+  public passwordError: string | null = null;
+  public newPasswordError: string | null = null;
 
-  $refs: {
+  public $refs: {
     observer: InstanceType<typeof ValidationObserver>;
   };
 
-  async changePassword() {
+  public async changePassword() {
     const { password, newPassword } = this;
-    const result = await apiClient.changePassword({ password, newPassword });
 
-    if ("ok" in result) {
-      this.$buefy.toast.open({ type: "is-success", message: "Your password has been changed." });
-      this.reset();
-      return;
-    }
-
-    if (!result.fields) {
-      this.$buefy.toast.open({ type: "is-danger", message: "Sorry, we couldn't change your password." });
-      return;
-    }
-
-    result.fields.forEach(field => {
-      switch (field) {
-        case "password":
-          this.passwordError = result.error;
-          break;
-        case "newPassword":
-          this.newPasswordError = result.error;
-          break;
-        default:
-          // fuck
-          break;
+    try {
+      var result = await apiClient.changePassword({ password, newPassword });
+    } catch (e) {
+      if (!e.fields || !(e instanceof PresentiError) || typeof e === "undefined") {
+        this.$buefy.toast.open({ type: "is-danger", message: "Sorry, we couldn't change your password." });
+        return;
       }
-    });
+
+      e.fields.forEach((field) => {
+        switch (field) {
+          case "password":
+            this.passwordError = e.error;
+            break;
+          case "newPassword":
+            this.newPasswordError = e.error;
+            break;
+          default:
+            // fuck
+            break;
+        }
+      });
+    }
   }
 
-  reset() {
-    this.password = this.newPassword = this.confirmation = '';
+  public reset() {
+    this.password = this.newPassword = this.confirmation = "";
     this.passwordError = this.newPasswordError = null;
 
     requestAnimationFrame(() => {
       this.$refs.observer.reset();
-    })
+    });
   }
 }
 </script>

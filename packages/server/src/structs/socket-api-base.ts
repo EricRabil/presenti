@@ -37,6 +37,11 @@ export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
   readonly id: string = uuid.v4();
 
   constructor(public readonly ws: WebSocket, private adapter: T) {
+    const oldClose = this.ws.close;
+    this.ws.close = function() {
+      console.trace("wot");
+      return oldClose.call(ws);
+    }
   }
 
   close() {
@@ -134,7 +139,7 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
         const ctx = new SocketContext(ws, this);
         this.contexts.set(ws, ctx);
         this.contextsByID.set(ctx.id, ctx);
-        this.log.debug("Socket connected", { socketID: this.contexts.get(ws)!.id })
+        this.log.debug("Socket connected", { socketID: this.contexts.get(ws)!.id });
       },
       close: (ws) => {
         const ctxID = this.contexts.get(ws)!.id;
@@ -206,7 +211,8 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
         }
 
         handler.call(this, context, parsed.data);
-      }
+      },
+      maxPayloadLength: 1643751
     });
   }
 

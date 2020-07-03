@@ -1,12 +1,19 @@
-import { APIErrorResponse, Events, EventsTable, isDispatchPayload, OAuthData, OAuthModuleDefinition, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink, PresenceStruct } from "@presenti/utils";
+import { ErrorResponse, Events, EventsTable, isDispatchPayload, OAuthData, OAuthModuleDefinition, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink, PresenceStruct, PresenceTransformationRecord, TransformationModelCreateOptions, TransformationModelUpdateOptions, SuccessResponse } from "@presenti/utils";
 import { AJAXClient, AJAXClientOptions } from "./utils/http";
 import { SocketClient, SocketClientOptions } from "./utils/socket";
+import { USER_LOOKUP, OAUTH_LINK, OAUTH_LINK_BULK, OAUTH_RESOLVE, PRESENCE_PIPE, PRESENCE_SCRAPE, USER_PIPE_MANAGE, USER_RESOLVE, USER_ME, USER_AUTH, USER_LOGOUT, USER_SIGNUP, USER_API_KEY, USER_CHANGE_PW, PLATFORMS, TRANSFORMATIONS, TRANSFORMATION_ID } from "./Constants";
+import { Transformation } from "./structures/Transformation";
+import { ClientStore } from "./stores/ClientStore";
+import { ClientUser } from "./structures/ClientUser";
+import { User } from "./structures/User";
+import { PresentiError } from "./utils/api-error";
+import { Pipe } from "./structures/Pipe";
 
 export interface RemoteClientOptions extends AJAXClientOptions, SocketClientOptions {
   socket?: boolean;
 }
 
-export function isErrorResponse(obj: any): obj is APIErrorResponse {
+export function isErrorResponse(obj: any): obj is ErrorResponse {
   return typeof obj === "object"
       && typeof obj.error === "string"
       && typeof obj.code === "number";
@@ -18,6 +25,9 @@ export function isErrorResponse(obj: any): obj is APIErrorResponse {
 export class RemoteClient extends PresentiAPIClient {
   ajax: AJAXClient;
   socket: SocketClient;
+  store: ClientStore = new ClientStore();
+  user: ClientUser;
+  
   private subscriptions: Record<Events, Function[]> = {} as any;
 
   constructor(private options: RemoteClientOptions) {
@@ -54,79 +64,149 @@ export class RemoteClient extends PresentiAPIClient {
     if (this.socket) this.socket.connect("/remote");
   }
 
-  lookupUser(userID: string): Promise<PresentiUser | null> {
-    return this.ajax.get("/user/lookup", { scope: userID });
+  async close() {
+    if (this.socket) this.socket.close();
   }
 
-  lookupLink(query: OAuthQuery): Promise<PresentiLink | null> {
-    return this.ajax.get("/link", query);
+  /**
+   * Looks up the user with the given user ID
+   * @param userID the ID of the user to lookup
+   */
+  async lookupUser(userID: string): Promise<User | null> {
+    const result = await this.ajax.get(USER_LOOKUP, { params: { scope: userID } });
+
+    if (isErrorResponse(result)) {
+      if (result.code === 404) return null;
+      throw new PresentiError(result);
+    }
+
+    return new User(this, result);
   }
 
-  lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
-    return this.ajax.get(`/link/bulk/${platform}`).then(res => res?.links || null);
+  async lookupLink(query: OAuthQuery): Promise<Pipe | null> {
+    const result = await this.ajax.get(OAUTH_LINK, { params: query });
+
+    if (isErrorResponse(result)) {
+      if (result.code === 404) return null;
+      throw new PresentiError(result);
+    }
+
+    return new Pipe(this, result);
   }
 
-  lookupUserFromLink(query: OAuthQuery): Promise<PresentiUser | null> {
-    return this.ajax.get("/link/user", query);
+  async lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | null> {
+    const body = await this.ajax.get(OAUTH_LINK_BULK(platform));
+    return body?.links || null;
+  }
+
+  async lookupUserFromLink(query: OAuthQuery): Promise<User | null> {
+    const result = await this.ajax.get(OAUTH_RESOLVE, { params: query });
+
+    if (isErrorResponse(result)) {
+      if (result.code === 404) return null;
+      throw new PresentiError(result);
+    }
+
+    return new User(this, result);
   }
 
   deleteLink(query: OAuthQuery): Promise<void> {
-    return this.ajax.del("/link", { params: query });
+    return this.ajax.del(OAUTH_LINK, { params: query });
   }
 
-  createLink(data: OAuthData): Promise<PresentiLink | null> {
-    return this.ajax.post("/link", { body: data });
+  async createLink(data: OAuthData): Promise<Pipe | null> {
+    const result = await this.ajax.post(OAUTH_LINK, { body: data });
+
+    if (isErrorResponse(result)) {
+      if (result.code === 404) return null;
+      throw new PresentiError(result);
+    }
+
+    return new Pipe(this, result);
   }
 
   updatePipeDirection(query: OAuthQuery, direction: PipeDirection): Promise<void> {
     const uuid = (query as { uuid: string }).uuid;
     if (!uuid) throw new Error("UUID must be provided in OAuth query.");
-    return this.ajax.patch(`/link/${uuid}/pipe`, { body: { direction }});
+    return this.ajax.patch(PRESENCE_PIPE(uuid), { body: { direction }});
   }
   
   scrape(scope: string): Promise<{ presences: PresenceStruct[] }> {
-    return this.ajax.get(`/presence/${scope}`);
+    return this.ajax.get(PRESENCE_SCRAPE(scope));
   }
 
   updateMyPipeDirection(pipeUUID: string, direction: PipeDirection): Promise<void> {
-    return this.ajax.patch(`/user/me/pipe/${pipeUUID}`, { body: { direction }});
+    return this.ajax.patch(USER_PIPE_MANAGE(pipeUUID), { body: { direction }});
   }
 
-  deleteMyPipe(pipeUUID: string): Promise<boolean> {
-    return this.ajax.del(`/user/me/pipe/${pipeUUID}`).then(body => !!body.ok);
+  async deleteMyPipe(pipeUUID: string): Promise<boolean> {
+    const body = await this.ajax.del(USER_PIPE_MANAGE(pipeUUID));
+    return !!body.ok;
   }
 
   resolveScopeFromUUID(uuid: string): Promise<string | null> {
-    return this.ajax.get("/user/resolve", { uuid });
+    return this.ajax.get(USER_RESOLVE, { params: { uuid } });
   }
 
-  whoami(): Promise<PresentiUser | APIErrorResponse> {
-    return this.ajax.get("/user/me");
+  async whoami(): Promise<ClientUser | null> {
+    if (this.user) return this.user;
+
+    const result = await this.ajax.get(USER_ME);
+
+    if (isErrorResponse(result)) {
+      if (result.code === 404) return null;
+      throw new PresentiError(result);
+    }
+
+    return this.user = new ClientUser(this, result);
   }
 
-  login(body: { id: string, password: string }): Promise<PresentiUser | APIErrorResponse> {
-    return this.ajax.post("/user/auth", { body });
+  async login(body: { id: string, password: string }): Promise<PresentiUser> {
+    const result = await this.ajax.post(USER_AUTH, { body });
+
+    if (isErrorResponse(result)) throw new PresentiError(result);
+
+    return this.user = new ClientUser(this, result);
   }
 
-  logout(): Promise<void> {
-    return this.ajax.get("/user/logout");
+  async logout(): Promise<void> {
+    return (await this.whoami())?.logout() as any;
   }
 
-  signup(body: { id: string, password: string }): Promise<PresentiUser | APIErrorResponse> {
-    return this.ajax.post("/user/new", { body });
+  async signup(body: { id: string, password: string }): Promise<ClientUser> {
+    const result = await this.ajax.post(USER_SIGNUP, { body });
+
+    if (isErrorResponse(result)) throw new PresentiError(result);
+
+    return this.user = new ClientUser(this, result);
   }
 
-  createAPIKey(): Promise<string> {
-    return this.ajax.get("/user/me/key").then(({ key }) => key);
+  async createAPIKey(): Promise<string> {
+    return (await this.whoami())!.createAPIKey();
   }
 
-  changePassword(body: { password: string, newPassword: string }): Promise<{ ok: true } | APIErrorResponse> {
-    return this.ajax.patch("/user/me/password", { body });
+  async changePassword(body: { password: string, newPassword: string }): Promise<void> {
+    (await this.whoami())?.changePassword(body);
   }
 
-  async platforms(): Promise<OAuthModuleDefinition[]> {
-    const { platforms } = await this.ajax.get("/platforms");
-    return platforms;
+  async transformations() {
+    const transformations: PresenceTransformationRecord[] | ErrorResponse = await this.ajax.get(TRANSFORMATIONS);
+    if (isErrorResponse(transformations)) throw transformations;
+
+    return transformations.map(transformation => new Transformation(this, transformation));
+  }
+
+  async createTransformation(options: TransformationModelCreateOptions): Promise<Transformation> {
+    const res = await this.ajax.post(TRANSFORMATIONS, { body: options });
+    if (isErrorResponse(res)) throw res;
+
+    return new Transformation(this, res);
+  }
+
+  async platforms() {
+    const { platforms } = await this.ajax.get(PLATFORMS);
+    
+    return this.store.setPlatforms(platforms);
   }
 
   subscribe<T extends Events>(event: T, listener: (data: EventsTable[T]) => any): void {

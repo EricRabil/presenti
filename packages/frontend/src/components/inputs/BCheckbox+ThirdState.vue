@@ -8,16 +8,16 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 @Component
 export default class BCheckboxThirdState extends Vue {
   @Prop({ default: null })
-  value: boolean | null;
+  public value: boolean | null;
 
-  state = this.value === null ? 1 : this.value === true ? 2 : 0;
+  public state = this.value === null ? 1 : this.value === true ? 2 : 0;
 
-  nextState() {
+  public nextState() {
     if ((this.state + 1) === 3) {
       this.state = 0;
-    } else this.state++;
+    } else { this.state++; }
 
-    this.$emit('input', this.newValue);
+    this.$emit("input", this.newValue);
   }
 
   get newValue() {

@@ -74,7 +74,7 @@ export default class LinkDetail extends Vue {
       return;
     }
 
-    const result: PresentiLink = await apiClient.post(this.definition.link, { body: { userEntry: this.userEntry } });
+    const result: PresentiLink = await apiClient.ajax.post(this.definition.link, { body: { userEntry: this.userEntry } });
 
     if (isErrorResponse(result)) {
       /** @todo explain what the fuck went wrong bitch */

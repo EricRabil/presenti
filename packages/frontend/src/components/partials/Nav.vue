@@ -9,9 +9,20 @@
       <b-navbar-item tag="router-link" active-class="is-active" to="/" exact>
         Home
       </b-navbar-item>
-      <b-navbar-item tag="router-link" active-class="is-active" to="/developer" exact>
-        Developer
-      </b-navbar-item>
+      <b-navbar-dropdown label="Developer">
+        <b-navbar-item tag="router-link" active-class="is-active" to="/developer/builder" exact>
+          Presence Builder
+        </b-navbar-item>
+        <b-navbar-item tag="router-link" active-class="is-active" to="/developer/presence/ws" exact>
+          Presence API (WebSocket)
+        </b-navbar-item>
+        <b-navbar-item tag="router-link" active-class="is-active" to="/developer/presence/rest" exact>
+          Presence API (REST)
+        </b-navbar-item>
+        <b-navbar-item tag="router-link" active-class="is-active" to="/developer/remote/ws" exact>
+          Remote API (WebSocket)
+        </b-navbar-item>
+      </b-navbar-dropdown>
     </template>
     <template slot="end">
       <fade>

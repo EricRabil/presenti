@@ -15,10 +15,19 @@ export class PresenceStreamOutput extends PresenceOutput {
     super(provider, app, [Events.STATE_UPDATE, Events.PRESENCE_UPDATE]);
 
     app.ws('/presence/:id', {
-      open: async (ws, req) => {
-        const id = req.getParameter(0);
-        this.mountClient(id, ws);
-        ws.send(JSON.stringify(await this.payload(id, true)));
+      upgrade: (res, req, context) => {
+        res.upgrade({
+          id: req.getParameter(0)
+        },
+        /* Spell these correctly */
+        req.getHeader('sec-websocket-key'),
+        req.getHeader('sec-websocket-protocol'),
+        req.getHeader('sec-websocket-extensions'),
+        context);
+      },
+      open: async (ws) => {
+        this.mountClient(ws.id, ws);
+        ws.send(JSON.stringify(await this.payload(ws.id, true)));
       },
       message: (ws, msg) => {
         const rawStr = Buffer.from(msg).toString('utf8');
@@ -43,7 +52,7 @@ export class PresenceStreamOutput extends PresenceOutput {
     });
   }
 
-  async payload(id, newClient) {
+  async payload(id: string, newClient: boolean = false) {
     const { presence, state } = await super.payload(id, newClient);
 
     return {

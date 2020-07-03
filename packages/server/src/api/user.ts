@@ -3,6 +3,7 @@ import { APIError } from "@presenti/web";
 import { User } from "../database/entities";
 import { removeEmptyFields } from "../utils/object";
 import { MALFORMED_BODY } from "../Constants";
+import { FindConditions } from "typeorm";
 
 type UUIDQuery = { uuid: string };
 type UserIDQuery = { userID: string };
@@ -49,5 +50,17 @@ export namespace UserAPI {
     if (!scope) return APIError.notFound("Unknown user.");
 
     return scope;
+  }
+
+  export async function resolveUUIDFromScope(scope: string): Promise<string | APIError> {
+    const uuid = await User.createQueryBuilder("user")
+                            .select(["user.uuid"])
+                            .where("user.userID = :userID", { userID: scope })
+                            .getRawOne()
+                            .then(fields => fields?.user_uuid);
+    
+    if (!uuid) return APIError.notFound("Unknown user.");
+
+    return uuid;
   }
 }

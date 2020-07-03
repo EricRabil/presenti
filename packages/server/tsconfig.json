@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
+    "module": "CommonJS",
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -13,8 +13,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../client"

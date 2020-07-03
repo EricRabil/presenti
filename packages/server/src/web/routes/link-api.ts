@@ -62,6 +62,8 @@ export class RestLinkAPI extends PBRestAPIBase {
 
     const links = await OAuthAPI.lookupLinksForPlatform(platform as any);
 
+    if (links instanceof APIError) return res.json(links);
+
     res.json({ links });
   }
 

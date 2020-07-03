@@ -74,6 +74,8 @@ export interface AJAXClientOptions extends BaseClientOptions {
  * Makes Presenti AJAX requests, and calls AJAXKit while mixing in any configured options
  */
 export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXProtocol {
+  delete: AJAXClient["del"];
+
   constructor(options: AJAXClientOptions) {
     super(options);
 
@@ -83,11 +85,13 @@ export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXPro
       ajax: this.ajax,
       secure: this.secure,
       host: this.host
-    })
+    });
+
+    this.delete = this.del;
   }
 
-  get(url: string, params: ParamsStruct = {}) {
-    return this.fetchJSON(url, "get", { params });
+  get(url: string, opts: RequestOptions = {}) {
+    return this.fetchJSON(url, "get", opts);
   }
 
   post(url: string, opts: RequestOptions = {}) {

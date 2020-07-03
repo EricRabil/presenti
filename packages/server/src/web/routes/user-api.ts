@@ -1,14 +1,11 @@
-import PBRestAPIBase, { API } from "../../structs/rest-api-base";
-import { Get, PBRequest, PBResponse, APIError, Post, BodyParser, Patch, Delete } from "@presenti/web";
-import { UserLoader } from "../middleware/loaders";
-import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
-import { UserAPI } from "../../api/user";
-import { IdentityGuard, DenyFirstPartyGuard } from "../middleware/guards";
-import { User } from "../../database/entities";
-import { SecurityKit } from "../../utils/security";
-import { CONFIG } from "../../utils/config";
-import { notFoundAPI } from "../canned-responses";
+import { APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post } from "@presenti/web";
 import { OAuthAPI } from "../../api/oauth";
+import { UserAPI } from "../../api/user";
+import { User } from "../../database/entities";
+import PBRestAPIBase, { API } from "../../structs/rest-api-base";
+import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
+import { DenyFirstPartyGuard, IdentityGuard } from "../middleware/guards";
+import { UserLoader } from "../middleware/loaders";
 
 @API("/api/user")
 export class RESTUserAPI extends PBRestAPIBase {
@@ -135,7 +132,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     /** Token failed to generate, something's wrong with the algo */
     if (!token) return fail("Sorry, we couldn't finish logging you in.");
 
-    res.setCookie('identity', token);
+    res.setCookie('identity', token, { httpOnly: true, maxAge: 60 * 2.5, path: "/" });
     res.json(user.json(true));
   }
 }

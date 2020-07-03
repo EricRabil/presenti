@@ -5,7 +5,7 @@ import mime from "mime-types";
 import pug from "pug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import log from "@presenti/logging";
-import { APIErrorResponse } from "@presenti/utils";
+import { ErrorResponse } from "@presenti/utils";
 import body from "./normalizers/body";
 import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 import params from "./normalizers/params";
@@ -258,7 +258,7 @@ export class APIError {
     return this;
   }
 
-  public get json(): APIErrorResponse {
+  public get json(): ErrorResponse {
     return {
       error: this.message,
       code: this.code,

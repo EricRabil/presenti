@@ -3,22 +3,27 @@ declare module "*.vue" {
   export default Vue;
 }
 
-declare module '*.svg' {
+declare module "*.svg" {
   const path: string;
   export default path;
 }
 
-declare module '*.svg?inline' {
-  import Vue from 'vue';
+declare module "*.svg?inline" {
+  import Vue from "vue";
   export default Vue;
 }
 
-declare module '*.svg?data' {
+declare module "*.svg?data" {
   const bitch: string;
   export default bitch;
 }
 
-declare module '*.svg?sprite' {
+declare module "*.svg?sprite" {
   const bitch: any;
   export default bitch;
+}
+
+declare module "vue-codemirror" {
+  import { VueConstructor } from "vue";
+  export const codemirror: VueConstructor;
 }

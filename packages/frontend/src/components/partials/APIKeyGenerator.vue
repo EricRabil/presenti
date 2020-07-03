@@ -26,13 +26,13 @@ import apiClient from "../../api";
 
 @Component
 export default class APIKeyGenerator extends Vue {
-  key: string = "";
+  public key: string = "";
 
-  async created() {
+  public async created() {
     this.key = await apiClient.createAPIKey();
   }
 
-  onCopy() {
+  public onCopy() {
     this.$buefy.toast.open({ type: "is-success", message: "API key copied" });
   }
 }

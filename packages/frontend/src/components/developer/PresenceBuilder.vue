@@ -1,6 +1,6 @@
 <template>
-  <div class="columns presence-builder">
-    <div class="column is-7">
+  <div class="columns presence-builder" :style="{ 'flex-flow': layout }">
+    <div :class="['column', {'is-7': layout === 'row'}]">
       <h5 class="title is-5">Presence Builder</h5>
       <h5 class="subtitle is-5">Fill out the fields below to see how a Presence is composed</h5>
       <text-builder v-model="title" prefix="Title" />
@@ -8,7 +8,12 @@
       <b-field label="Small Texts">
         <b-numberinput :min="0" v-model="smallTextsQuantity"></b-numberinput>
       </b-field>
-      <text-builder v-for="(_, index) of smallTexts" :key="index" v-model="smallTexts[index]" prefix="Small" />
+      <text-builder
+        v-for="(_, index) of smallTexts"
+        :key="index"
+        v-model="smallTexts[index]"
+        prefix="Small"
+      />
       <div class="columns">
         <b-field class="column is-6" label="Image Source (base64 or URL)">
           <b-input v-model="image" />
@@ -38,7 +43,7 @@
       </div>
     </div>
     <div class="column is-1"></div>
-    <div class="column is-4">
+    <div :class="['column', {'is-4': layout === 'row'}]">
       <b-tabs v-model="activeTab">
         <b-tab-item label="JSON">
           <codemirror v-model="json" :options="codemirrorOptions" />
@@ -52,11 +57,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Watch, Prop } from "vue-property-decorator";
 import { PresentiPresence } from "@presenti/renderer";
-import { PresenceStruct, PresenceBuilder, PresenceText, isPresentiText } from "@presenti/utils";
-import { codemirror } from 'vue-codemirror';
-import 'codemirror/lib/codemirror.css';
+import {
+  PresenceStruct,
+  PresenceBuilder,
+  PresenceText,
+  isPresentiText
+} from "@presenti/utils";
+import { codemirror } from "vue-codemirror";
+import "codemirror/lib/codemirror.css";
 import BCheckboxTS from "../inputs/BCheckbox+ThirdState.vue";
 import PresenceTextBuilder from "./partials/PresenceTextBuilder.vue";
 
@@ -69,53 +79,58 @@ import PresenceTextBuilder from "./partials/PresenceTextBuilder.vue";
   }
 })
 export default class PresencePreview extends Vue {
-  id: string | null = null;
-  title: PresenceText = {
-    text: null,
-    link: null,
+  public id: string | null = null;
+  public title: PresenceText = {
+    text: null!,
+    link: null!,
     type: "text"
   };
-  largeText: PresenceText = {
-    text: null,
-    link: null,
+  public largeText: PresenceText = {
+    text: null!,
+    link: null!,
     type: "text"
   };
-  smallTexts: PresenceText[] = [
+  public smallTexts: PresenceText[] = [
     {
-      text: null,
-      link: null,
+      text: null!,
+      link: null!,
       type: "text"
     }
   ];
-  image: string | null = null;
-  imageLink: string | null = null;
-  start: number | null = null;
-  stop: number | null = null;
-  gradientEnabled: boolean | null = null;
-  gradientPriority: number = 0;
-  paused: boolean | null = null;
+  public image: string | null = null;
+  public imageLink: string | null = null;
+  public start: number | null = null;
+  public stop: number | null = null;
+  public gradientEnabled: boolean | null = null;
+  public gradientPriority: number = 0;
+  public paused: boolean | null = null;
 
-  activeTab: number = 0;
-  smallTextsQuantity: number = 1;
+  public activeTab: number = 0;
+  public smallTextsQuantity: number = 1;
 
-  codemirrorOptions = {
+  public codemirrorOptions = {
     readOnly: true,
     lineWrapping: true
-  }
+  };
+
+  @Prop({ default: "row" })
+  public layout: "row" | "column";
 
   @Watch("smallTextsQuantity")
-  smallTextsQuantityChanged(newValue: number, oldValue: number) {
+  public smallTextsQuantityChanged(newValue: number, oldValue: number) {
     const diff = newValue - oldValue;
 
-    console.log({ oldValue, newValue, diff });
-
-    if (diff < 0) this.smallTexts.splice(this.smallTexts.length - Math.abs(diff), Math.abs(diff));
-    else {
+    if (diff < 0) {
+      this.smallTexts.splice(
+        this.smallTexts.length - Math.abs(diff),
+        Math.abs(diff)
+      );
+    } else {
       for (let i = 0; i < diff; i++) {
         this.smallTexts.push({
-          text: null,
-          link: null,
-          type: null
+          text: null!,
+          link: null!,
+          type: null!
         });
       }
     }
@@ -123,34 +138,58 @@ export default class PresencePreview extends Vue {
 
   get presence() {
     const builder = new PresenceBuilder()
-                .id(this.id)
-                .title(this.title)
-                .largeText(this.largeText)
-                .image(this.image, this.imageLink)
-                .start(this.start === 0 ? null : this.start)
-                .stop(this.stop === 0 ? null : this.stop)
-                .gradient(this.gradientEnabled, this.gradientPriority)
-                .paused(this.paused);
+      .id(this.id)
+      .title(this.title)
+      .largeText(this.largeText)
+      .image(this.image, this.imageLink)
+      .start(this.start === 0 ? null : this.start)
+      .stop(this.stop === 0 ? null : this.stop)
+      .gradient(this.gradientEnabled!, this.gradientPriority)
+      .paused(this.paused!);
 
-    return this.smallTexts.reduce((builder, text) => builder.smallText(text), builder).presence;
+    const { presence } = this.smallTexts.reduce(
+      (builder, text) => builder.smallText(text),
+      builder
+    );
+
+    return presence;
   }
 
   get json() {
-    return JSON.stringify(this.presence, (key, value) => {
-      if (Array.isArray(value) && value.filter(f => !!this.cleanseText(f)).length === 0) return null;
-      if (typeof value === "object" && value !== null && typeof value.text !== "undefined") {
-        if (!value.text) return null;
-        return this.cleanseText(value);
-      }
-      return value;
-    }, 4);
+    const json = JSON.stringify(
+      this.presence,
+      (key, value) => {
+        if (
+          Array.isArray(value) &&
+          value.filter((f) => !!this.cleanseText(f)).length === 0
+        ) {
+          return null;
+        }
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          typeof value.text !== "undefined"
+        ) {
+          if (!value.text) {
+            return null;
+          }
+          return this.cleanseText(value);
+        }
+        return value;
+      },
+      4
+    );
+
+    this.$emit("input", JSON.parse(json));
+
+    return json;
   }
 
   set json(newValue) {
     /** noop */
   }
 
-  cleanseText(value: typeof PresenceBuilder.prototype.largeText) {
+  public cleanseText(value: typeof PresenceBuilder.prototype.largeText) {
     const cleansed = Object.entries(value).reduce((acc, [key, value]) => {
       switch (key) {
         case "text":
@@ -166,10 +205,14 @@ export default class PresencePreview extends Vue {
           break;
       }
       return acc;
-    }, {}) as { text: string | null, link: string | null, type: string | null };
-    
-    if (cleansed.text && !cleansed.link && !cleansed.type) return cleansed.text;
-    if (Object.keys(cleansed).length === 0) return null;
+    }, {}) as { text: string | null; link: string | null; type: string | null };
+
+    if (cleansed.text && !cleansed.link && !cleansed.type) {
+      return cleansed.text;
+    }
+    if (Object.keys(cleansed).length === 0) {
+      return null;
+    }
     return cleansed;
   }
 }

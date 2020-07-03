@@ -24,7 +24,7 @@ const strip_json_comments = require('strip-json-comments');
 const config = JSON.parse(strip_json_comments(fs.readFileSync('tsconfig.json').toString()));
 config.files = [];
 config.references = [];
-const workspaces = JSON.parse(JSON.parse(child_process.execSync('yarn workspaces info --json').toString()).data);
+const workspaces = JSON.parse(JSON.parse(child_process.execSync('yarn workspaces --json info').toString()).data);
 for (const name in workspaces) {
     const workspace = workspaces[name];
     const location = path.resolve(process.cwd(), workspace.location);

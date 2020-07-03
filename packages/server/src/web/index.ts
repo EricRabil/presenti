@@ -3,6 +3,7 @@ import Frontend from "./routes/frontend";
 import { RESTUserAPI } from "./routes/user-api";
 import { RestLinkAPI } from "./routes/link-api";
 import { RestTopAPI } from "./routes/api";
+import { RESTTransformationsAPI } from "./routes/transformations-api";
 
 export namespace WebRoutes {
   var initialized = false;
@@ -16,11 +17,13 @@ export namespace WebRoutes {
     const api = new RESTUserAPI(app);
     const link = new RestLinkAPI(app);
     const topAPI = new RestTopAPI(app);
+    const transformations = new RESTTransformationsAPI(app);
 
     frontend.run();
     api.run();
     link.run();
     topAPI.run();
+    transformations.run();
 
     return { frontend, api, link, topAPI };
   }

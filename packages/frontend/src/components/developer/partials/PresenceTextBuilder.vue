@@ -22,20 +22,20 @@ import { PresenceText } from "@presenti/utils";
 @Component
 export default class PresenceTextBuilder extends Vue {
   @Prop()
-  value: PresenceText;
+  public value: PresenceText;
 
   @Prop()
-  prefix: string;
+  public prefix: string;
 
-  model = this.value;
+  public model = this.value;
 
   @Watch("model", { deep: true })
-  modelChanged() {
+  public modelChanged() {
     this.$emit("input", this.model);
   }
 
   get name() {
-    return `${this.prefix ? `${this.prefix} ` : ''}Text `;
+    return `${this.prefix ? `${this.prefix} ` : ""}Text `;
   }
 }
 </script>

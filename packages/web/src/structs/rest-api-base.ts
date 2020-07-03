@@ -27,7 +27,7 @@ export function Route(path: string = "", method: HTTPMethod = "get", ...middlewa
   }
 }
 
-const BuildRouteShorthand = (method: HTTPMethod) => (path?: string, ...middleware: RequestHandler[]) => Route(path, method, ...middleware);
+const BuildRouteShorthand = (method: HTTPMethod) => (path?: string | RequestHandler, ...middleware: RequestHandler[]) => Route(typeof path === "string" ? path : undefined, method, ...((typeof path === "function" ? [path] : []).concat(middleware)));
 export const Get = BuildRouteShorthand("get");
 export const Post = BuildRouteShorthand("post");
 export const Patch = BuildRouteShorthand("patch");

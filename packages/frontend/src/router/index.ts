@@ -16,7 +16,23 @@ const routes: RouteConfig[] = [
   {
     path: "/developer",
     name: "Developer",
-    component: () => import("../views/Developer.vue")
+    component: () => import("../views/Developer.vue"),
+    children: [{
+      name: "builder",
+      path: "builder"
+    }, {
+      name: "ws-presence-api",
+      path: "presence/ws"
+    }, {
+      name: "rest-presence-api",
+      path: "presence/rest"
+    }, {
+      name: "ws-remote-api",
+      path: "remote/ws"
+    }, {
+      name: "rest-remote-api",
+      path: "remote/rest"
+    }]
   },
   {
     path: "/login",
@@ -29,7 +45,7 @@ const routes: RouteConfig[] = [
     component: Settings,
     children: [{
       name: "Settings",
-      path: "/settings/:section"
+      path: ":section"
     }]
   }
 ];

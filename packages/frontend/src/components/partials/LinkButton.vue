@@ -28,7 +28,7 @@ export default class LinkButton extends Vue {
   }
 
   public async clicked() {
-    const result = await apiClient.fetchJSON(this.url, "get", {
+    const result = await apiClient.ajax.fetchJSON(this.url, "get", {
       redirect: "manual",
       credentials: "include"
     });
