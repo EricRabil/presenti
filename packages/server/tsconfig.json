@@ -18,25 +18,5 @@
   },
   "include": [
     "src"
-  ],
-  "references": [
-    {
-      "path": "../client"
-    },
-    {
-      "path": "../logging"
-    },
-    {
-      "path": "../modules"
-    },
-    {
-      "path": "../renderer"
-    },
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../web"
-    }
   ]
 }
