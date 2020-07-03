@@ -85,7 +85,7 @@
 		"ts-loader": "^6.2.1",
 		"typedoc": "^0.17.6",
 		"typeorm": "^0.2.24",
-		"typescript": "^3.8.3",
+		"typescript": "^3.9.6",
 		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.4.0",
 		"uuid": "^7.0.3",
 		"vue": "^2.6.11",
