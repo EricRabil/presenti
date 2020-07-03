@@ -23,9 +23,7 @@ export interface ConfigurationStruct {
     name: string;
     username: string | null;
     password: string | null;
-    cache?: boolean | {
-      type: "ioredis",
-    };
+    cache?: any;
     logging?: boolean;
   };
   modules: Record<string, object | boolean>;
@@ -49,7 +47,11 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     name: process.env.DB_NAME || 'presenti',
     username: process.env.DB_USERNAME || null,
     password: process.env.DB_PASSWORD || null,
-    cache: false,
+    cache: process.env.REDIS_HOST ? {
+      options: {
+        host: process.env.REDIS_HOST
+      }
+    } : false,
     logging: false
   },
   modules: {}
@@ -63,5 +65,10 @@ if (process.env.DB_PORT) CONFIG.db.port = +process.env.DB_PORT;
 if (process.env.DB_NAME) CONFIG.db.name = process.env.DB_NAME;
 if (process.env.DB_USERNAME) CONFIG.db.username = process.env.DB_USERNAME;
 if (process.env.DB_PASSWORD) CONFIG.db.password = process.env.DB_PASSWORD;
+if (process.env.REDIS_HOST) CONFIG.db.cache = {
+  options: {
+    host: process.env.REDIS_HOST
+  }
+}
 
 export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => log.info('Updated configuration file'));

@@ -7,11 +7,13 @@ services:
     command: npm run prod
     depends_on:
       - postgres
+      - redis
     environment:
       DB_HOST: postgres
       DB_NAME: server
       DB_USERNAME: server
       DB_PASSWORD: badbitch
+      REDIS_HOST: redis
     ports:
       - '8138:8138'
     working_dir: /root
@@ -21,3 +23,6 @@ services:
       POSTGRES_USER: server
       POSTGRES_PASSWORD: badbitch
       POSTGRES_DB: server
+  redis:
+    image: redis
+    container_name: cache
