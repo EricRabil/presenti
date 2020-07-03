@@ -44,7 +44,7 @@ for (const name in workspaces) {
                 });
             }
         }
-        fs.writeFileSync(tsconfigPath, JSON.stringify(workspaceConfig, undefined, 2));
+        if (!name.includes("server")) fs.writeFileSync(tsconfigPath, JSON.stringify(workspaceConfig, undefined, 2));
     }
 }
 fs.writeFileSync('tsconfig.json', JSON.stringify(config, undefined, 2));
