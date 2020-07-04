@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p .",
+    "build:prod": "tsc -p tsconfig.docker.json",
     "watch": "tsc -p . --watch --preserveWatchOutput",
     "prod": "NODE_ENV=production node --experimental-repl-await dist/run.js",
     "dev": "NODE_ENV=development node --experimental-repl-await dist/run.js",

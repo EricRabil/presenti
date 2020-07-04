@@ -104,7 +104,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
         body: JSON.stringify({
           access_token: data.access_token
         })
-      }).then(res => res.json());
+      });
     }
     
     res.redirect(SharedPresenceService.config.web.oauthSuccessRedirect);
