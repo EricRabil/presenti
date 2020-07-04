@@ -11,7 +11,7 @@ import { TemplatedApp } from "uWebSockets.js";
 import { PresentiAdditionsConfig } from "../structs/config";
 
 const DISCORD_REDIRECT = (host: string) => `http${SharedPresenceService.config.web.host}/api/oauth/discord/callback`;
-const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;
+const DISCORD_CALLBACK = (host: string) => `https://discord.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=guilds.join%20identify`;
 
 /** API for linking with OAuth services */
 @API("/api/oauth")
@@ -51,7 +51,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
       return;
     }
 
-    const data = await fetch("https://discordapp.com/api/v6/oauth2/token", {
+    const data = await fetch("https://discord.com/api/v6/oauth2/token", {
       method: "post",
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -73,7 +73,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
     
     const token = `${data.token_type} ${data.access_token}`;
 
-    const { id } = await fetch("https://discordapp.com/api/v6/users/@me", {
+    const { id } = await fetch("https://discord.com/api/v6/users/@me", {
       method: "get",
       headers: {
         'authorization': token
