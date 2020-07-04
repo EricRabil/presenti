@@ -6,6 +6,7 @@ import { RequestHandler, HTTPMethod, PBRequest, PBResponse } from "../utils/type
 import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
 import logger from "@presenti/logging";
 import { PresenceServer } from "@presenti/utils";
+import { ServerLoader } from "../loaders";
 
 export const CORSMiddleware: RequestHandler = cors({
   origin: (origin, cb) => cb(null, true),
@@ -141,7 +142,7 @@ export class RestAPIBase {
    * @param headers headers to be loaded
    */
   protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
-    middleware = [CORSMiddleware].concat(middleware);
+    middleware = [CORSMiddleware, ServerLoader].concat(middleware);
 
     return handler(async (res, req) => {
       if (this.timedExecution) {

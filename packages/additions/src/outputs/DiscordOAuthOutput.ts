@@ -26,7 +26,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
   /** Initialize Discord OAuth flow */
   @Get("/discord")
   async redirectToDiscord(req: PBRequest, res: PBResponse) {
-    res.json({ url: DISCORD_CALLBACK(req.getHeader('host')) });
+    res.json({ url: DISCORD_CALLBACK(req.server!.config.web.host) });
   }
 
   /** Unlink from Discord */
