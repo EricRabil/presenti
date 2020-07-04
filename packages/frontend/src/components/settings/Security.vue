@@ -98,12 +98,12 @@ export default class Security extends Vue {
     try {
       var result = await apiClient.changePassword({ password, newPassword });
     } catch (e) {
-      if (!e.fields || !(e instanceof PresentiError) || typeof e === "undefined") {
+      if (!e || !e.fields || !(e instanceof PresentiError) || typeof e === "undefined") {
         this.$buefy.toast.open({ type: "is-danger", message: "Sorry, we couldn't change your password." });
         return;
       }
 
-      e.fields.forEach((field) => {
+      e!.fields.forEach((field) => {
         switch (field) {
           case "password":
             this.passwordError = e.error;
