@@ -1,4 +1,5 @@
-import PBRestAPIBase, { API } from "../../structs/rest-api-base";
+import PBRestAPIBase from "../../structs/rest-api-base";
+import { API } from "@presenti/modules";
 import { Get, PBRequest, PBResponse } from "@presenti/web";
 import { SharedPresenceService } from "../..";
 

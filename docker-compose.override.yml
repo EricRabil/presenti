@@ -1,9 +1,8 @@
 version: '3'
 services:
   presenti:
-    command: npm run dev
+    command: yarn workspace @presenti/server dev
     stdin_open: true
     tty: true
     volumes:
-      - './packages/server:/root'
-      - '/root/node_modules'
+      - '.:/root'

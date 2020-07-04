@@ -2,9 +2,9 @@ version: '3'
 services:
   presenti:
     build: 
-      context: packages/server
+      context: .
       dockerfile: Dockerfile
-    command: npm run prod
+    command: yarn workspace @presenti/server prod
     depends_on:
       - postgres
       - redis
@@ -17,6 +17,18 @@ services:
     ports:
       - '8138:8138'
     working_dir: /root
+    volumes:
+      - '/root/packages/additions/node_modules'
+      - '/root/packages/client/node_modules'
+      - '/root/packages/frontend/node_modules'
+      - '/root/packages/logging/node_modules'
+      - '/root/packages/modules/node_modules'
+      - '/root/packages/renderer/node_modules'
+      - '/root/packages/server/node_modules'
+      - '/root/packages/slack/node_modules'
+      - '/root/packages/utils/node_modules'
+      - '/root/packages/web/node_modules'
+      - '/root/node_modules'
   postgres:
     image: postgres:12.2-alpine
     environment:

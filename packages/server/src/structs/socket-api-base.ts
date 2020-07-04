@@ -1,4 +1,4 @@
-import { PayloadType, isRemotePayload, PayloadValidators, IdentifyPayload, RemotePayload } from "@presenti/utils";
+import { PayloadType, isRemotePayload, PayloadValidators, IdentifyPayload, RemotePayload, FIRST_PARTY_SCOPE } from "@presenti/utils";
 import * as uuid from "uuid";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
 import log from "@presenti/logging";
@@ -29,7 +29,6 @@ export const DenyFirstParty = MetadataSetter("denyFirstParty", true);
 export const DenyAuthed = MetadataSetter("denyAuthed", true);
 
 export type PayloadHandler = (ws: WebSocket, data: any) => any;
-export const FIRST_PARTY_SCOPE = Symbol("FIRST_PARTY");
 
 /** Contextual wrapper for socket connections */
 export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {

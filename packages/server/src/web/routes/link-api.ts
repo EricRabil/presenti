@@ -1,7 +1,8 @@
-import PBRestAPIBase, { API, GlobalGuards } from "../../structs/rest-api-base";
+import PBRestAPIBase from "../../structs/rest-api-base";
 import { UserLoader } from "../middleware/loaders";
 import { FirstPartyGuard } from "../middleware/guards";
 import { Patch, PBRequest, PBResponse, Delete, BodyParser, Post, Get, APIError } from "@presenti/web";
+import { API, GlobalGuards } from "@presenti/modules";
 import { PipeDirection } from "@presenti/utils";
 import { OAuthAPI } from "../../api/oauth";
 

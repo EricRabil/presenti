@@ -1,10 +1,9 @@
 import log from "@presenti/logging";
 import { ScopedPresenceAdapter } from "@presenti/modules";
-import { AdapterState, PresenceDictionary, PresenceList } from "@presenti/utils";
+import { AdapterState, PresenceDictionary, PresenceList, FIRST_PARTY_SCOPE } from "@presenti/utils";
 import * as uuid from "uuid";
 import { TemplatedApp } from "uWebSockets.js";
 import { User } from "../../database/entities";
-import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
 import { PresenceMagic } from "../../utils/presence-magic";
 import { RESTPresenceAPI } from "./api/rest-session-api";
 

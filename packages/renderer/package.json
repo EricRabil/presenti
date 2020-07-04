@@ -3,6 +3,7 @@
   "version": "1.2.0",
   "main": "lib/renderer.esm.js",
   "types": "lib/src/index.d.ts",
+  "typings": "lib/src/index.d.ts",
   "scripts": {
     "build": "rollup -c",
     "clean": "rm -rf dist",

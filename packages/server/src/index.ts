@@ -10,7 +10,7 @@ import { EventBus } from "./event-bus";
 import { PresenceRESTOutput } from "./outputs/presence-rest";
 import { PresenceStreamOutput } from "./outputs/presence-stream";
 import NativeClient from "./structs/native-client";
-import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
+import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { AdapterSupervisor } from "@presenti/modules";
 import { StateSupervisor } from "@presenti/modules";
 import { debounce, CONFIG } from "./utils/utils-index";

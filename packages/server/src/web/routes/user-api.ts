@@ -1,10 +1,10 @@
-import { APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post } from "@presenti/web";
+import { APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post, DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
 import { OAuthAPI } from "../../api/oauth";
 import { UserAPI } from "../../api/user";
 import { User } from "../../database/entities";
-import PBRestAPIBase, { API } from "../../structs/rest-api-base";
-import { FIRST_PARTY_SCOPE } from "../../structs/socket-api-base";
-import { DenyFirstPartyGuard, IdentityGuard } from "../middleware/guards";
+import PBRestAPIBase from "../../structs/rest-api-base";
+import { API } from "@presenti/modules";
+import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { UserLoader } from "../middleware/loaders";
 
 @API("/api/user")

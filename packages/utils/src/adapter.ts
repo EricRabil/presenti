@@ -1,8 +1,8 @@
 import { Presence, AdapterState } from "./types";
 
 export interface IEvented {
-  on(event: string, listener: Function): this;
-  off(event: string, listener: Function): this;
+  on(event: string, listener: Function): IEvented;
+  off(event: string, listener: Function): IEvented;
   emit(event: string, ...args: any[]): boolean;
 }
 
@@ -11,14 +11,14 @@ var Evented = class EventedPolyfill implements IEvented {
     (this as any)._listeners = {};
   }
 
-  on(event: string, listener: Function): this {
+  on(event: string, listener: Function): IEvented {
     if (!(this as any)._listeners[event]) (this as any)._listeners[event] = [];
     if ((this as any)._listeners[event] && (this as any)._listeners[event].includes(listener)) return this;
     (this as any)._listeners[event].push(listener);
     return this;
   }
 
-  off(event: string, listener: Function): this {
+  off(event: string, listener: Function): IEvented {
     if (!(this as any)._listeners[event] || !(this as any)._listeners[event].includes(listener)) return this;
     (this as any)._listeners[event].splice((this as any)._listeners[event].indexOf(listener), 1);
     if ((this as any)._listeners[event].length === 0) delete (this as any)._listeners[event];
@@ -32,7 +32,7 @@ var Evented = class EventedPolyfill implements IEvented {
   }
 }
 
-if (typeof globalThis === "undefined" || globalThis?.process?.release?.name) {
+if (typeof globalThis === "object" && (globalThis as any)?.process?.release?.name) {
   Evented = require("events").EventEmitter;
 }
 

@@ -1,16 +1,14 @@
-import { PresenceOutput, PresenceProvider } from "@presenti/modules";
 import log from "@presenti/logging";
+import { API, GlobalGuards, PBRestAPIBase, PresenceOutput, PresenceProvider } from "@presenti/modules";
+const { SharedPresenceService } = require("@presenti/server");
+import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
+const { UserLoader } = require("@presenti/server/dist/web/middleware/loaders");
 import { OAUTH_PLATFORM, PresentiAPIClient } from "@presenti/utils";
 import { Get, PBRequest, PBResponse } from "@presenti/web";
 import fetch from "node-fetch";
 import qs from "querystring";
-import PBRestAPIBase, { API, GlobalGuards } from "@presenti/server/dist/structs/rest-api-base";
-import { UserLoader } from "@presenti/server/dist/web/middleware/loaders";
-import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/server/dist/web/middleware/guards";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresentiAdditionsConfig } from "../structs/config";
-import { User } from "@presenti/server/src/database/entities";
-import { SharedPresenceService } from "@presenti/server";
 
 const DISCORD_REDIRECT = (host: string) => `http${SharedPresenceService.config.web.host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discordapp.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=identify`;

@@ -18,5 +18,28 @@
   },
   "include": [
     "src"
+  ],
+  "references": [
+    {
+      "path": "../additions"
+    },
+    {
+      "path": "../client"
+    },
+    {
+      "path": "../logging"
+    },
+    {
+      "path": "../modules"
+    },
+    {
+      "path": "../renderer"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../web"
+    }
   ]
 }

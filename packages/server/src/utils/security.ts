@@ -3,7 +3,7 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 import { CONFIG, saveConfig } from "./config";
 import log from "@presenti/logging";
 import { User } from "../database/entities";
-import { FIRST_PARTY_SCOPE } from "../structs/socket-api-base";
+import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 
 /**
  * Abstraction for generating various API keys for users and services.

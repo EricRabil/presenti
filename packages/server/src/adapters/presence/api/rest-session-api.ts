@@ -1,9 +1,9 @@
 import log from "@presenti/logging";
-import { AdapterState } from "@presenti/utils";
+import { AdapterState, FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { BodyParser, Delete, Get, PBRequest, PBResponse, Put, RequestHandler, RouteData } from "@presenti/web";
 import { TemplatedApp } from "uWebSockets.js";
-import PBRestAPIBase, { API } from "../../../structs/rest-api-base";
-import { FIRST_PARTY_SCOPE } from "../../../structs/socket-api-base";
+import { API } from "@presenti/modules";
+import PBRestAPIBase from "../../../structs/rest-api-base";
 import { SecurityKit } from "../../../utils/security";
 import { FirstPartyGuard } from "../../../web/middleware/guards";
 import { RESTAdapterV2 } from "../rest-adapter";

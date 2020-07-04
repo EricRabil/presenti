@@ -1,8 +1,7 @@
 import { PresenceOutput } from "@presenti/modules";
-import { UserLoader } from "@presenti/server/dist/web/middleware/loaders";
-import { IdentityGuardFrontend } from "@presenti/server/dist/web/middleware/guards";
+const { UserLoader } = require("@presenti/server/dist/web/middleware/loaders");
 import { OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
-import { APIError, BodyParser, PBRequest, PBResponse, RequestHandler } from "@presenti/web";
+import { APIError, BodyParser, PBRequest, PBResponse, RequestHandler, IdentityGuard } from "@presenti/web";
 import { createEventAdapter } from "@slack/events-api";
 import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { createMessageAdapter } from "@slack/interactive-messages";
@@ -122,7 +121,7 @@ export class AppOutput extends PresenceOutput {
         res.json(APIError.internal());
       }
     });
-    this.api.get("/slack/link", UserLoader(false), IdentityGuardFrontend, async (req, res) => {
+    this.api.get("/slack/link", UserLoader(false), IdentityGuard, async (req, res) => {
       try {
         const url = await this.installer.generateInstallUrl({
           userScopes: ['identity.basic'],
@@ -153,7 +152,7 @@ export class AppOutput extends PresenceOutput {
       });
     });
 
-    this.api.get("/slack/link_redirect", UserLoader(false), IdentityGuardFrontend, async (req, res) => {
+    this.api.get("/slack/link_redirect", UserLoader(false), IdentityGuard, async (req, res) => {
       const params = new URLSearchParams(req.getQuery());
       const code = params.get("code"), state = params.get("state");
       if (!code || !state) return res.json(APIError.badRequest("Missing code/state."));

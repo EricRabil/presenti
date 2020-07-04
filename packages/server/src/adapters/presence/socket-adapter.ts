@@ -1,7 +1,7 @@
-import { PresenceList, PresenceDictionary, PayloadType, AdapterState, Presence, FirstPartyPresenceData, SubscriptionPayload, Events, EventsTable } from "@presenti/utils";
+import { PresenceList, PresenceDictionary, PayloadType, AdapterState, Presence, FirstPartyPresenceData, SubscriptionPayload, Events, EventsTable, FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { TemplatedApp } from "uWebSockets.js";
 import log from "@presenti/logging";
-import { SocketAPIAdapter, Handler, SocketContext, Authed, FIRST_PARTY_SCOPE, FirstParty, DenyFirstParty } from "../../structs/socket-api-base";
+import { SocketAPIAdapter, Handler, SocketContext, Authed, FirstParty, DenyFirstParty } from "../../structs/socket-api-base";
 import { PresenceMagic } from "../../utils/presence-magic";
 import { EventBus } from "../../event-bus";
 

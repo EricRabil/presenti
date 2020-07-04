@@ -1,7 +1,8 @@
 import Ajv from "ajv";
 import { Get, PBRequest, PBResponse, Patch, BodyParser, APIError, Delete, Post, RequestHandler } from "@presenti/web";
-import PBRestAPIBase, { API, GlobalGuards } from "../../structs/rest-api-base";
-import { DenyFirstPartyGuard, IdentityGuard } from "../middleware/guards";
+import PBRestAPIBase from "../../structs/rest-api-base";
+import { API, GlobalGuards } from "@presenti/modules";
+import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
 import { UserLoader } from "../middleware/loaders";
 import { TransformationsAPI } from "../../api/transformations";
 

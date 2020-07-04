@@ -100,7 +100,7 @@ export class RestAPIBase {
   _routes: RouteData[];
   protected timedExecution: boolean = false;
 
-  constructor(readonly app: TemplatedApp, private viewsDirectory: string = process.cwd(), private headers: string[] = []) {
+  constructor(readonly app: TemplatedApp, protected viewsDirectory: string = process.cwd(), private headers: string[] = []) {
   }
 
 

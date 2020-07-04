@@ -19,10 +19,13 @@
       "path": "../client"
     },
     {
-      "path": "../server"
+      "path": "../modules"
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../web"
     }
   ]
 }

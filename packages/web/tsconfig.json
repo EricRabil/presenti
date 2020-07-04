@@ -18,6 +18,9 @@
   "references": [
     {
       "path": "../logging"
+    },
+    {
+      "path": "../utils"
     }
   ]
 }

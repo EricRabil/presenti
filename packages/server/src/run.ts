@@ -4,7 +4,7 @@ import { PresenceService } from ".";
 import { Database } from "./database/connector";
 import * as entities from "./database/entities";
 import { User } from "./database/entities";
-import { FIRST_PARTY_SCOPE } from "./structs/socket-api-base";
+import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { CONFIG } from "./utils/config";
 import { loadModules } from "./utils/modules";
 import { SecurityKit } from "./utils/security";
