@@ -24,6 +24,10 @@ export namespace OAuthAPI {
   function isValidOAuthQuery(query: any, checkMutuals: boolean = true): query is OAuthQuery {
     const keys = Object.keys(query);
     if (keys.length === 0) return false;
+    if (query["userUUID"]) {
+      query["user"] = { uuid: query["userUUID"] };
+      delete query["userUUID"];
+    }
     if (!keys.every(key => LEGAL_KEYS.includes(key))) return false;
     if (query.uuid && !uuidValidate(query.uuid)) return false;
     if (query.userUUID && !uuidValidate(query.userUUID)) return false;
@@ -133,8 +137,6 @@ export namespace OAuthAPI {
   async function queryLink(query: OAuthQuery) {
     query = removeEmptyFields(query) as any;
     if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
-    if (query["userUUID"]) query["user"] = { uuid: query["userUUID"] }
-    delete query["userUUID"];
     
     const link = await OAuthLink.findOne(query);
     if (!link) return UNKNOWN_LINK;
