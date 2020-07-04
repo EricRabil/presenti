@@ -1,7 +1,6 @@
 import { PresenceOutput } from "@presenti/modules";
-const { UserLoader } = require("@presenti/server/dist/web/middleware/loaders");
 import { OAUTH_PLATFORM, PresentiUser } from "@presenti/utils";
-import { APIError, BodyParser, PBRequest, PBResponse, RequestHandler, IdentityGuard } from "@presenti/web";
+import { APIError, BodyParser, PBRequest, PBResponse, RequestHandler, IdentityGuard, UserLoader } from "@presenti/web";
 import { createEventAdapter } from "@slack/events-api";
 import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { createMessageAdapter } from "@slack/interactive-messages";

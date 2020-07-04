@@ -1,6 +1,6 @@
 import log from "@presenti/logging";
 import { PresenceOutput, PresenceProvider, PresentiModuleClasses, StateAdapter, SubscribableEvents } from "@presenti/modules";
-import { Events, PresenceDictionary } from "@presenti/utils";
+import { Events, PresenceDictionary, PresenceServer } from "@presenti/utils";
 import "reflect-metadata";
 import { App, TemplatedApp } from "uWebSockets.js";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
@@ -15,14 +15,15 @@ import { AdapterSupervisor } from "@presenti/modules";
 import { StateSupervisor } from "@presenti/modules";
 import { debounce, CONFIG } from "./utils/utils-index";
 import { TransformationsAPI } from "./api/transformations";
-import { APIError } from "@presenti/web";
+import { APIError, SharedPresentiWebController } from "@presenti/web";
+import { UserLoader } from "./web/middleware/loaders";
 
 export var SharedPresenceService: PresenceService;
 
 /**
  * Tracks global and scoped (per-user presence)
  */
-export class PresenceService implements PresenceProvider {
+export class PresenceService implements PresenceProvider, PresenceServer {
   /** logging instance */
   log = log.child({ name: "Presenti" });
   /** WebSocket and Web server */
@@ -38,6 +39,12 @@ export class PresenceService implements PresenceProvider {
 
   presences: PresenceDictionary = {};
   states: Record<string, Record<string, any>> = {};
+
+  web = {
+    loaders: {
+      UserLoader: UserLoader
+    }
+  };
 
   oauthDefinitions: PresentiModuleClasses["OAuth"] = [];
 
@@ -56,7 +63,7 @@ export class PresenceService implements PresenceProvider {
     this.registerStates();
     this.registerOutputs();
 
-    SharedPresenceService = this;
+    SharedPresenceService = SharedPresentiWebController.server = this;
   }
 
   /**

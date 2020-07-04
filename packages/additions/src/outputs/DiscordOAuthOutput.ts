@@ -1,8 +1,6 @@
 import log from "@presenti/logging";
 import { API, GlobalGuards, PBRestAPIBase, PresenceOutput, PresenceProvider } from "@presenti/modules";
-const { SharedPresenceService } = require("@presenti/server");
-import { DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
-const { UserLoader } = require("@presenti/server/dist/web/middleware/loaders");
+import { DenyFirstPartyGuard, IdentityGuard, UserLoader } from "@presenti/web";
 import { OAUTH_PLATFORM, PresentiAPIClient } from "@presenti/utils";
 import { Get, PBRequest, PBResponse } from "@presenti/web";
 import fetch from "node-fetch";
@@ -12,7 +10,7 @@ import { PresentiAdditionsConfig } from "../structs/config";
 import { DiscordAdapter } from "../adapters";
 import { Client } from "discord.js";
 
-const DISCORD_REDIRECT = (host: string) => `http${SharedPresenceService.config.web.host}/api/oauth/discord/callback`;
+const DISCORD_REDIRECT = (host: string) => `http${host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discord.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=guilds.join%20identify`;
 
 /** API for linking with OAuth services */
@@ -63,7 +61,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
         client_secret: this.config.discord.clientSecret,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: DISCORD_REDIRECT(req.getHeader('host')),
+        redirect_uri: DISCORD_REDIRECT(req.server!.config.web.host),
         scope: 'guilds.join identify'
       })
     }).then(r => r.json());
@@ -107,7 +105,7 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
       });
     }
     
-    res.redirect(SharedPresenceService.config.web.oauthSuccessRedirect);
+    res.redirect(req.server!.config.web.oauthSuccessRedirect);
   }
 
   get guild() {

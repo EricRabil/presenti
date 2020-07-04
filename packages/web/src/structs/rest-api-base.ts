@@ -5,6 +5,7 @@ import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
 import { RequestHandler, HTTPMethod, PBRequest, PBResponse } from "../utils/types";
 import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
 import logger from "@presenti/logging";
+import { PresenceServer } from "@presenti/utils";
 
 export const CORSMiddleware: RequestHandler = cors({
   origin: (origin, cb) => cb(null, true),
@@ -94,6 +95,10 @@ function build(app: RestAPIBase, method: HTTPMethod) {
 }
 
 const log = logger.child({ name: "@presenti/web" })
+
+export namespace SharedPresentiWebController {
+  export var server: PresenceServer;
+}
 
 /** Foundation for any HTTP-based service */
 export class RestAPIBase {

@@ -2,10 +2,9 @@ import { PresenceOutput, PresenceProvider } from "@presenti/modules";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresentiAdditionsConfig } from "../structs/config";
 import { PBRestAPIBase, API, GlobalGuards } from "@presenti/modules";
-const { UserLoader } = require("@presenti/server/dist/web/middleware/loaders");
 import { IdentityGuard, DenyFirstPartyGuard } from "@presenti/web";
 import { PresentiAPIClient, OAUTH_PLATFORM, PipeDirection } from "@presenti/utils";
-import { Post, PBRequest, PBResponse, BodyParser, APIError } from "@presenti/web";
+import { Post, PBRequest, PBResponse, BodyParser, APIError, UserLoader } from "@presenti/web";
 import { SpotifyInternalKit } from "../adapters/utils/SpotifyInternalKit";
 
 @API("/api/spotify")

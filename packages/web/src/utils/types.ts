@@ -3,6 +3,7 @@ import { CookieSerializeOptions } from "cookie";
 import { Readable } from "stream";
 import { Options, LocalsObject } from "pug";
 import { APIError } from "./utils";
+import { PresenceServer } from "@presenti/utils";
 
 export type HTTPMethod = keyof Omit<TemplatedApp, 'listen' | 'publish' | 'ws'>;
 export type RequestHandler = (req: PBRequest, res: PBResponse, next: (stop?: boolean) => any, err: (e: any) => any) => any;
@@ -16,6 +17,7 @@ export interface PBRequest extends HttpRequest {
   body?: any;
 
   stream: Readable;
+  server?: PresenceServer;
   pipe: Readable['pipe'];
 
   getSearch(): Record<string, string>;

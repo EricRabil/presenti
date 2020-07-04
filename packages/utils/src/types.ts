@@ -285,3 +285,18 @@ export interface OAuthModuleDefinition {
 export interface SuccessResponse {
   ok: true;
 }
+
+export interface PresenceServer {
+  web: {
+    loaders: {
+      UserLoader: Function;
+    };
+  };
+  config: {
+    port: number;
+    web: {
+      host: string;
+      oauthSuccessRedirect: string;
+    };
+  };
+}
