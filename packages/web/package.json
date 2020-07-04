@@ -1,6 +1,6 @@
 {
   "name": "@presenti/web",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Web framework for Presenti packages",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@presenti/logging": "^1.2.0",
-    "@presenti/utils": "^1.2.0",
+    "@presenti/utils": "^1.2.1",
     "cookie": "^0.4.1",
     "cors": "^2.8.5",
     "fs-extra": "^9.0.0",
