@@ -9,6 +9,8 @@ import fetch from "node-fetch";
 import qs from "querystring";
 import { TemplatedApp } from "uWebSockets.js";
 import { PresentiAdditionsConfig } from "../structs/config";
+import { DiscordAdapter } from "../adapters";
+import { Client } from "discord.js";
 
 const DISCORD_REDIRECT = (host: string) => `http${SharedPresenceService.config.web.host}/api/oauth/discord/callback`;
 const DISCORD_CALLBACK = (host: string) => `https://discord.com/api/oauth2/authorize?client_id=696639929605816371&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT(host))}&response_type=code&scope=guilds.join%20identify`;
@@ -62,12 +64,12 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
         grant_type: 'authorization_code',
         code,
         redirect_uri: DISCORD_REDIRECT(req.getHeader('host')),
-        scope: 'identify'
+        scope: 'guilds.join identify'
       })
     }).then(r => r.json());
 
     if (!("token_type" in data && "access_token" in data)) {
-      this.log.warn("Got an errored response upon oauth completion", { data, user: res.user!.uuid });
+      this.log.warning("Got an errored response upon oauth completion", { data, user: res.user!.uuid });
       return res.redirect('/');
     }
     
@@ -90,8 +92,30 @@ export default class DiscordOAuthAPI extends PBRestAPIBase {
       platformID: id,
       userUUID: res.user!.uuid
     });
+
+    /** Add federated user to the presence guild */
+    if (this.guild) {
+      await fetch(`https://discord.com/api/v6/guilds/${this.guild.id}/members/${id}`, {
+        method: "put",
+        headers: {
+          'authorization': `Bot ${this.discordClient!.token}`,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          access_token: data.access_token
+        })
+      }).then(res => res.json());
+    }
     
     res.redirect(SharedPresenceService.config.web.oauthSuccessRedirect);
+  }
+
+  get guild() {
+    return this.discordClient?.guilds.cache.first();
+  }
+
+  get discordClient(): Client | undefined {
+    return DiscordAdapter.sharedAdapter?.client;
   }
 }
 

@@ -65,10 +65,21 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
   pipeLedger: Record<string, string> = {};
 
   static configKey: string = "discord";
+  private static _sharedAdapter: DiscordAdapter;
+
+  static get sharedAdapter() {
+    return this._sharedAdapter;
+  }
+
+  static set sharedAdapter(adapter) {
+    if (this._sharedAdapter) throw new Error("Cannot re-declare shared adapter instance.");
+    this._sharedAdapter = adapter;
+  }
 
   constructor(public readonly options: PresentiAdditionsConfig, private remoteClient: PresentiAPIClient) {
     super("com.ericrabil.discord", DEFAULT_STORAGE);
     this.botAPI = new DiscordAPI(this, remoteClient);
+    DiscordAdapter.sharedAdapter = this;
   }
 
   state: AdapterState = AdapterState.READY;
