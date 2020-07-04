@@ -16,6 +16,7 @@
 		"watch": "lerna run --parallel watch",
 		"build": "lerna run build",
 		"build:ts": "tsc -b",
+		"watch:ts": "tsc -b --watch",
 		"prepare": "node scripts/configure-references",
 		"watch:full": "lerna run --parallel watch",
 		"clean": "lerna run --parallel clean",
