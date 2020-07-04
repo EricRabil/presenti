@@ -28,7 +28,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@clusterws/cws": "github:EricRabil/cWS#pre-gyp",
+    "@clusterws/cws": "^3",
     "@presenti/client": "^1.2.1",
     "@presenti/modules": "^1.2.1",
     "@presenti/utils": "^1.2.1",

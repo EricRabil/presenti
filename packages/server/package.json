@@ -64,7 +64,6 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/ajv": "^1.0.0",
     "@types/bcrypt": "^3.0.0",
     "@types/cookie": "^0.3.3",
     "@types/deep-equal": "^1.0.1",
