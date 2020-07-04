@@ -2,8 +2,8 @@ import { RemoteClient, RemoteClientOptions } from "@presenti/client";
 import { WebLogger } from "@presenti/utils";
 import store from "./store";
 
-export const apiEndpoint = "api.presenti.me";
-export const apiHost = "127.0.0.1:8138";
+export const apiEndpoint = process.env.VUE_APP_API_ENDPOINT;
+export const apiHost = apiEndpoint;
 
 const options: RemoteClientOptions = {
   host: apiEndpoint,
