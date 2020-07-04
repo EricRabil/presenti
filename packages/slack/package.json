@@ -1,6 +1,6 @@
 {
   "name": "@presenti/slack",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Module for outputting presences to Slack",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
@@ -22,9 +22,9 @@
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"
   },
   "dependencies": {
-    "@presenti/modules": "^1.2.2",
-    "@presenti/utils": "^1.2.2",
-    "@presenti/web": "^1.2.2",
+    "@presenti/modules": "^1.2.3",
+    "@presenti/utils": "^1.2.3",
+    "@presenti/web": "^1.2.3",
     "@slack/events-api": "^2.3.2",
     "@slack/interactive-messages": "^1.6.0",
     "@slack/oauth": "^1.0.0",
