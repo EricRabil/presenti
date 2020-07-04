@@ -2,7 +2,7 @@ version: '3'
 services:
   presenti:
     build: 
-      context: .
+      context: packages/server
       dockerfile: Dockerfile
     command: yarn workspace @presenti/server prod
     depends_on:
