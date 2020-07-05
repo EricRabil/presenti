@@ -1,6 +1,6 @@
 {
   "name": "@presenti/server",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
   "main": "dist/index.js",
   "scripts": {
@@ -31,13 +31,13 @@
   },
   "homepage": "https://github.com/EricRabil/PresenceBot#readme",
   "dependencies": {
-    "@presenti/additions": "^1.2.4",
-    "@presenti/client": "^1.2.4",
-    "@presenti/logging": "^1.2.4",
-    "@presenti/modules": "^1.2.4",
-    "@presenti/renderer": "^1.2.4",
-    "@presenti/utils": "^1.2.4",
-    "@presenti/web": "^1.2.4",
+    "@presenti/additions": "^1.2.5",
+    "@presenti/client": "^1.2.5",
+    "@presenti/logging": "^1.2.5",
+    "@presenti/modules": "^1.2.5",
+    "@presenti/renderer": "^1.2.5",
+    "@presenti/utils": "^1.2.5",
+    "@presenti/web": "^1.2.5",
     "ajv": "^6.12.2",
     "bcrypt": "^5.0.0",
     "chalk": "^4.0.0",
