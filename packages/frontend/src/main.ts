@@ -2,7 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faDiscord, faSpotify } from "@fortawesome/free-brands-svg-icons";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { StatusRenderer } from "@presenti/renderer";
+import { StatusRenderer } from "@presenti/renderer/src/main";
 import Buefy from "buefy";
 import "highlight.js/styles/default.css";
 import Vue from "vue";

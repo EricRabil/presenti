@@ -14,6 +14,7 @@ import { IdentityGuardFrontend } from "../middleware/guards";
 export default class Frontend extends PBRestAPIBase {
   constructor(public readonly app: TemplatedApp) {
     super(app);
+    Frontend.ensureRendererListings();
   }
 
   loadRoutes() {
@@ -48,7 +49,7 @@ export default class Frontend extends PBRestAPIBase {
     const options = {
       noCSS: params.has('nocss'),
       scope: params.get('scope'),
-      host: `ws${CONFIG.web.host}/presence/`
+      host: req.getHeader('host')
     }
     res.render('presenti', options);
   }
@@ -81,8 +82,43 @@ export default class Frontend extends PBRestAPIBase {
 
   /** Resolves presenti-renderer assets */
   static async resolvePresenti(file: string) {
-    let resolved = path.resolve(PRESENTI_ASSET_DIRECTORY, file);
+    await this.ensureRendererListings();
+
+    const resolved = this.mappings[file];
     if (!resolved.startsWith(PRESENTI_ASSET_DIRECTORY)) return null;
     return resolved;
+  }
+
+  private static mappings: Record<string, string> = null!;
+  
+  /** Indexes the renderer module, creates convenience names mapping to renderer resources */
+  static async ensureRendererListings() {
+    if (this.mappings) return;
+    const mappings = this.mappings = {};
+    const validExtensions = ['css', 'js'];
+
+    async function walk(parent: string = PRESENTI_ASSET_DIRECTORY) {
+      const contents = await fs.readdir(parent);
+      const details = contents.map(item => ({ name: item, path: path.join(parent, item) }));
+
+      await Promise.all(details.map(async ({ name, path }) => {
+        const stat = await fs.stat(path);
+        
+        if (!stat.isFile()) {
+          return await walk(path);
+        }
+
+        const parts = name.split(".");
+        const base = parts[0], ext = parts[parts.length - 1];
+        
+        if (!validExtensions.includes(ext)) return;
+
+        mappings[`${base}.${ext}`] = path;
+      }));
+    }
+    
+    await walk();
+
+    console.log(mappings);
   }
 }

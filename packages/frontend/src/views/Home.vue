@@ -51,7 +51,7 @@ import LinkDetail from "../components/partials/LinkDetail.vue";
 import LinkButton from "../components/partials/LinkButton.vue";
 import { OAuthModuleDefinition, PresentiUser } from "@presenti/utils";
 import { apiEndpoint, apiHost } from "../api";
-import { StatusRenderer } from "@presenti/renderer";
+import { StatusRenderer } from "@presenti/renderer/src/main";
 
 @Component({
   computed: mapGetters({

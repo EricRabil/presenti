@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from "vue-property-decorator";
-import { PresentiPresence } from "@presenti/renderer";
+import { StatusRenderer , PresentiPresence} from "@presenti/renderer/src/main";
 import {
   PresenceStruct,
   PresenceBuilder,

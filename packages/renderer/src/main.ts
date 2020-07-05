@@ -15,19 +15,19 @@ const StatusRendererElements = {
     },
 };
 
-if (typeof window !== 'undefined' && window.Vue) {
-    // @ts-ignore
-    window.Vue.use(StatusRendererElements, {});
+// @ts-ignore
+Vue.use(StatusRendererElements, {});
 
-    // @ts-ignore
-    window.mountPresenti = function(scope: string, url: string, mount: string) {
-      new StatusRenderer({
-        propsData: {
-          scope,
-          url
-        }
-      }).$mount(mount);
-    }
+if (typeof window === "object") {
+  // @ts-ignore
+  window.mountPresenti = function(scope: string, host: string, mount: string) {
+    new StatusRenderer({
+      propsData: {
+        scope,
+        host
+      }
+    }).$mount(mount);
+  }
 }
 
 export { StatusRenderer, PresentiPresence };

@@ -114,6 +114,8 @@ $min-row: 800px;
 body {
   margin: 0;
   background: none transparent;
+  font-family: Avenir,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .status-holder {

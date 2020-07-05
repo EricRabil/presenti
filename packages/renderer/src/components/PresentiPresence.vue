@@ -87,7 +87,7 @@ export default class PresentiPresence extends Vue {
       return {
         enabled: this.presence.gradient
       }
-    };
+    }
 
     return this.presence.gradient
   }

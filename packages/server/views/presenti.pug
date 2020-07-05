@@ -2,11 +2,16 @@ html
   head
     title Presenti
     meta(name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1,viewport-fit=cover')
-    link(rel='preload' as='script' href='/p-assets/renderer.min.js')
+    if !noCSS
+      link(rel='stylesheet' href='/p-assets/chunk-vendors.css')
+      link(rel='stylesheet' href='/p-assets/app.css')
+    link(rel='preload' as='script' href='/p-assets/chunk-vendors.js')
+    link(rel='preload' as='script' href='/p-assets/app.js')
   body
     div#holder
     script(src='https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.2.10/iframeResizer.contentWindow.min.js')
-    script(src='/p-assets/renderer.min.js')
+    script(src='/p-assets/chunk-vendors.js')
+    script(src='/p-assets/app.js')
     if scope
       script.
         window.addEventListener('DOMContentLoaded', () => {
