@@ -26,7 +26,9 @@ services:
       POSTGRES_PASSWORD: badbitch
       POSTGRES_DB: server
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
   redis:
     image: redis
     container_name: cache
+volumes:
+  pgdata:
