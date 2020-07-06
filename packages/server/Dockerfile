@@ -5,6 +5,5 @@ ADD package.json /root/
 RUN yarn
 
 ADD . /root
-RUN yarn build:prod
 
 CMD yarn prod
