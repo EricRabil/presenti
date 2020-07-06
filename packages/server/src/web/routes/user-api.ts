@@ -6,6 +6,7 @@ import PBRestAPIBase from "../../structs/rest-api-base";
 import { API } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { UserLoader } from "../middleware/loaders";
+import { CONFIG } from "../../utils/config";
 
 @API("/api/user")
 export class RESTUserAPI extends PBRestAPIBase {
@@ -102,13 +103,13 @@ export class RESTUserAPI extends PBRestAPIBase {
     const token = await user.token(password);
     if (!token) return fail();
     
-    res.setCookie('identity', token, { httpOnly: true, domain: "presenti.me", path: "/" });
+    res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, path: "/" });
     res.json(user.json(true));
   }
 
   @Get("/logout")
   async logout(req: PBRequest, res: PBResponse) {
-    res.setCookie('identity', '', { httpOnly: true, domain: "presenti.me", path: "/", maxAge: 0 });
+    res.setCookie('identity', '', { httpOnly: true, domain: CONFIG.web.cookieDomain, path: "/", maxAge: 0 });
     res.json({ ok: true });
   }
 

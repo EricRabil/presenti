@@ -16,6 +16,7 @@ export interface ConfigurationStruct {
   web: {
     host: string;
     oauthSuccessRedirect: string;
+    cookieDomain: string;
   };
   db: {
     host: string;
@@ -39,7 +40,8 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
   },
   web: {
     host: "://localhost:8138",
-    oauthSuccessRedirect: "http://presenti.me"
+    oauthSuccessRedirect: "http://presenti.me",
+    cookieDomain: "presenti.me"
   },
   db: {
     host: process.env.DB_HOST || 'localhost',
