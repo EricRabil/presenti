@@ -1,6 +1,6 @@
 import log from "@presenti/logging";
 import { ScopedPresenceAdapter } from "../structs";
-import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct, Presence } from "@presenti/utils";
+import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct, Presence, PresenceDictionary } from "@presenti/utils";
 import { Supervisor } from "../structs/supervisor";
 
 export let SharedAdapterSupervisor: AdapterSupervisor;
@@ -35,7 +35,7 @@ export class AdapterSupervisor extends Supervisor<PresenceAdapter> {
     ));
   }
 
-  async scopedDatas(): Promise<Record<string, PresenceList>> {
+  async scopedDatas(): Promise<PresenceDictionary> {
     const activities = await Promise.all(this.adapters.filter(adapter => adapter instanceof ScopedPresenceAdapter).map((adapter) => (adapter as unknown as ScopedPresenceAdapter).activities()));
     return activities.reduce((acc, c) => {
       Object.entries(c).forEach(([scope, presences]) => {
