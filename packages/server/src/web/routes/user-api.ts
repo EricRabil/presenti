@@ -133,7 +133,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     /** Token failed to generate, something's wrong with the algo */
     if (!token) return fail("Sorry, we couldn't finish logging you in.");
 
-    res.setCookie('identity', token, { httpOnly: true, maxAge: 60 * 2.5, path: "/" });
+    res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, maxAge: 60 * 2.5, path: "/" });
     res.json(user.json(true));
   }
 }
