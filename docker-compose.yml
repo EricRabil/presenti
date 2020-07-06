@@ -4,7 +4,6 @@ services:
     build: 
       context: packages/server
       dockerfile: Dockerfile
-    command: yarn workspace @presenti/server prod
     depends_on:
       - postgres
       - redis
