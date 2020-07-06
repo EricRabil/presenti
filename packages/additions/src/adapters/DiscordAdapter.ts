@@ -110,7 +110,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
         if (!scope) return;
 
         this.pipeLedger[link.platformID] = scope;
-        this.emit("updated");
+        this.emit("updated", scope);
       }
     });
 
@@ -121,7 +121,7 @@ export class DiscordAdapter extends StorageAdapter<DiscordStorage> {
         if (!scope) return;
 
         this.pipeLedger[link.platformID] = scope;
-        this.emit("updated");
+        this.emit("updated", scope);
       } else if (link.pipeDirection === PipeDirection.PLATFORM || link.pipeDirection === PipeDirection.NOWHERE) {
         const scope = this.pipeLedger[link.platformID];
         if (!scope) return;
