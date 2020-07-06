@@ -18,7 +18,6 @@ services:
     working_dir: /root
     volumes:
       - '/root/node_modules'
-      - './packages/server:/root'
   postgres:
     image: postgres:12.2-alpine
     environment:
