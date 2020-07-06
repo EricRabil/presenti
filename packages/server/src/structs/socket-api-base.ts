@@ -36,11 +36,6 @@ export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
   readonly id: string = uuid.v4();
 
   constructor(public readonly ws: WebSocket, private adapter: T) {
-    const oldClose = this.ws.close;
-    this.ws.close = function() {
-      console.trace("wot");
-      return oldClose.call(ws);
-    }
   }
 
   close() {
