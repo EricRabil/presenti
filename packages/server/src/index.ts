@@ -1,6 +1,6 @@
 import log from "@presenti/logging";
 import { PresenceOutput, PresenceProvider, PresentiModuleClasses, StateAdapter, SubscribableEvents } from "@presenti/modules";
-import { Events, PresenceDictionary, PresenceServer } from "@presenti/utils";
+import { Events, PresenceDictionary, PresenceServer, PresenceList } from "@presenti/utils";
 import "reflect-metadata";
 import { App, TemplatedApp } from "uWebSockets.js";
 import { RESTAdapterV2 } from "./adapters/presence/rest-adapter";
@@ -17,6 +17,8 @@ import { debounce, CONFIG } from "./utils/utils-index";
 import { TransformationsAPI } from "./api/transformations";
 import { APIError, SharedPresentiWebController } from "@presenti/web";
 import { UserLoader } from "./web/middleware/loaders";
+import IORedis from "ioredis";
+import { ObjectCache } from "./structs/object-cache";
 
 export var SharedPresenceService: PresenceService;
 
@@ -36,9 +38,11 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   client: NativeClient;
   /** Array of outputs that send out assembled presence payloads */
   outputs: PresenceOutput[] = [];
+  /** IORedis Connection */
+  redis = new IORedis(CONFIG.cache);
 
-  presences: PresenceDictionary = {};
-  states: Record<string, Record<string, any>> = {};
+  presences = new ObjectCache<PresenceList>("presence", this.redis);
+  states = new ObjectCache("state", this.redis);
 
   web = {
     loaders: {
@@ -108,15 +112,17 @@ export class PresenceService implements PresenceProvider, PresenceServer {
    * @param scope scope
    */
   async presence(scope: string, initial: boolean = false, refresh: boolean = false) {
-    if (!this.presences[scope] || refresh) {
+    if (!(await this.presences.exists(scope)) || refresh) {
       let presences = await this.adapterSupervisor.scopedData(scope);
 
       const transformed = await TransformationsAPI.applyTransformationsForScope(scope, presences);
 
-      return this.presences[scope] = transformed instanceof APIError ? presences : transformed;
+      presences = transformed instanceof APIError ? presences : transformed;
+      await this.presences.set(scope, presences);
+      return presences;
     }
 
-    return this.presences[scope];
+    return (await this.presences.get(scope)) || [];
   }
 
   /**
@@ -125,9 +131,13 @@ export class PresenceService implements PresenceProvider, PresenceServer {
    * @param initial whether this should be treated as a "new" state
    */
   async state(scope: string, initial: boolean = false, refresh: boolean = false) {
-    if (!this.states[scope] || initial || refresh) this.states[scope] = await this.stateSupervisor.scopedData(scope, initial);
+    if (!(await this.states.exists(scope)) || initial || refresh) {
+      const states = await this.stateSupervisor.scopedData(scope, initial);
+      await this.states.set(scope, states);
+      return states;
+    }
 
-    return this.states[scope];
+    return this.states.get(scope);
   }
 
   /**
@@ -138,10 +148,10 @@ export class PresenceService implements PresenceProvider, PresenceServer {
     await this.stateSupervisor.run();
     await Promise.all(this.outputs.map(output => output.run()));
 
-    this.presences = await this.adapterSupervisor.scopedDatas();
-    this.states = await this.stateSupervisor.scopedDatas();
+    const presenceLength = await this.presences.setBulk(await this.adapterSupervisor.scopedDatas());
+    const stateLength = await this.states.setBulk(this.stateSupervisor.scopedDatas());
 
-    this.log.info(`Bootstrapped Presenti with ${Object.keys(this.presences).length} presence(s) and ${Object.keys(this.states).length} state(s)`);
+    this.log.info(`Bootstrapped Presenti with ${presenceLength} presence(s) and ${stateLength} state(s)`);
   }
   
   /**

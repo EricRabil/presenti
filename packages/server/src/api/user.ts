@@ -4,6 +4,7 @@ import { User } from "../database/entities";
 import { removeEmptyFields } from "../utils/object";
 import { MALFORMED_BODY } from "../Constants";
 import { FindConditions } from "typeorm";
+import { ObjectCache } from "../structs/object-cache";
 
 type UUIDQuery = { uuid: string };
 type UserIDQuery = { userID: string };
@@ -12,6 +13,8 @@ export type UserQuery = UUIDQuery | UserIDQuery | (UUIDQuery & UserIDQuery);
 
 export namespace UserAPI {
   const validKeys: keyof User = ["uuid", "userID"] as any;
+
+  const resolvedScopes = new ObjectCache<string>("scopes");
 
   function isValidQuery(query: any): query is UserQuery {
     const keys = Object.keys(query);
@@ -41,11 +44,19 @@ export namespace UserAPI {
   }
 
   export async function resolveScopeFromUUID(uuid: string): Promise<string | APIError> {
-    const scope = await User.createQueryBuilder("user")
-                            .select(["user.userID"])
-                            .where("uuid = :uuid", { uuid })
-                            .getRawOne()
-                            .then(fields => fields?.user_userID);
+    var scope: string | null = null;
+
+    if (!(await resolvedScopes.exists(uuid))) {
+      scope = await User.createQueryBuilder("user")
+        .select(["user.userID"])
+        .where("uuid = :uuid", { uuid })
+        .getRawOne()
+        .then(fields => fields?.user_userID);
+
+      if (scope) await resolvedScopes.set(uuid, scope);
+    } else {
+      scope = await resolvedScopes.get(uuid);
+    }
 
     if (!scope) return APIError.notFound("Unknown user.");
 

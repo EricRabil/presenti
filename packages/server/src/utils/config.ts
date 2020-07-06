@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import log from "@presenti/logging";
+import IORedis from "ioredis";
 
 export interface ConfigurationStruct {
   port: number;
@@ -27,6 +28,7 @@ export interface ConfigurationStruct {
     cache?: any;
     logging?: boolean;
   };
+  cache: IORedis.RedisOptions;
   modules: Record<string, object | boolean>;
 }
 
@@ -55,6 +57,10 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
       }
     } : false,
     logging: false
+  },
+  cache: {
+    host: "127.0.0.1",
+    port: 6379
   },
   modules: {}
 }
