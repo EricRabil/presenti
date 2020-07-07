@@ -1,0 +1,4 @@
+**/client/dist
+**/utils/dist
+**/renderer/dist
+**/renderer/src

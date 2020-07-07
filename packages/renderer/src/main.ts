@@ -3,6 +3,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StatusRenderer from './components/StatusRenderer.vue';
+import TimeBar from './components/TimeBar.vue';
 import PresentiPresence from './components/PresentiPresence.vue';
 
 library.add(faPlay, faPause)
@@ -30,5 +31,5 @@ if (typeof window === "object") {
   }
 }
 
-export { StatusRenderer, PresentiPresence };
+export { StatusRenderer, PresentiPresence, TimeBar };
 export default StatusRendererElements;

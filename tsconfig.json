@@ -8,6 +8,9 @@
       "path": "packages/client"
     },
     {
+      "path": "packages/dashboard"
+    },
+    {
       "path": "packages/frontend"
     },
     {
