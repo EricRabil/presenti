@@ -2,6 +2,7 @@ import inquirer from "inquirer";
 import { createConnection } from "typeorm";
 import { CONFIG, saveConfig } from "../utils/config";
 import { BaseEntityStatic } from "@presenti/modules";
+import { ElasticService } from "./elastic";
 
 export class Database {
   async connect(extraEntities: BaseEntityStatic[] = []) {
@@ -30,7 +31,7 @@ export class Database {
         alwaysEnabled: true,
         ...(typeof CONFIG.db.cache === "object" ? CONFIG.db.cache : {})
       } : false
-    })
+    }).then(() => ElasticService.loadElastic());
   }
 
   async ensureConfig() {

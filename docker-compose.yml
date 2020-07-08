@@ -31,5 +31,10 @@ services:
   redis:
     image: redis
     container_name: cache
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    volumes: # Persist ES data in seperate "esdata" volume
+      - esdata:/usr/share/elasticsearch/data
 volumes:
   pgdata:
+  esdata:

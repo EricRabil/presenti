@@ -29,6 +29,7 @@ export interface ConfigurationStruct {
     logging?: boolean;
   };
   cache: IORedis.RedisOptions;
+  elasticSearch?: import("@elastic/elasticsearch").ClientOptions;
   modules: Record<string, object | boolean>;
 }
 
@@ -62,6 +63,9 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     host: "127.0.0.1",
     port: 6379
   },
+  elasticSearch: {
+    node: 'http://elasticsearch:9200'
+  },
   modules: {}
 }
 
@@ -78,5 +82,9 @@ if (process.env.REDIS_HOST) CONFIG.db.cache = {
     host: process.env.REDIS_HOST
   }
 }
+if (process.env.ELASTIC_NODE) CONFIG.elasticSearch = {
+  ...(CONFIG.elasticSearch || {}),
+  node: process.env.ELASTIC_NODE
+};
 
 export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => log.info('Updated configuration file'));

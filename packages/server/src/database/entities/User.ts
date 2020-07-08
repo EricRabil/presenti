@@ -4,16 +4,14 @@ import { SecurityKit } from "../../utils/security";
 import { OAuthLink } from "./OAuthLink";
 import { OAUTH_PLATFORM, PresentiLink, PresentiUser } from "@presenti/utils";
 import { Transformation } from "./Transformation";
+import { IndexedEntity, IndexedColumn } from "../IndexedEntity";
 
 @Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  uuid: string;
-
-  @Column({ unique: true })
+export class User extends IndexedEntity {
+  @IndexedColumn({ type: "text", fields: { search: { type: "search_as_you_type" } } }, { unique: true })
   userID: string;
 
-  @Column({ type: "varchar", default: null, nullable: true })
+  @IndexedColumn({ type: "text" }, { type: "varchar", default: null, nullable: true })
   displayName: string | null;
 
   @Column()
