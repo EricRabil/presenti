@@ -156,6 +156,7 @@ export default class Dashboard extends Vue {
             border: 0;
             background-color: var(--primary-background);
             margin: 10px 10px 10px 10px;
+            max-width: 325px;
         }
     }
 }
