@@ -21,6 +21,7 @@
   "dependencies": {
     "@presenti/logging": "^1.2.6",
     "@presenti/utils": "^1.2.6",
+    "ajv": "^6.12.3",
     "cookie": "^0.4.1",
     "cors": "^2.8.5",
     "fs-extra": "^9.0.0",
@@ -30,6 +31,7 @@
     "uuid": "^8.2.0"
   },
   "devDependencies": {
+    "@types/ajv": "^1.0.0",
     "@types/cookie": "^0.3.3",
     "@types/cors": "^2.8.6",
     "@types/fs-extra": "^8.1.0",
