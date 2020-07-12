@@ -3,11 +3,23 @@ import { ScopedPresenceAdapter } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE, IdentifyPayload, isRemotePayload, PayloadType, PayloadValidators } from "@presenti/utils";
 import * as uuid from "uuid";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
-import { blackHat } from "../utils/object";
-import { SecurityKit } from "../utils/security";
+import auth from "@presenti/auth-client";
+import v8 from "v8";
+
+/** Creates an object with a default value for all properties */
+export function blackHat<T, U = any>(defaultValue: T): Record<keyof U, T> {
+  const base = v8.serialize(defaultValue);
+  return new Proxy({} as any as Record<keyof U, T>, {
+    get<U extends Record<string, T>>(target: U, prop: keyof U, receiver: Function) {
+      if (!target[prop]) Reflect.set(target, prop, v8.deserialize(base));
+
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
 
 export function Handler(payloadType: PayloadType) {
-  return function<T extends SocketAPIAdapter>(target: T, property: keyof T, descriptor?: PropertyDescriptor) {
+  return function<T extends SocketAPIBase>(target: T, property: keyof T, descriptor?: PropertyDescriptor) {
     if (!target.handlers) target.handlers = blackHat(HandlerStructBase) as any
     target.handlers[payloadType] = { property: property as any, handler: (target[property] as any) as PayloadHandler };
   }
@@ -15,7 +27,7 @@ export function Handler(payloadType: PayloadType) {
 
 function MetadataSetter<T extends keyof HandlerMetadata>(metadataKey: T, defaultValue: HandlerMetadata[T]) {
   return function(value = defaultValue) {
-    return function<T extends SocketAPIAdapter>(target: T, property: keyof T, descriptor?: PropertyDescriptor) {
+    return function<T extends SocketAPIBase>(target: T, property: keyof T, descriptor?: PropertyDescriptor) {
       if (!target.handlerMetadata) target.handlerMetadata = blackHat(HandlerMetadataBase);
       target.handlerMetadata[property][metadataKey] = value;
     }
@@ -30,7 +42,7 @@ export const DenyAuthed = MetadataSetter("denyAuthed", true);
 export type PayloadHandler = (ws: WebSocket, data: any) => any;
 
 /** Contextual wrapper for socket connections */
-export class SocketContext<T extends SocketAPIAdapter = SocketAPIAdapter> {
+export class SocketContext<T extends SocketAPIBase = SocketAPIBase> {
   static socketLog = log.child({ name: "SocketContext" })
   readonly id: string = uuid.v4();
 
@@ -113,7 +125,7 @@ const HandlerMetadataBase: HandlerMetadata = {
 }
 
 /** Foundation for any socket-based API */
-export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
+export abstract class SocketAPIBase extends ScopedPresenceAdapter {
   /**
    * A map of sockets to their scope ID
    */
@@ -219,7 +231,13 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
   async identificationHandler(ws: SocketContext, token: IdentifyPayload["data"], sendGreetings: boolean = true): Promise<boolean> {
     this.log.debug("Socket initiated authentication flow.", { socketID: ws.id });
 
-    const { user, firstParty } = await SecurityKit.validateApiKey(token);
+    try {
+      var { user, firstParty } = await auth.sharedInstance.validateApiKey(token);
+    } catch (e) {
+      this.log.debug("Invalid identity for socket.", { socketID: ws.id });
+      return false;
+    }
+
     let identity: string | typeof FIRST_PARTY_SCOPE;
 
     // set the identity to the uuid

@@ -1,10 +1,11 @@
-import Redis from "ioredis";
 import uws from "uWebSockets.js";
-import { PresenceStreamOutput } from "@presenti/server/dist/outputs/presence-stream";
-import { ObjectCache, PresenceCacheBuilder, StateCacheBuilder } from "@presenti/core-cache";
-import { PresenceProvider, PresenceOutput } from "@presenti/modules";
-import { PresentiAPIClient, PresenceList, PayloadType, RemotePresencePayload } from "@presenti/utils";
+import IORedis from "ioredis";
 import log from "@presenti/logging";
+import { DecentralizedPresenceStream } from "@presenti/shared-infrastructure";
+import { PresenceCacheBuilder, StateCacheBuilder, ObjectCache } from "@presenti/core-cache";
+import { PresenceOutput, PresenceProvider } from "@presenti/modules";
+import { PresentiAPIClient } from "@presenti/utils";
+import { DetachedRemoteWSAPI } from "./services/remote-ws";
 
 const port = +process.env.PRESENTI_GATEWAY_PORT! || 9283;
 const redisConfig = {
@@ -12,70 +13,44 @@ const redisConfig = {
     host: process.env.REDIS_HOST || '127.0.0.1'
 };
 
-class DetachedPresenceStreamOutput extends PresenceStreamOutput {
-    provider: DetachedPresenceGateway;
-
-    listeners: Record<string, { presence: (presence: string) => any, state: (state: string) => any }> = {};
-
-    connected(scope: string) {
-        if (this.listeners[scope]) return;
-        
-        const { presence, state } = this.listeners[scope] = {
-            presence: presence => this.broadcastPresence(scope, presence),
-            state: state => this.broadcastState(scope, state)
-        }
-
-        this.provider.presences.subscribe(scope, presence);
-        this.provider.states.subscribe(scope, state);
-    }
-
-    disconnected(scope: string) {
-        if (this.clients[scope] && this.clients[scope].length > 0) return;
-        if (!this.listeners[scope]) return;
-
-        const { presence, state } = this.listeners[scope];
-        this.listeners[scope] = undefined!;
-
-        this.provider.presences.unsubscribe(scope, presence);
-        this.provider.states.unsubscribe(scope, state);
-    }
-
-    async broadcastPresence(scope: string, presence: string) {
-        return this.broadcast(scope, JSON.stringify({
-            type: PayloadType.PRESENCE,
-            data: {
-                presence: "%presence%"
-            }
-        }).replace('"%presence%"', presence));
-    }
-
-    broadcastState(scope: string, state: string) {
-        return this.broadcast(scope, JSON.stringify({
-            type: PayloadType.STATE,
-            data: {
-                state: "%state%"
-            }
-        }).replace('"%state%"', state));
-    }
-}
-
 export class DetachedPresenceGateway implements PresenceProvider {
-    redis = new Redis(redisConfig);
-    redisEvents = new Redis(redisConfig);
     app = uws.App();
+    log = log.child({ name: "DetachedPresenceGateway" });
+    redis = new IORedis(redisConfig);
+    redisEvents = new IORedis(redisConfig);
 
     presences = PresenceCacheBuilder(this.redis, this.redisEvents);
     states = StateCacheBuilder(this.redis, this.redisEvents);
 
-    stream = new DetachedPresenceStreamOutput(this, this.app);
+    presenceStream: DecentralizedPresenceStream;
+    remoteWS: DetachedRemoteWSAPI;
 
-    log = log.child({ name: "Gateway" });
+    client: PresentiAPIClient;
 
     constructor() {
+        this.presenceStream = new DecentralizedPresenceStream(this, this.app);
+        this.remoteWS = new DetachedRemoteWSAPI(this, this.app);
         this.redisEvents.on("message", (channel, message) => ObjectCache.receiveEvent(channel, message, [this.presences, this.states]));
 
+        [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((ev: any) => process.on(ev, () => this.cleanup()));
+
         this.app.listen('0.0.0.0', port, () => {
-            this.log.info("Gateway is running and ready for connections.");
+            this.log.info(`Server is running at :${port} and is ready for connections.`);
+        });
+    }
+
+    /** Called when the process is going to exit. */
+    cleaning = false;
+    cleanup() {
+        if (this.cleaning) return;
+        this.cleaning = true;
+
+        this.log.info('Cleaning up...');
+
+        this.presences.beforeExit().then(() => {
+            this.log.info('Thank you, and goodnight.');
+
+            process.exit(0);
         });
     }
 
@@ -90,6 +65,4 @@ export class DetachedPresenceGateway implements PresenceProvider {
     subscribe(output: PresenceOutput, events: import("@presenti/modules").SubscribableEvents[]): void {
         return;
     }
-
-    client: PresentiAPIClient;
 }

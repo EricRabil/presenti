@@ -17,6 +17,9 @@
   },
   "references": [
     {
+      "path": "../auth-client"
+    },
+    {
       "path": "../logging"
     },
     {

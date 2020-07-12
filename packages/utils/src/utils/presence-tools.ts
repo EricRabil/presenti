@@ -1,11 +1,8 @@
 import deepEqual from "deep-equal";
-import { PresenceList, PresenceDictionary } from "@presenti/utils";
-import { log as logger } from "./logging";
+import { PresenceList, PresenceDictionary } from "..";
 
 /** A series of proxy builders that emit "updated" events when their contents are changed */
-export namespace PresenceMagic {
-  const log = logger.child({ name: "PresenceMagic" });
-
+export namespace PresenceTools {
   /**
    * Returns an array that will emit a changed event if the contents of it are changed.
    * @param evented event listener
@@ -60,7 +57,6 @@ export namespace PresenceMagic {
         if (Array.isArray(value) ? value.length === 0 : !value) return this.deleteProperty!(target as any, prop);
 
         if (oldExisted || value) {
-          log.debug("Presence updated for scope", { scope: prop });
           changed(prop as string);
         }
 

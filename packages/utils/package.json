@@ -24,7 +24,11 @@
   },
   "homepage": "https://github.com/EricRabil/remote-presence-utils#readme",
   "devDependencies": {
+    "@types/deep-equal": "^1.0.1",
     "typescript": "^3.9.6"
   },
-  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5"
+  "gitHead": "6f808aaff6fb5536c8eb6d73f20f1f5125fbf5e5",
+  "dependencies": {
+    "deep-equal": "^2.0.3"
+  }
 }

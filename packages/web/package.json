@@ -19,6 +19,7 @@
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"
   },
   "dependencies": {
+    "@presenti/auth-client": "^1.2.6",
     "@presenti/logging": "^1.2.6",
     "@presenti/utils": "^1.2.6",
     "ajv": "^6.12.3",

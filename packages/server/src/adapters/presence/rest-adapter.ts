@@ -4,7 +4,7 @@ import { AdapterState, PresenceDictionary, PresenceList, FIRST_PARTY_SCOPE } fro
 import * as uuid from "uuid";
 import { TemplatedApp } from "uWebSockets.js";
 import { User } from "@presenti/shared-db";
-import { PresenceMagic } from "../../utils/presence-magic";
+import { PresenceTools } from "@presenti/utils";
 import { RESTPresenceAPI } from "./api/rest-session-api";
 
 export class RESTAdapterV2 extends ScopedPresenceAdapter {
@@ -30,7 +30,7 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
   constructor(app: TemplatedApp) {
     super();
     this.api = new RESTPresenceAPI(app, this);
-    this.presences = PresenceMagic.createPresenceDictCondenser(this.presenceLedger);
+    this.presences = PresenceTools.createPresenceDictCondenser(this.presenceLedger);
   }
 
   /**
@@ -116,6 +116,6 @@ export class RESTAdapterV2 extends ScopedPresenceAdapter {
    * Creates a presence proxy that maps events to this adapter
    */
   private createPresenceTable() {
-    return PresenceMagic.createPresenceProxy<Record<string, PresenceList>>(scope => this.emit("updated", scope));
+    return PresenceTools.createPresenceProxy<Record<string, PresenceList>>(scope => this.emit("updated", scope));
   }
 }

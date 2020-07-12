@@ -29,9 +29,9 @@
   },
   "dependencies": {
     "@presenti/modules": "^1.2.6",
-    "@presenti/server": "^1.2.6",
     "@presenti/core-cache": "^1.2.6",
     "@presenti/utils": "^1.2.6",
+    "@presenti/shared-infrastructure": "^1.2.6",
     "ioredis": "^4.17.3",
     "uWebSockets.js": "uNetworking/uWebSockets.js"
   },

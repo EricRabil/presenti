@@ -17,21 +17,29 @@
     "skipLibCheck": true
   },
   "include": [
-    "src",
-    "src/**/*.ts"
+    "src", "src/**/*.ts"
   ],
   "references": [
+    {
+      "path": "../additions"
+    },
+    {
+      "path": "../client"
+    },
+    {
+      "path": "../logging"
+    },
     {
       "path": "../modules"
     },
     {
-      "path": "../server"
-    },
-    {
-      "path": "../core-cache"
+      "path": "../renderer"
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../web"
     }
   ]
 }

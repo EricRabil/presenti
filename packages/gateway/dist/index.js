@@ -3,71 +3,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ioredis_1 = __importDefault(require("ioredis"));
 const uWebSockets_js_1 = __importDefault(require("uWebSockets.js"));
-const presence_stream_1 = require("@presenti/server/dist/outputs/presence-stream");
-const core_cache_1 = require("@presenti/core-cache");
-const utils_1 = require("@presenti/utils");
+const ioredis_1 = __importDefault(require("ioredis"));
 const logging_1 = __importDefault(require("@presenti/logging"));
+const shared_infrastructure_1 = require("@presenti/shared-infrastructure");
+const core_cache_1 = require("@presenti/core-cache");
+const remote_ws_1 = require("./services/remote-ws");
 const port = +process.env.PRESENTI_GATEWAY_PORT || 9283;
 const redisConfig = {
     port: +process.env.REDIS_PORT || 6379,
     host: process.env.REDIS_HOST || '127.0.0.1'
 };
-class DetachedPresenceStreamOutput extends presence_stream_1.PresenceStreamOutput {
-    constructor() {
-        super(...arguments);
-        this.listeners = {};
-    }
-    connected(scope) {
-        if (this.listeners[scope])
-            return;
-        const { presence, state } = this.listeners[scope] = {
-            presence: presence => this.broadcastPresence(scope, presence),
-            state: state => this.broadcastState(scope, state)
-        };
-        this.provider.presences.subscribe(scope, presence);
-        this.provider.states.subscribe(scope, state);
-    }
-    disconnected(scope) {
-        if (this.clients[scope] && this.clients[scope].length > 0)
-            return;
-        if (!this.listeners[scope])
-            return;
-        const { presence, state } = this.listeners[scope];
-        this.listeners[scope] = undefined;
-        this.provider.presences.unsubscribe(scope, presence);
-        this.provider.states.unsubscribe(scope, state);
-    }
-    async broadcastPresence(scope, presence) {
-        return this.broadcast(scope, JSON.stringify({
-            type: utils_1.PayloadType.PRESENCE,
-            data: {
-                presence: "%presence%"
-            }
-        }).replace('"%presence%"', presence));
-    }
-    broadcastState(scope, state) {
-        return this.broadcast(scope, JSON.stringify({
-            type: utils_1.PayloadType.STATE,
-            data: {
-                state: "%state%"
-            }
-        }).replace('"%state%"', state));
-    }
-}
 class DetachedPresenceGateway {
     constructor() {
+        this.app = uWebSockets_js_1.default.App();
+        this.log = logging_1.default.child({ name: "DetachedPresenceGateway" });
         this.redis = new ioredis_1.default(redisConfig);
         this.redisEvents = new ioredis_1.default(redisConfig);
-        this.app = uWebSockets_js_1.default.App();
         this.presences = core_cache_1.PresenceCacheBuilder(this.redis, this.redisEvents);
         this.states = core_cache_1.StateCacheBuilder(this.redis, this.redisEvents);
-        this.stream = new DetachedPresenceStreamOutput(this, this.app);
-        this.log = logging_1.default.child({ name: "Gateway" });
+        /** Called when the process is going to exit. */
+        this.cleaning = false;
+        this.presenceStream = new shared_infrastructure_1.DecentralizedPresenceStream(this, this.app);
+        this.remoteWS = new remote_ws_1.DetachedRemoteWSAPI(this, this.app);
         this.redisEvents.on("message", (channel, message) => core_cache_1.ObjectCache.receiveEvent(channel, message, [this.presences, this.states]));
+        [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((ev) => process.on(ev, () => this.cleanup()));
         this.app.listen('0.0.0.0', port, () => {
-            this.log.info("Gateway is running and ready for connections.");
+            this.log.info(`Server is running at :${port} and is ready for connections.`);
+        });
+    }
+    cleanup() {
+        if (this.cleaning)
+            return;
+        this.cleaning = true;
+        this.log.info('Cleaning up...');
+        this.presences.beforeExit().then(() => {
+            this.log.info('Thank you, and goodnight.');
+            process.exit(0);
         });
     }
     async presence(scope) {

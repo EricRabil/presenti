@@ -5,4 +5,5 @@ export * from "./builder";
 export * from "./Constants";
 export * from "./types";
 export * from "./utils/web-log";
+export * from "./utils/presence-tools";
 export * from "./validators";

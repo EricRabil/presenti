@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "CommonJS",
+    "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -13,22 +13,17 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "resolveJsonModule": true
   },
-  "include": [
-    "src",
-    "src/**/*.ts"
-  ],
   "references": [
     {
+      "path": "../auth-client"
+    },
+    {
+      "path": "../logging"
+    },
+    {
       "path": "../modules"
-    },
-    {
-      "path": "../server"
-    },
-    {
-      "path": "../core-cache"
     },
     {
       "path": "../utils"

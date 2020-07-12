@@ -8,7 +8,6 @@ import { RemoteAdatpterV2 } from "./adapters/presence/socket-adapter";
 import { GradientState } from "./adapters/state/gradient-state";
 import { EventBus } from "./event-bus";
 import { PresenceRESTOutput } from "./outputs/presence-rest";
-import { PresenceStreamOutput } from "./outputs/presence-stream";
 import NativeClient from "./structs/native-client";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { AdapterSupervisor } from "@presenti/modules";
@@ -19,6 +18,7 @@ import { APIError, SharedPresentiWebController } from "@presenti/web";
 import { UserLoader } from "./web/middleware/loaders";
 import IORedis from "ioredis";
 import { PresenceCacheBuilder, StateCacheBuilder, ObjectCache } from "@presenti/core-cache";
+import { DecentralizedPresenceStream } from "@presenti/shared-infrastructure";
 
 export var SharedPresenceService: PresenceService;
 
@@ -40,9 +40,11 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   outputs: PresenceOutput[] = [];
   /** IORedis Connection */
   redis = new IORedis(CONFIG.cache);
+  /** IORedis event connection */
+  redisEvents = new IORedis(CONFIG.cache);
 
-  presences = PresenceCacheBuilder(this.redis);
-  states = StateCacheBuilder(this.redis);
+  presences = PresenceCacheBuilder(this.redis, this.redisEvents);
+  states = StateCacheBuilder(this.redis, this.redisEvents);
   resolvedScopes = new ObjectCache<string>("scopes", this.redis);
 
   web = {
@@ -60,6 +62,8 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
     SharedPresenceService = SharedPresentiWebController.server = this;
 
+    this.redisEvents.on("message", (channel, message) => ObjectCache.receiveEvent(channel, message, [this.presences, this.states]));
+
     this.app = App();
     this.client = new NativeClient();
     this.client.on("updated", ({ scope }) => {
@@ -73,7 +77,6 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   }
 
   bindCleanupListeners() {
-    let cleaning = false;
     [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((ev: any) => process.on(ev, () => this.cleanup()));
   }
 
@@ -85,7 +88,7 @@ export class PresenceService implements PresenceProvider, PresenceServer {
 
     this.log.info('Cleaning up...');
 
-    this.presences.beforeExit().exec().then(() => {
+    this.presences.beforeExit().then(() => {
         this.log.info('Thank you, and goodnight.');
 
         process.exit(0);
@@ -120,7 +123,7 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   }
 
   registerOutputs() {
-    this.outputs.push(new PresenceStreamOutput(this, this.app));
+    this.outputs.push(new DecentralizedPresenceStream(this, this.app));
     this.outputs.push(new PresenceRESTOutput(this, this.app));
   }
 
@@ -141,7 +144,6 @@ export class PresenceService implements PresenceProvider, PresenceServer {
 
       presences = transformed instanceof APIError ? presences : transformed;
       await this.presences.set(scope, presences);
-      return presences;
     }
 
     return (await this.presences.get(scope)) || [];
@@ -204,7 +206,6 @@ export class PresenceService implements PresenceProvider, PresenceServer {
 export * from "./adapters/presence/rest-adapter";
 export * from "./adapters/presence/socket-adapter";
 export * from "./adapters/state/gradient-state";
-export * from "./structs/socket-api-base";
 export * from "./utils";
 export * from "./web";
 
