@@ -1,8 +1,6 @@
-import { PresentiUser, SensitivePresentiUser } from "@presenti/utils";
+import { PresentiUser, SensitivePresentiUser, removeEmptyFields } from "@presenti/utils";
 import { APIError } from "@presenti/web";
 import { User } from "@presenti/shared-db";
-import { removeEmptyFields } from "../utils/object";
-import { MALFORMED_BODY } from "../Constants";
 import { FindConditions } from "typeorm";
 import { SharedPresenceService } from "..";
 
@@ -27,7 +25,7 @@ export namespace UserAPI {
    */
   export async function queryUser(query: UserQuery, full: boolean = false, sensitive: boolean = false): Promise<APIError | PresentiUser | SensitivePresentiUser> {
     query = removeEmptyFields(query) as any;
-    if (!isValidQuery(query)) return MALFORMED_BODY;
+    if (!isValidQuery(query)) return APIError.malformed;
     
     /**
      * @optimization findOne() currently selects all columns *twice*, which can double server load in certain circumstances.

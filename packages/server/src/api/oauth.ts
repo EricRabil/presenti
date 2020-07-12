@@ -1,10 +1,8 @@
-import { OAUTH_PLATFORM, PresentiUser, OAuthQuery, PipeDirection, PresentiLink, ResolvedPresentiLink, OAuthData } from "@presenti/utils";
+import { OAUTH_PLATFORM, PresentiUser, OAuthQuery, PipeDirection, PresentiLink, ResolvedPresentiLink, OAuthData, removeEmptyFields } from "@presenti/utils";
 import { APIError } from "@presenti/web";
 import { User, OAuthLink } from "@presenti/shared-db";
 import { UserAPI } from "./user";
 import logger from "@presenti/logging";
-import { removeEmptyFields } from "../utils/object";
-import { MALFORMED_BODY } from "../Constants";
 import uuidValidate from "uuid-validate";
 
 export namespace OAuthAPI {
@@ -71,7 +69,7 @@ export namespace OAuthAPI {
    * @param platform platform to query for
    */
   export async function lookupLinksForPlatform(platform: OAUTH_PLATFORM): Promise<ResolvedPresentiLink[] | APIError> {
-    if (!isValidOAuthQuery({ platform }, false)) return MALFORMED_BODY;
+    if (!isValidOAuthQuery({ platform }, false)) return APIError.malformed;
     return Promise.all(await OAuthLink.createQueryBuilder("link")
                     .leftJoinAndSelect("link.user", "user")
                     .where("platform = :platform", { platform })
@@ -117,7 +115,7 @@ export namespace OAuthAPI {
    */
   export async function createLink({ platform, platformID, userUUID, pipeDirection }: OAuthData): Promise<PresentiLink | APIError> {
     if (!platform || !platformID || !userUUID) return APIError.badRequest("The platform, platformID, and userUUID are required.");
-    if (!isValidOAuthQuery({ platform, platformID, userUUID, pipeDirection })) return MALFORMED_BODY;
+    if (!isValidOAuthQuery({ platform, platformID, userUUID, pipeDirection })) return APIError.malformed;
     if (await linkExists({ platform, userUUID })) return APIError.badRequest("A link describing this relationship already exists.");
     if (!OAUTH_PLATFORM[platform]) return APIError.notFound("Unknown platform.");
     
@@ -135,7 +133,7 @@ export namespace OAuthAPI {
    */
   async function queryLink(query: OAuthQuery) {
     query = removeEmptyFields(query) as any;
-    if (!isValidOAuthQuery(query)) return MALFORMED_BODY;
+    if (!isValidOAuthQuery(query)) return APIError.malformed;
     
     const link = await OAuthLink.findOne(query);
     if (!link) return UNKNOWN_LINK;
@@ -145,7 +143,7 @@ export namespace OAuthAPI {
 
   async function linkExists(query: OAuthQuery) {
     query = removeEmptyFields(query) as any;
-    if (!isValidOAuthQuery(query, false)) return MALFORMED_BODY;
+    if (!isValidOAuthQuery(query, false)) return APIError.malformed;
 
     const count = await OAuthLink.count(query);
     return count !== 0;

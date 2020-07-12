@@ -1,13 +1,11 @@
 import log from "@presenti/logging";
-import { AdapterState, FIRST_PARTY_SCOPE } from "@presenti/utils";
+import { AdapterState, FIRST_PARTY_SCOPE, APIError } from "@presenti/utils";
 import { BodyParser, Delete, Get, PBRequest, PBResponse, Put, RequestHandler, RouteData } from "@presenti/web";
 import { TemplatedApp } from "uWebSockets.js";
-import { API } from "@presenti/modules";
-import PBRestAPIBase from "../../../structs/rest-api-base";
-import { SecurityKit } from "../../../utils/security";
+import { API, PBRestAPIBase } from "@presenti/modules";
 import { FirstPartyGuard } from "../../../web/middleware/guards";
 import { RESTAdapterV2 } from "../rest-adapter";
-import { MALFORMED_BODY } from "../../../Constants";
+import AuthClient from "@presenti/auth-client";
 
 const InsertAdapterGuard: (generator: () => RESTAdapterV2) => RequestHandler = (generator) => (req, res, next) => {
   res.adapter = generator();
@@ -34,7 +32,7 @@ const SessionGuard: RequestHandler = async (req, res, next) => {
     return next(true);
   }
 
-  const user = await SecurityKit.validateApiKey(token);
+  const user = await AuthClient.sharedInstance.validateApiKey(token);
 
   if (!user || !res.adapter?.sessionIndex[sessionID]) {
     res.writeStatus(401).json({ error: "Invalid session or token." });
@@ -78,7 +76,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
       return;
     }
 
-    const user = await SecurityKit.validateApiKey(token);
+    const user = await AuthClient.sharedInstance.validateApiKey(token);
 
     if (!user) {
       res.writeStatus(401).json({ error: "Invalid token." });
@@ -121,7 +119,7 @@ export class RESTPresenceAPI extends PBRestAPIBase {
 
   private async updatePresence(scope: string, req: PBRequest, res: PBResponse) {
     if (!req.body?.presences) {
-      res.json(MALFORMED_BODY);
+      res.json(APIError.malformed);
       return;
     }
 

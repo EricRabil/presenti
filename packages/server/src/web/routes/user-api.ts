@@ -7,7 +7,7 @@ import { API } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { UserLoader } from "../middleware/loaders";
 import { CONFIG } from "../../utils/config";
-import { SecurityKit } from "../../utils/security";
+import AuthClient from "@presenti/auth-client";
 
 const LoginValidator = AJVGuard({
   properties: {
@@ -75,7 +75,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     const token = req.cookie('identity');
     if (!token) throw APIError.unauthorized("You are not signed in.");
 
-    res.json(await SecurityKit.apiKey(token));
+    res.json(await AuthClient.sharedInstance.apiKey(token));
   }
 
   /** Endpoint for the current user to modify the pipe direction of a given link */
@@ -113,7 +113,7 @@ export class RESTUserAPI extends PBRestAPIBase {
       newPassword: ['This field is required.']
     }));
 
-    await SecurityKit.changePassword(res.user.userID, newPassword);
+    await AuthClient.sharedInstance.changePassword(res.user.userID, newPassword);
 
     res.json({ ok: true });
   }
@@ -127,7 +127,7 @@ export class RESTUserAPI extends PBRestAPIBase {
 
     const { id: userID, password } = req.body;
 
-    const { user, token } = await SecurityKit.createToken(userID, password);
+    const { user, token } = await AuthClient.sharedInstance.createToken(userID, password);
     
     res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, path: "/" });
     res.json(user);
@@ -148,7 +148,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     }
 
     const { id: userID, password, displayName, email } = req.body;
-    const { user, token } = await SecurityKit.createUser({ userID, password, displayName, email });
+    const { user, token } = await AuthClient.sharedInstance.createUser({ userID, password, displayName, email });
 
     res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, maxAge: 60 * 2.5, path: "/" });
     res.json(user);

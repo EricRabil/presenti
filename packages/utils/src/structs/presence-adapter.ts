@@ -1,4 +1,4 @@
-import { Presence, AdapterState } from "./types";
+import { Presence, AdapterState } from "../types";
 
 export interface IEvented {
   on(event: string, listener: Function): IEvented;

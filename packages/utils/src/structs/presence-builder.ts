@@ -1,4 +1,4 @@
-import { Presence, PresenceStruct, PresenceText } from "./types";
+import { Presence, PresenceStruct, PresenceText } from "../types";
 
 export interface PresenceTransport {
   presence(presence: Presence[]): Promise<any>;

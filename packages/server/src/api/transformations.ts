@@ -2,7 +2,7 @@ import { Transformation } from "../database/entities";
 import { Brackets } from "typeorm";
 import { PresenceTransformationRecord, PresenceTransformation, PresenceStruct, TransformationModelCreateOptions, TransformationModelUpdateOptions } from "@presenti/utils";
 import { APIError } from "@presenti/web";
-import { isPresenceTransformation, applyTransformations } from "../utils/transformation";
+import { isPresenceTransformation, applyTransformations } from "@presenti/utils";
 import { UserAPI } from "./user";
 
 export interface TransformationModel {

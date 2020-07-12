@@ -1,7 +1,37 @@
 import { PresenceProvider, StateAdapter } from "@presenti/modules";
 import { AdapterState, Events, PresenceStruct } from "@presenti/utils";
 import { EventBus } from "../../event-bus";
-import { PresentiKit } from "../../utils/renderer";
+import got from "got";
+import splashy from "splashy";
+
+/** Helper functions when creating Presenti-compatible structures */
+namespace GradientKit {
+  /**
+   * Returns the base64 components of a string, or null if it is not a base64 string
+   * @param data data to analyze
+   */
+  function testBase64(data: string) {
+    const reg = /^data:image\/([\w+]+);base64,([\s\S]+)/;
+    const match = data.match(reg);
+  
+    if (!match) {
+      return null;
+    }
+  
+    return Buffer.from(match[2], "base64");
+  }
+
+  /**
+   * Generates a color palette for the given image URL
+   * @param imageURL image URL to generate for
+   */
+  export async function generatePalette(imageURL: string): Promise<string[]> {
+    const body = testBase64(imageURL) || await got(imageURL).buffer();
+    const palette = await splashy(body);
+    return palette;
+  }
+}
+
 export interface BackgroundData {
   color: string;
   transition: number;
@@ -164,6 +194,6 @@ export class GradientState extends StateAdapter {
     const link = typeof presence.image === "string" ? presence.image : presence.image?.src;
     if (!link) return;
 
-    return this.shadeCache[link] = (this.shadeCache[link] || await PresentiKit.generatePalette(link));
+    return this.shadeCache[link] = (this.shadeCache[link] || await GradientKit.generatePalette(link));
   }
 }

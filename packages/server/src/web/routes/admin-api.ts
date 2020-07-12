@@ -6,7 +6,6 @@ import { UserLoader } from "../middleware/loaders";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 import { SearchResult } from "@presenti/shared-db";
 import { UserAPI } from "../../api/user";
-import { SecurityKit } from "../../utils/security";
 
 const AttributesSchema = {
     type: "object",

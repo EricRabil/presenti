@@ -1,5 +1,5 @@
-import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange, SubscriptionPayload, DispatchPayload, RemoteStatePayload } from "./types";
-import { PayloadType } from "./types";
+import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange, SubscriptionPayload, DispatchPayload, RemoteStatePayload } from "../types";
+import { PayloadType } from "../types";
 
 export function isPresencePayload(payload: RemotePayload): payload is RemotePresencePayload {
   return payload.type === PayloadType.PRESENCE && "data" in payload;

@@ -1,5 +1,5 @@
-import { Evented, PresenceAdapter } from "./adapter";
-import { AdapterState, Presence, PayloadType, FirstPartyPresenceData, PresentiUser, OAUTH_PLATFORM, RemotePayload, PresentiLink, PipeDirection, OAuthQuery, OAuthData, ResolvedPresentiLink, Events, EventsTable } from "./types";
+import { Evented, PresenceAdapter } from "./presence-adapter";
+import { AdapterState, Presence, PayloadType, FirstPartyPresenceData, PresentiUser, OAUTH_PLATFORM, RemotePayload, PresentiLink, PipeDirection, OAuthQuery, OAuthData, ResolvedPresentiLink, Events, EventsTable } from "../types";
 
 export abstract class PresentiAPIClient extends Evented {
   adapters: PresenceAdapter[] = [];

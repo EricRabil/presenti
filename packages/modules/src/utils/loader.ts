@@ -1,8 +1,12 @@
-import { CONFIG, saveConfig } from "./config";
-import { isPresentiModule, PresentiModuleClasses } from "@presenti/modules";
-import { observeObject } from "./object";
+import { isPresentiModule, PresentiModuleClasses } from "..";
+import { observeObject } from "@presenti/utils";
 
-export async function loadModules(): Promise<PresentiModuleClasses> {
+export interface ModuleLoaderOptions {
+  config: any;
+  saveConfig(): Promise<any>;
+}
+
+export async function loadModules({ config: CONFIG, saveConfig }: ModuleLoaderOptions): Promise<PresentiModuleClasses> {
   const moduleNames = CONFIG.modules;
   const rootModule: PresentiModuleClasses = {
     Adapters: {},
@@ -31,7 +35,7 @@ export async function loadModules(): Promise<PresentiModuleClasses> {
 
       rootModule.OAuth = rootModule.OAuth!.concat(rawModule.OAuth || [])
 
-      if (typeof config === "object") rootModule.Configs[name] = observeObject(config, () => saveConfig());
+      if (typeof config === "object" && config !== null) rootModule.Configs[name] = observeObject(config, () => saveConfig());
     } catch(e) {
       console.debug(`Skipping module ${name} with error`, e);
       continue;

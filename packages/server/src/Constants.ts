@@ -12,5 +12,3 @@ try {
 }
 
 export const PRESENTI_ASSET_DIRECTORY = resolved;
-
-export const MALFORMED_BODY = APIError.badRequest("Malformed body.");

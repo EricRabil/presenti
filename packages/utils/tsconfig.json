@@ -10,6 +10,7 @@
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true
   },
   "references": []

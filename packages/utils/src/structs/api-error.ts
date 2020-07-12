@@ -1,4 +1,4 @@
-import { ErrorResponse } from "./types";
+import { ErrorResponse } from "../types";
 
 const STATUS_CODES = {
     '100': 'Continue',
@@ -124,5 +124,9 @@ export class APIError {
 
     public static forbidden(message: string = "Forbidden.") {
         return new APIError(message, 403);
+    }
+
+    public static get malformed() {
+        return APIError.badRequest("Malformed body.");
     }
 }

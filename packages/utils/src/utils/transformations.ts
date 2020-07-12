@@ -1,5 +1,12 @@
-import { PresenceStruct, PresenceImage, PresenceText, isPresentiImage, isPresentiText, TransformationType, DynamicTransformation, PropertyTransformation, PresenceTransformation } from "@presenti/utils";
-import v8 from "v8";
+import { PresenceStruct, PresenceImage, PresenceText, isPresentiImage, isPresentiText, TransformationType, DynamicTransformation, PropertyTransformation, PresenceTransformation } from "..";
+
+try {
+  /** nodejs detection */
+  var { serialize, deserialize } = require("v8");  
+} catch (e) {
+  serialize = JSON.stringify;
+  deserialize = JSON.parse;
+}
 
 function isDynamicTransformation(obj: any): obj is DynamicTransformation {
   return typeof obj["type"] === "string"
@@ -96,28 +103,28 @@ function applyTransformation(presence: PresenceStruct, transformation: PresenceT
   if (transformation.property && !presence[transformation.property]) return presence;
   const matcher = isDynamicTransformation(transformation) ? createMatcher(transformation.match) : isPropertyTransformation(transformation) ? createKeyedMatcher(transformation.property, transformation.match || '') : (key, value) => false;
   const transformTargets = Object.entries(presence).filter(([key, value]) => matcher(key as keyof PresenceStruct, value));
-  for (let [key] of transformTargets) {
+  for (let [key] of transformTargets as [keyof PresenceStruct, any][]) {
     if (typeof presence[key] === 'string') {
       switch (transformation.type) {
         case TransformationType.REPLACE:
           if (transformation.match && transformation.value) {
-            presence[key] = presence[key].replace(transformation.match, transformation.value);
+            (presence as any)[key] = (presence[key] as string).replace(transformation.match, transformation.value);
           }
           break;
         case TransformationType.SET:
           if (transformation.value) {
-            presence[key] = transformation.value;
+            (presence as any)[key] = transformation.value
           }
           break;
         case TransformationType.DELETE:
-          presence[key] = null;
+            (presence as any)[key] = null;
           break;
       }
       continue;
     }
 
-    if (isPresentiImage(presence[key])) presence[key] = applyTransformationToImage(presence[key], transformation);
-    else if (isPresentiText(presence[key])) presence[key] = applyTransformationToText(presence[key], transformation);
+    if (isPresentiImage(presence[key])) (presence as any)[key] = applyTransformationToImage(presence[key] as PresenceImage, transformation);
+    else if (isPresentiText(presence[key])) (presence as any)[key] = applyTransformationToText(presence[key] as PresenceText, transformation);
   }
   return presence;
 }
@@ -132,5 +139,5 @@ export function applyTransformations(presence: PresenceStruct, transformations: 
   return transformations.reduce((presence, transformation) => (
     applyTransformation(presence, transformation)
     /** use a deep clone of the presence to not mutate the original data */
-  ), v8.deserialize(v8.serialize(presence)) as PresenceStruct)
+  ), deserialize(serialize(presence)) as PresenceStruct)
 }
