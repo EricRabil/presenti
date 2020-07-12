@@ -9,10 +9,21 @@ export interface UserCreationOptions {
     userID: string;
 }
 
+var sharedInstance: AuthClient;
+
 export default class AuthClient extends AJAXClient {
-    constructor(options: AJAXClientOptions) {
+    private constructor(options: AJAXClientOptions) {
         options.ajax = Object.assign({}, (options.ajax || {}), { noAPIInject: true } as RequestOptions)
         super(options);
+    }
+
+    static setup(options: AJAXClientOptions) {
+        if (sharedInstance) return new AuthClient(options);
+        return sharedInstance = new AuthClient(options);
+    }
+    
+    static get sharedInstance() {
+        return sharedInstance;
     }
 
     createUser(body: UserCreationOptions): Promise<{ user: PresentiUser, token: string }> {

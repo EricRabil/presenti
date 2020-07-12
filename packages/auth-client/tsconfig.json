@@ -26,6 +26,9 @@
     },
     {
       "path": "../client"
+    },
+    {
+      "path": "../utils"
     }
   ]
 }
