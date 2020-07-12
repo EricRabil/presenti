@@ -149,8 +149,15 @@ export interface RemotePresencePayload {
   type: PayloadType.PRESENCE;
   data: {
     presence: PresenceStruct[];
-    state: Record<string, any>;
+    state?: Record<string, any>;
   };
+}
+
+export interface RemoteStatePayload {
+  type: PayloadType.STATE;
+  data: {
+    state: Record<string, any>;
+  }
 }
 
 export interface FirstPartyPresenceData {
@@ -196,7 +203,7 @@ export interface DispatchPayload<T extends Events = any> {
 }
 
 export enum PayloadType {
-  PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4, PRESENCE_FIRST_PARTY = 5, SUBSCRIBE = 6, UNSUBSCRIBE = 7, DISPATCH = 8
+  PING = 0, PONG = 1, PRESENCE = 2, IDENTIFY = 3, GREETINGS = 4, PRESENCE_FIRST_PARTY = 5, SUBSCRIBE = 6, UNSUBSCRIBE = 7, DISPATCH = 8, STATE = 9
 }
 
 export enum API_ROUTES {

@@ -1,4 +1,4 @@
-import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange, SubscriptionPayload, DispatchPayload } from "./types";
+import { RemotePayload, RemotePresencePayload, FirstPartyPresencePayload, IdentifyPayload, PingPayload, PongPayload, GreetingsPayload, PresenceStruct, PresenceText, PresenceImage, PresenceTimeRange, SubscriptionPayload, DispatchPayload, RemoteStatePayload } from "./types";
 import { PayloadType } from "./types";
 
 export function isPresencePayload(payload: RemotePayload): payload is RemotePresencePayload {
@@ -41,6 +41,12 @@ export function isDispatchPayload(payload: RemotePayload): payload is DispatchPa
       && typeof payload.data === "object"
       && typeof payload.data.event === "number"
       && typeof payload.data.data !== "undefined";
+}
+
+export function isStatePayload(payload: RemotePayload): payload is RemoteStatePayload {
+  return (payload.type === PayloadType.STATE)
+      && typeof payload.data === "object"
+      && typeof payload.data.state === "object";
 }
 
 export function isPresentiText(obj: any): obj is PresenceText {
@@ -141,4 +147,5 @@ export const PayloadValidators: Record<PayloadType, (payload: RemotePayload) => 
   [PayloadType.SUBSCRIBE]: isSubscriptionPayload,
   [PayloadType.UNSUBSCRIBE]: isSubscriptionPayload,
   [PayloadType.DISPATCH]: isDispatchPayload,
+  [PayloadType.STATE]: isStatePayload
 };
