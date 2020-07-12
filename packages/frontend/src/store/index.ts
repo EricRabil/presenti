@@ -19,7 +19,5 @@ export default new Vuex.Store({
     router: routerModule,
     platforms: platformsModule
   },
-  plugins: [
-    
-  ]
+  plugins: []
 });

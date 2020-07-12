@@ -5,6 +5,8 @@ import Login from "@/views/Login.vue";
 import Settings from "@/views/Settings.vue";
 import store from "@/store";
 
+const Admin = () => import("@/views/Admin.vue");
+
 Vue.use(VueRouter);
 
 const routes: RouteConfig[] = [
@@ -47,6 +49,11 @@ const routes: RouteConfig[] = [
       name: "Settings",
       path: ":section"
     }]
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin
   }
 ];
 
@@ -54,16 +61,6 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
-});
-
-/** Ensures the user is logged in before accessing the website */
-router.beforeEach((to, from, next) => {
-  if (to.path !== "/login" && !store.getters["user/isAuthenticated"]) {
-    store.commit("router/updateLoginRedirect", to.path);
-    next("/login");
-  } else {
-    next();
-  }
 });
 
 export default router;

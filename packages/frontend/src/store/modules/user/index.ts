@@ -4,11 +4,11 @@ import getters from "./getters";
 import mutations from "./mutations";
 
 export interface UserState {
-  model: PresentiUser | null;
+  model: PresentiUser | undefined | null;
 }
 
 const state: UserState = {
-  model: null
+  model: undefined
 };
 
 export default {

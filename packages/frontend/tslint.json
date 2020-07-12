@@ -19,6 +19,8 @@
     "no-empty": false,
     "max-line-length": false,
     "no-var-requires": false,
-    "no-shadowed-variable": false
+    "no-shadowed-variable": false,
+    "curly": false,
+    "no-namespace": false
   }
 }

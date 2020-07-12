@@ -8,8 +8,8 @@
     <section class="modal-card-body">
       <h5 class="title is-5">API Key</h5>
       <h6 class="subtitle is-6">Make sure to copy your API key – you can only see it once!</h6>
-      <pre class="key-container">{{key}}</pre>
       <error v-model="error" />
+      <pre v-if="key" class="key-container">{{key}}</pre>
     </section>
     <footer class="modal-card-foot">
       <button class="button" type="button" @click="$parent.close()">Close</button>
@@ -25,10 +25,16 @@ import Buefy from "buefy";
 import { Component, Vue } from "vue-property-decorator";
 import apiClient from "../../api";
 import { WebLogger, APIError } from "@presenti/utils";
+import { Prop } from "vue-property-decorator";
+
+const log = new WebLogger("APIKeyGenerator", console);
 
 @Component
 export default class APIKeyGenerator extends Vue {
-  public key: string = "";
+  @Prop()
+  existingKey: string;
+
+  public key: string = this.existingKey || "";
   public error: APIError | null = null;
 
   public async created() {

@@ -23,6 +23,9 @@
           Remote API (WebSocket)
         </b-navbar-item>
       </b-navbar-dropdown>
+      <b-navbar-item v-if="admin" tag="router-link" active-class="is-active" to="/admin">
+        Admin
+      </b-navbar-item>
     </template>
     <template slot="end">
       <fade>
@@ -63,6 +66,10 @@ export default class Nav extends Vue {
 
   get name() {
     return this.$store.getters["user/name"];
+  }
+
+  get admin() {
+    return this.$store.getters["user/admin"];
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="login section columns is-centered">
-    <div class="column is-one-third">
+    <div class="column is-one-fourth">
       <h1 class="title is-3">Sign into Presenti</h1>
       <hr>
       <p>
@@ -11,7 +11,7 @@
         By signing into Presenti, you are agreeing to our Terms of Service and Privacy Policy.
       </p>
     </div>
-    <div class="column is-one-third">
+    <div class="column is-one-fourth">
         <b-tabs v-model="activeTab" class="box">
           <error v-model="error" />
           <b-loading v-if="loading" :is-full-page="false" :active.sync="loading" />
@@ -45,6 +45,7 @@
 
               <BInputWithValidation
                 @keyup.native.enter="passes(submit)"
+                :errors="errors.password"
                 rules="required"
                 type="password"
                 label="Password"
@@ -75,7 +76,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { ValidationObserver } from "vee-validate";
 import BInputWithValidation from "../components/inputs/BInputWithValidation.vue";
-import apiClient from "../api";
+import apiClient, { GENERIC_ERROR } from "../api";
 import { isErrorResponse } from "@presenti/client";
 import { APIError } from "@presenti/utils";
 
@@ -91,6 +92,8 @@ export default class Login extends Vue {
   private password: string = "";
   private confirmation: string = "";
   private userID: string = "";
+  private email: string = "";
+  private displayName: string = "";
   private token: string | null = null;
   private loading: boolean = false;
 
@@ -137,8 +140,29 @@ export default class Login extends Vue {
     this.loading = false;
   }
 
+  get body() {
+    const base = { id: this.userID, password: this.password };
+    var merge = {};
+
+    if (this.activeTab === 1) {
+      merge = { displayName: this.displayName, email: this.email };
+    }
+
+    return Object.assign(base, merge);
+  }
+
   private url(path: string): string {
     return (new URL(path, "http://127.0.0.1:8138")).toString();
   }
 }
 </script>
+
+<style lang="scss">
+.field.is-grouped.validating-group {
+  margin: 0;
+
+  & > .field.is-expanded {
+    margin-bottom: 0;
+  }
+}
+</style>

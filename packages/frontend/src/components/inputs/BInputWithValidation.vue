@@ -3,6 +3,7 @@
     :vid="vid"
     :name="$attrs.name || $attrs.label"
     :rules="rules"
+    :class="{'field is-expanded': expand}"
     v-slot="{ errors: validationErrors, valid }"
   >
     <b-field
@@ -34,8 +35,11 @@ export default class BInputWithValidation extends Vue {
   @Prop({ default: null })
   public value: any;
 
-  @Prop({ default: null })
-  public error: string | null;
+  @Prop()
+  errors: string[];
+
+  @Prop()
+  expanded: any;
 
   public innerValue: any = "";
 
@@ -48,6 +52,10 @@ export default class BInputWithValidation extends Vue {
   public mounted() {
     this.$watch("innerValue", (val) => this.$emit("input", val));
     this.$watch("value", (val) => this.innerValue = val);
+  }
+
+  get expand() {
+    return typeof this.expanded !== "undefined";
   }
 
   get hasError() {
