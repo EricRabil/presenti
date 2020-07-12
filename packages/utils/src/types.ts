@@ -281,7 +281,9 @@ export interface EventsTable {
 }
 
 export function isRemotePayload(payload: any): payload is RemotePayload {
-  return "type" in payload;
+  return typeof payload === "object"
+      && payload !== null
+      && "type" in payload;
 }
 
 /** Modules */
