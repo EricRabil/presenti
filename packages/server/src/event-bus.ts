@@ -1,4 +1,4 @@
-import { Events, OAUTH_PLATFORM, PresenceList, PresentiLink, PresentiUser, EventsTable } from "@presenti/utils";
+import { Events, EventsTable } from "@presenti/utils";
 import { EventEmitter } from "events";
 
 export declare interface EventBus extends NodeJS.EventEmitter {

@@ -8,7 +8,6 @@ import { API, GlobalGuards } from "@presenti/modules";
 import PBRestAPIBase from "../../structs/rest-api-base";
 import { PRESENTI_ASSET_DIRECTORY, STATIC_DIRECTORY, VIEWS_DIRECTORY } from "../../Constants";
 import { UserLoader, OAuthLoader } from "../middleware/loaders";
-import { IdentityGuardFrontend } from "../middleware/guards";
 
 /** Frontend routes */
 export default class Frontend extends PBRestAPIBase {
@@ -118,7 +117,5 @@ export default class Frontend extends PBRestAPIBase {
     }
     
     await walk();
-
-    console.log(mappings);
   }
 }

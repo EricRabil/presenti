@@ -9,8 +9,10 @@ import { CONFIG } from "./utils/config";
 import { loadModules } from "./utils/modules";
 import { SecurityKit } from "./utils/security";
 import { Shell } from "./utils/shell";
+import { DebugKit } from "./utils/debug";
 import { WebRoutes } from "./web";
 import * as Constants from "./Constants";
+import { Mailer } from "./utils/mailer";
 import { TransformationsAPI } from "./api/transformations";
 
 process.on("unhandledRejection", e => {
@@ -27,7 +29,7 @@ const service = new PresenceService(CONFIG.port, async token => SecurityKit.vali
 
 const routes = WebRoutes.initialize(service.app);
 const database = new Database();
-const shell = new Shell({ service, SecurityKit, adapterSupervisor: SharedAdapterSupervisor, TransformationsAPI, stateSupervisor: SharedStateSupervisor, ...routes, database, ...entities, CONFIG, Constants });
+const shell = new Shell({ service, SecurityKit, DebugKit, adapterSupervisor: SharedAdapterSupervisor, TransformationsAPI, stateSupervisor: SharedStateSupervisor, Mailer, ...routes, database, ...entities, CONFIG, Constants });
 loadModules().then(({ Adapters, Entities, Configs, Outputs, OAuth }) => {
   database.connect(Object.values(Entities)).then(async () => {
     try {
