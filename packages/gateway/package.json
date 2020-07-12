@@ -1,0 +1,41 @@
+{
+  "name": "@presenti/gateway",
+  "version": "1.2.6",
+  "description": "Presenti Gateway service",
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "homepage": "https://github.com/EricRabil/presenti#readme",
+  "license": "ISC",
+  "private": true,
+  "main": "lib/gateway.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/presenti.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/EricRabil/presenti/issues"
+  },
+  "dependencies": {
+    "@presenti/modules": "^1.2.6",
+    "@presenti/server": "^1.2.6",
+    "@presenti/core-cache": "^1.2.6",
+    "@presenti/utils": "^1.2.6",
+    "ioredis": "^4.17.3",
+    "uWebSockets.js": "uNetworking/uWebSockets.js"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.17.1"
+  }
+}
