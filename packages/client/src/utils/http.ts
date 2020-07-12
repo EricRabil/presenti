@@ -90,14 +90,6 @@ export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXPro
   constructor(options: AJAXClientOptions) {
     super(options);
 
-    this.log.debug(`Initialized AJAX Client with the following configuration:`, {
-      baseURL: this.baseURL,
-      mixinHeaders: this.mixinHeaders,
-      ajax: this.ajax,
-      secure: this.secure,
-      host: this.host
-    });
-
     this.delete = this.del;
   }
 
