@@ -68,7 +68,7 @@ import { ValidationObserver } from "vee-validate";
 import BInputWithValidation from "../inputs/BInputWithValidation.vue";
 import APIKeyGenerator from "../partials/APIKeyGenerator.vue";
 import apiClient from "../../api";
-import { PresentiError } from "@presenti/client";
+import { APIError } from "@presenti/utils";
 
 @Component({
   components: {
@@ -92,13 +92,14 @@ export default class Security extends Vue {
     observer: InstanceType<typeof ValidationObserver>;
   };
 
+  /** @todo port to new error system */
   public async changePassword() {
     const { password, newPassword } = this;
 
     try {
-      var result = await apiClient.changePassword({ password, newPassword });
+      await apiClient.changePassword({ password, newPassword });
     } catch (e) {
-      if (!e || !e.fields || !(e instanceof PresentiError) || typeof e === "undefined") {
+      if (!e || !e.fields || !(e instanceof APIError) || typeof e === "undefined") {
         this.$buefy.toast.open({ type: "is-danger", message: "Sorry, we couldn't change your password." });
         return;
       }

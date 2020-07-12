@@ -13,6 +13,7 @@
     </div>
     <div class="column is-one-third">
         <b-tabs v-model="activeTab" class="box">
+          <error v-model="error" />
           <b-loading v-if="loading" :is-full-page="false" :active.sync="loading" />
           <b-tab-item label="Login">
             <ValidationObserver tag="form" v-slot="{ passes }">
@@ -34,7 +35,13 @@
           </b-tab-item>
           <b-tab-item label="Signup">
             <ValidationObserver tag="form" v-slot="{ passes }">
-              <BInputWithValidation @keyup.native.enter="passes(submit)" rules="required" label="User ID" v-model="userID"/>
+              <b-field class="validating-group" grouped>
+                <BInputWithValidation @keyup.native.enter="passes(submit)" rules="required" label="User ID" vid="userID" :errors="errors.userID" v-model="userID" expanded />
+
+                <BInputWithValidation @keyup.native.enter="passes(submit)" rules="required" label="Display Name" vid="displayName" :errors="errors.displayName" v-model="displayName" expanded />
+              </b-field>
+
+              <BInputWithValidation @keyup.native.enter="passes(submit)" rules="required|email" type="email" vid="email" label="Email" :errors="errors.email" v-model="email"/>
 
               <BInputWithValidation
                 @keyup.native.enter="passes(submit)"
@@ -70,6 +77,7 @@ import { ValidationObserver } from "vee-validate";
 import BInputWithValidation from "../components/inputs/BInputWithValidation.vue";
 import apiClient from "../api";
 import { isErrorResponse } from "@presenti/client";
+import { APIError } from "@presenti/utils";
 
 @Component({
   components: {
@@ -86,6 +94,9 @@ export default class Login extends Vue {
   private token: string | null = null;
   private loading: boolean = false;
 
+  private errors: Record<string, string[]> = {};
+  private error: APIError | null = null;
+
   public beforeMount() {
     if (this.$store.getters["user/isAuthenticated"]) {
       this.$router.push("/");
@@ -97,7 +108,22 @@ export default class Login extends Vue {
 
     const { userID, password } = this;
 
-    const json = await apiClient[this.activeTab === 0 ? "login" : "signup"]({ id: userID, password });
+    try {
+      var json = await apiClient[this.activeTab === 0 ? "login" : "signup"](this.body as any);
+    } catch (e) {
+      if (e instanceof APIError) {
+        if (e.items) this.errors = e.items;
+        else if (e.message) this.error = e;
+        else return;
+
+        return this.loading = false;
+      }
+
+      this.error = GENERIC_ERROR;
+      this.loading = false;
+
+      return;
+    }
 
     if (isErrorResponse(json)) {
       /** @todo handle error */

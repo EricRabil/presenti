@@ -3,12 +3,12 @@
     :vid="vid"
     :name="$attrs.name || $attrs.label"
     :rules="rules"
-    v-slot="{ errors, valid }"
+    v-slot="{ errors: validationErrors, valid }"
   >
     <b-field
       v-bind="$attrs"
-      :type="{ 'is-danger': error || errors[0], 'is-success': valid }"
-      :message="error || errors"
+      :type="{ 'is-danger': hasError || validationErrors[0], 'is-success': valid }"
+      :message="errors || validationErrors"
     >
       <b-input v-on="$listeners" v-model="innerValue" v-bind="$attrs"></b-input>
     </b-field>
@@ -48,6 +48,10 @@ export default class BInputWithValidation extends Vue {
   public mounted() {
     this.$watch("innerValue", (val) => this.$emit("input", val));
     this.$watch("value", (val) => this.innerValue = val);
+  }
+
+  get hasError() {
+    return this.errors?.length > 0 || false;
   }
 }
 </script>

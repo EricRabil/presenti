@@ -1,4 +1,5 @@
 import { BaseClient, BaseClientOptions } from "./base-client";
+import { APIError } from "@presenti/utils";
 
 export type ParamsStruct = Record<string, string | number | boolean | any>;
 export type BodyStruct = object;
@@ -54,12 +55,11 @@ export namespace AJAXKit {
       ...options
     };
 
-    try {
-      const r = await fetch(urlComponents.toString(), fetchOptions);
-      return await r.json();
-    } catch {
-      return null;
+    const result = await fetch(urlComponents.toString(), fetchOptions).then(res => res.json());
+    if (result.error) {
+      throw APIError.from(result);
     }
+    return result;
   }
 }
 

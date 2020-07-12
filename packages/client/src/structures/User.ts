@@ -1,8 +1,7 @@
 import { Base } from "./Base";
-import { PresentiUser, OAUTH_PLATFORM, PresentiLink, ErrorResponse, PresenceStruct } from "@presenti/utils/src";
+import { PresentiUser, OAUTH_PLATFORM, PresentiLink, ErrorResponse, PresenceStruct, APIError } from "@presenti/utils";
 import { RemoteClient, isErrorResponse } from "../RemoteClient";
 import { PRESENCE_SCRAPE } from "../Constants";
-import { PresentiError } from "../utils/api-error";
 
 
 export class User extends Base implements PresentiUser {
@@ -11,6 +10,7 @@ export class User extends Base implements PresentiUser {
   userID: string;
   platforms: Record<OAUTH_PLATFORM, PresentiLink> | null;
   excludes: string[];
+  attributes: PresentiUser['attributes'];
 
   constructor(client: RemoteClient, data?: PresentiUser) {
     super(client);
@@ -24,6 +24,7 @@ export class User extends Base implements PresentiUser {
     this.userID = data.userID || this.userID;
     this.platforms = data.platforms || this.platforms;
     this.excludes = data.excludes || this.excludes;
+    this.attributes = data.attributes || this.attributes;
   }
 
   /**
@@ -33,7 +34,7 @@ export class User extends Base implements PresentiUser {
     const res = await this.ajax.get(PRESENCE_SCRAPE(this.userID));
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
 
     return res.presences;
@@ -47,7 +48,8 @@ export class User extends Base implements PresentiUser {
       displayName,
       userID,
       platforms,
-      excludes
+      excludes,
+      attributes: this.attributes
     }
   }
 }

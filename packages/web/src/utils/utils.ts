@@ -5,12 +5,14 @@ import mime from "mime-types";
 import pug from "pug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import log from "@presenti/logging";
-import { ErrorResponse } from "@presenti/utils";
+import { ErrorResponse, APIError } from "@presenti/utils";
 import body from "./normalizers/body";
 import { PBRequest, PBResponse, RequestHandler, HTTPMethod } from "./types";
 import params from "./normalizers/params";
 
 export class MiddlewareTimeoutError extends Error { }
+
+export { APIError }
 
 /** Metadata for a Route */
 export interface RouteData {
@@ -248,56 +250,6 @@ export function wrapResponse(res: HttpResponse, templateResolver: (file: string)
 }
 
 /**
- * Structure for API-related errors, to be serialized/handled in whatever context needed
- */
-export class APIError {
-  constructor(public message: string, public code: number = 400, public items: string[] = []) {}
-
-  public fields(...fields: string[] | string[][]) {
-    this.items = this.items.concat(...fields);
-    return this;
-  }
-
-  public get json(): ErrorResponse {
-    return {
-      error: this.message,
-      code: this.code,
-      fields: this.items.length > 0 ? this.items : undefined
-    }
-  }
-
-  public get httpCode() {
-    const httpMessage = STATUS_CODES[this.code];
-    if (!httpMessage) return this.code.toString();
-    return `${this.code} ${STATUS_CODES[this.code]}`;
-  }
-
-  public static notFound(message: string = "Unknown resource.") {
-    return new APIError(message, 404);
-  }
-
-  public static badRequest(message: string = "Bad request.") {
-    return new APIError(message, 400);
-  }
-
-  public static internal(message: string = "Internal error.") {
-    return new APIError(message, 500);
-  }
-
-  public static timeout(message: string = "Service timeout.") {
-    return new APIError(message, 502);
-  }
-
-  public static unauthorized(message: string = "Unauthorized.") {
-    return new APIError(message, 401);
-  }
-
-  public static forbidden(message: string = "Forbidden.") {
-    return new APIError(message, 403);
-  }
-}
-
-/**
  * Runs a stack of middleware with the given request and response
  * @param req request object
  * @param res response object
@@ -313,18 +265,22 @@ export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PB
     let didComplete = false;
     try {
       const stop: any = await new Promise(async (resolve, reject) => {
-        if (middleware.indexOf(fn) !== (middleware.length - 1)) {
-          /** Halts execution if a middleware takes longer than 2.5s */
-          setTimeout(() => {
-            if (didComplete || res._ended) return;
-            res.writeStatus(502).json({ error: "Execution timeout." });
-            reject(new MiddlewareTimeoutError('Middleware did not complete within the timeout.'));
-          }, 2500);
-          await fn(req, res, resolve, reject);
-        } else {
-          /** Final handler in stack */
-          await fn(req, res, () => null, () => null);
-          resolve();
+        try {
+          if (middleware.indexOf(fn) !== (middleware.length - 1)) {
+            /** Halts execution if a middleware takes longer than 2.5s */
+            setTimeout(() => {
+              if (didComplete || res._ended) return;
+              res.writeStatus(502).json({ error: "Execution timeout." });
+              reject(new MiddlewareTimeoutError('Middleware did not complete within the timeout.'));
+            }, 2500);
+            await fn(req, res, resolve, reject);
+          } else {
+              /** Final handler in stack */
+              await fn(req, res, () => null, () => null);
+              resolve();
+          }
+        } catch (e) {
+          reject(e);
         }
       });
       didComplete = true;
@@ -334,7 +290,11 @@ export async function runMiddleware(metadata: RouteData, req: PBRequest, res: PB
       }
     } catch (e) {
       didComplete = true;
-      log.error('Failed to process route handling', e);
+      if (e instanceof APIError) {
+        return res.json(e);
+      }
+      log.error(`Unhandled error during route handling`);
+      console.error(e);
       return;
     }
   }

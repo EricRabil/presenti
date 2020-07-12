@@ -1,4 +1,4 @@
-import { OAuthModuleDefinition } from "@presenti/utils/src";
+import { OAuthModuleDefinition } from "@presenti/utils";
 
 export class ClientStore {
   platforms: Record<string, OAuthModuleDefinition> = {};

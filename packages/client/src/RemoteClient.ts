@@ -1,4 +1,4 @@
-import { ErrorResponse, Events, EventsTable, isDispatchPayload, OAuthData, OAuthModuleDefinition, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink, PresenceStruct, PresenceTransformationRecord, TransformationModelCreateOptions, TransformationModelUpdateOptions, SuccessResponse } from "@presenti/utils";
+import { ErrorResponse, Events, EventsTable, isDispatchPayload, OAuthData, OAuthModuleDefinition, OAuthQuery, OAUTH_PLATFORM, PayloadType, PipeDirection, Presence, PresentiAPIClient, PresentiLink, PresentiUser, RemotePayload, ResolvedPresentiLink, PresenceStruct, PresenceTransformationRecord, TransformationModelCreateOptions, TransformationModelUpdateOptions, SuccessResponse, APIError } from "@presenti/utils";
 import { AJAXClient, AJAXClientOptions } from "./utils/http";
 import { SocketClient, SocketClientOptions } from "./utils/socket";
 import { USER_LOOKUP, OAUTH_LINK, OAUTH_LINK_BULK, OAUTH_RESOLVE, PRESENCE_PIPE, PRESENCE_SCRAPE, USER_PIPE_MANAGE, USER_RESOLVE, USER_ME, USER_AUTH, USER_LOGOUT, USER_SIGNUP, USER_API_KEY, USER_CHANGE_PW, PLATFORMS, TRANSFORMATIONS, TRANSFORMATION_ID } from "./Constants";
@@ -6,7 +6,6 @@ import { Transformation } from "./structures/Transformation";
 import { ClientStore } from "./stores/ClientStore";
 import { ClientUser } from "./structures/ClientUser";
 import { User } from "./structures/User";
-import { PresentiError } from "./utils/api-error";
 import { Pipe } from "./structures/Pipe";
 
 export interface RemoteClientOptions extends AJAXClientOptions, SocketClientOptions {
@@ -77,7 +76,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     if (isErrorResponse(result)) {
       if (result.code === 404) return null;
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return new User(this, result);
@@ -88,7 +87,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     if (isErrorResponse(result)) {
       if (result.code === 404) return null;
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return new Pipe(this, result);
@@ -104,7 +103,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     if (isErrorResponse(result)) {
       if (result.code === 404) return null;
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return new User(this, result);
@@ -119,7 +118,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     if (isErrorResponse(result)) {
       if (result.code === 404) return null;
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return new Pipe(this, result);
@@ -155,7 +154,7 @@ export class RemoteClient extends PresentiAPIClient {
 
     if (isErrorResponse(result)) {
       if (result.code === 404) return null;
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return this.user = new ClientUser(this, result);
@@ -164,7 +163,7 @@ export class RemoteClient extends PresentiAPIClient {
   async login(body: { id: string, password: string }): Promise<PresentiUser> {
     const result = await this.ajax.post(USER_AUTH, { body });
 
-    if (isErrorResponse(result)) throw new PresentiError(result);
+    if (isErrorResponse(result)) throw APIError.from(result);
 
     return this.user = new ClientUser(this, result);
   }
@@ -173,10 +172,10 @@ export class RemoteClient extends PresentiAPIClient {
     return (await this.whoami())?.logout() as any;
   }
 
-  async signup(body: { id: string, password: string }): Promise<ClientUser> {
+  async signup(body: { id: string, email: string, displayName: string, password: string }): Promise<ClientUser> {
     const result = await this.ajax.post(USER_SIGNUP, { body });
 
-    if (isErrorResponse(result)) throw new PresentiError(result);
+    if (isErrorResponse(result)) throw APIError.from(result);
 
     return this.user = new ClientUser(this, result);
   }

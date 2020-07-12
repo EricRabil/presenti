@@ -12,6 +12,7 @@ import App from "./App.vue";
 import Nav from "./components/partials/Nav.vue";
 import OAuthIcon from "./components/partials/OAuthIcon.vue";
 import Fade from "./components/transitions/Fade.vue";
+import ErrorRenderer from "./components/partials/ErrorRenderer.vue";
 import router from "./router";
 import store from "./store";
 import "./validation";
@@ -32,6 +33,7 @@ Vue.component("navigator", Nav);
 Vue.component("font-awesome-icon", FontAwesomeIcon);
 Vue.component("oauth-icon", OAuthIcon);
 Vue.component("status-renderer", StatusRenderer);
+Vue.component("error", ErrorRenderer);
 
 Vue.config.productionTip = false;
 

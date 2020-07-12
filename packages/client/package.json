@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@presenti/utils": "^1.2.6",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.0.0-beta.7",
     "winston": "^3.2.1",
     "ws": "^7.2.3"
   },

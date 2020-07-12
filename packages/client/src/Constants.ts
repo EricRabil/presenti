@@ -1,4 +1,4 @@
-import { OAUTH_PLATFORM } from "@presenti/utils/src";
+import { OAUTH_PLATFORM } from "@presenti/utils";
 
 /** instance metadata */
 export const PLATFORMS =                                       "/platforms";

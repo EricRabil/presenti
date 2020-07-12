@@ -1,8 +1,7 @@
 import { Base } from "./Base";
-import { PresentiLink, OAUTH_PLATFORM, PipeDirection } from "@presenti/utils/src";
+import { PresentiLink, OAUTH_PLATFORM, PipeDirection, APIError } from "@presenti/utils";
 import { RemoteClient, isErrorResponse } from "../RemoteClient";
 import { PRESENCE_PIPE, USER_PIPE_MANAGE, OAUTH_LINK, OAUTH_RESOLVE } from "../Constants";
-import { PresentiError } from "../utils/api-error";
 import { User } from "./User";
 
 export class Pipe extends Base implements PresentiLink {
@@ -37,7 +36,7 @@ export class Pipe extends Base implements PresentiLink {
     }});
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
 
     return;
@@ -51,7 +50,7 @@ export class Pipe extends Base implements PresentiLink {
     const result = await this.ajax.patch((this.clientUserOwnsPipe ? USER_PIPE_MANAGE : PRESENCE_PIPE)(this.uuid), { body: { direction }});
     
     if (isErrorResponse(result)) {
-      throw new PresentiError(result);
+      throw APIError.from(result);
     }
 
     return this._patch(result);

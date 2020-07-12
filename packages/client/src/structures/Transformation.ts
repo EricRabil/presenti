@@ -1,8 +1,7 @@
-import { PresenceTransformationRecord, PresenceTransformation, SuccessResponse, ErrorResponse, TransformationModelUpdateOptions } from "@presenti/utils/src";
+import { PresenceTransformationRecord, PresenceTransformation, SuccessResponse, ErrorResponse, TransformationModelUpdateOptions, APIError } from "@presenti/utils";
 import { RemoteClient, isErrorResponse } from "../RemoteClient";
 import { Base } from "./Base";
 import { TRANSFORMATION_ID } from "../Constants";
-import { PresentiError } from "../utils/api-error";
 
 export class Transformation extends Base implements PresenceTransformationRecord {
   uuid: string;
@@ -29,7 +28,7 @@ export class Transformation extends Base implements PresenceTransformationRecord
     const res = await this.ajax.delete(TRANSFORMATION_ID(this.uuid));
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
   }
 
@@ -41,7 +40,7 @@ export class Transformation extends Base implements PresenceTransformationRecord
     const res = await this.ajax.patch(TRANSFORMATION_ID(this.uuid), { body: options });
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
 
     return this._patch(res);

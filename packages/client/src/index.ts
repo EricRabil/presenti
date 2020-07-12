@@ -1,7 +1,6 @@
 import "./socket-polyfill";
 export * from "./RemoteClient";
 export * from "./PresenceStream";
-export * from "./utils/api-error";
 export * from "./utils/base-client";
 export * from "./utils/http";
 export * from "./utils/socket";

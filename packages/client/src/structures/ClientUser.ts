@@ -1,8 +1,7 @@
 import { User } from "./User";
 import { USER_CHANGE_PW, USER_API_KEY, USER_LOGOUT } from "../Constants";
 import { isErrorResponse, RemoteClient } from "../RemoteClient";
-import { ErrorResponse, PresentiUser } from "@presenti/utils/src";
-import { PresentiError } from "../utils/api-error";
+import { ErrorResponse, PresentiUser, APIError } from "@presenti/utils";
 
 export interface ChangePasswordOptions {
   password: string;
@@ -18,7 +17,7 @@ export class ClientUser extends User {
     const res = await this.ajax.patch(USER_CHANGE_PW, { body: options });
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
 
     return this;
@@ -28,7 +27,7 @@ export class ClientUser extends User {
     const res = await this.ajax.get(USER_API_KEY);
 
     if (isErrorResponse(res)) {
-      throw new PresentiError(res);
+      throw APIError.from(res);
     }
 
     return res.key;
