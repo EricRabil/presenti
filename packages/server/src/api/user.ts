@@ -1,10 +1,10 @@
-import { PresentiUser } from "@presenti/utils";
+import { PresentiUser, SensitivePresentiUser } from "@presenti/utils";
 import { APIError } from "@presenti/web";
-import { User } from "../database/entities";
+import { User } from "@presenti/shared-db";
 import { removeEmptyFields } from "../utils/object";
 import { MALFORMED_BODY } from "../Constants";
 import { FindConditions } from "typeorm";
-import { ObjectCache } from "../structs/object-cache";
+import { SharedPresenceService } from "..";
 
 type UUIDQuery = { uuid: string };
 type UserIDQuery = { userID: string };
@@ -13,8 +13,6 @@ export type UserQuery = UUIDQuery | UserIDQuery | (UUIDQuery & UserIDQuery);
 
 export namespace UserAPI {
   const validKeys: keyof User = ["uuid", "userID"] as any;
-
-  const resolvedScopes = new ObjectCache<string>("scopes");
 
   function isValidQuery(query: any): query is UserQuery {
     const keys = Object.keys(query);
@@ -27,7 +25,7 @@ export namespace UserAPI {
    * @param query query data
    * @param full whether to return the full contents
    */
-  export async function queryUser(query: UserQuery, full: boolean = false) {
+  export async function queryUser(query: UserQuery, full: boolean = false, sensitive: boolean = false): Promise<APIError | PresentiUser | SensitivePresentiUser> {
     query = removeEmptyFields(query) as any;
     if (!isValidQuery(query)) return MALFORMED_BODY;
     
@@ -40,22 +38,22 @@ export namespace UserAPI {
       return APIError.notFound("Unknown user.");
     }
 
-    return user[0].json(full);
+    return user[0][sensitive ? "sensitiveJSON" : "json"](full);
   }
 
   export async function resolveScopeFromUUID(uuid: string): Promise<string | APIError> {
     var scope: string | null = null;
 
-    if (!(await resolvedScopes.exists(uuid))) {
+    if (!(await SharedPresenceService.resolvedScopes.exists(uuid))) {
       scope = await User.createQueryBuilder("user")
         .select(["user.userID"])
         .where("uuid = :uuid", { uuid })
         .getRawOne()
         .then(fields => fields?.user_userID);
 
-      if (scope) await resolvedScopes.set(uuid, scope);
+      if (scope) await SharedPresenceService.resolvedScopes.set(uuid, scope);
     } else {
-      scope = await resolvedScopes.get(uuid);
+      scope = await SharedPresenceService.resolvedScopes.get(uuid);
     }
 
     if (!scope) return APIError.notFound("Unknown user.");

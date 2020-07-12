@@ -6,10 +6,10 @@ import IORedis from "ioredis";
 export interface ConfigurationStruct {
   port: number;
   registration: boolean;
-  crypto: {
-    jwtSecret: string | null;
-    firstPartyKey: string | null;
-  },
+  auth: {
+    host: string;
+    port: string;
+  }
   discord: {
     clientID: string;
     clientSecret: string;
@@ -37,9 +37,9 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
   port: 8138,
   registration: false,
   discord: null,
-  crypto: {
-    jwtSecret: null,
-    firstPartyKey: null
+  auth: {
+    host: "http://127.0.0.1",
+    port: "8892"
   },
   web: {
     host: "://localhost:8138",
@@ -64,7 +64,7 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
     port: 6379
   },
   elasticSearch: {
-    node: 'http://elasticsearch:9200'
+    node: 'http://127.0.0.1:9200'
   },
   modules: {}
 }
@@ -77,8 +77,13 @@ if (process.env.DB_PORT) CONFIG.db.port = +process.env.DB_PORT;
 if (process.env.DB_NAME) CONFIG.db.name = process.env.DB_NAME;
 if (process.env.DB_USERNAME) CONFIG.db.username = process.env.DB_USERNAME;
 if (process.env.DB_PASSWORD) CONFIG.db.password = process.env.DB_PASSWORD;
-if (process.env.REDIS_HOST) CONFIG.db.cache = {
-  options: {
+if (process.env.REDIS_HOST) {
+  CONFIG.db.cache = {
+    options: {
+      host: process.env.REDIS_HOST
+    }
+  };
+  CONFIG.cache = {
     host: process.env.REDIS_HOST
   }
 }

@@ -1,4 +1,5 @@
 import repl from "repl";
+import { SharedPresenceService } from "..";
 
 /** Wrapper for Node.JS REPL */
 export class Shell {
@@ -14,6 +15,6 @@ export class Shell {
     shell.context.__dirname = __dirname;
     shell.context.shell = shell;
 
-    shell.on('exit', () => process.exit());
+    shell.on('exit', () => SharedPresenceService.cleanup());
   }
 }

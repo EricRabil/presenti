@@ -1,29 +1,44 @@
 {
-    "files": [],
-    "references": [
-      {
-        "path": "packages/additions"
-      },
-      {
-        "path": "packages/client"
-      },
-      {
-        "path": "packages/logging"
-      },
-      {
-        "path": "packages/modules"
-      },
-      {
-        "path": "packages/server"
-      },
-      {
-        "path": "packages/slack"
-      },
-      {
-        "path": "packages/utils"
-      },
-      {
-        "path": "packages/web"
-      }
-    ]
-  }
+  "files": [],
+  "references": [
+    {
+      "path": "packages/additions"
+    },
+    {
+      "path": "packages/client"
+    },
+    {
+      "path": "packages/logging"
+    },
+    {
+      "path": "packages/modules"
+    },
+    {
+      "path": "packages/server"
+    },
+    {
+      "path": "packages/slack"
+    },
+    {
+      "path": "packages/utils"
+    },
+    {
+      "path": "packages/web"
+    },
+    {
+      "path": "packages/shared-db"
+    },
+    {
+      "path": "packages/auth-shared"
+    },
+    {
+      "path": "packages/auth-client"
+    },
+    {
+      "path": "packages/auth"
+    },
+    {
+      "path": "packages/core-cache"
+    }
+  ]
+}

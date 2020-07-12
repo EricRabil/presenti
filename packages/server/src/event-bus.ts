@@ -1,6 +1,5 @@
 import { Events, OAUTH_PLATFORM, PresenceList, PresentiLink, PresentiUser, EventsTable } from "@presenti/utils";
 import { EventEmitter } from "events";
-import { User } from "./database/entities";
 
 export declare interface EventBus extends NodeJS.EventEmitter {
   addListener<T extends keyof EventsTable, D = EventsTable[T]>(event: T, listener: (data: D) => any): this;

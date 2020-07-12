@@ -1,7 +1,6 @@
 import { OAUTH_PLATFORM, PresentiUser, OAuthQuery, PipeDirection, PresentiLink, ResolvedPresentiLink, OAuthData } from "@presenti/utils";
-import { OAuthLink } from "../database/entities/OAuthLink";
 import { APIError } from "@presenti/web";
-import { User } from "../database/entities";
+import { User, OAuthLink } from "@presenti/shared-db";
 import { UserAPI } from "./user";
 import logger from "@presenti/logging";
 import { removeEmptyFields } from "../utils/object";

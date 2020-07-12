@@ -1,0 +1,46 @@
+{
+  "name": "@presenti/auth",
+  "version": "1.2.6",
+  "description": "Internal user authentication service",
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "homepage": "https://github.com/EricRabil/presenti#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "private": true,
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/presenti.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/EricRabil/presenti/issues"
+  },
+  "dependencies": {
+    "@presenti/auth-shared": "^1.2.6",
+    "@presenti/logging": "^1.2.6",
+    "@presenti/utils": "^1.2.6",
+    "@presenti/web": "^1.2.6",
+    "@presenti/shared-db": "^1.2.6",
+    "bcrypt": "^5.0.0",
+    "class-validator": "^0.12.2",
+    "fs-extra": "^9.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "typeorm": "^0.2.25",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v18.3.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1"
+  }
+}

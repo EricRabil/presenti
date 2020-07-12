@@ -23,7 +23,8 @@ export type PresenceTimeRange = {
 export interface ErrorResponse {
   error: string;
   code: number;
-  fields: string[] | undefined;
+  fields?: Record<string, string[]>;
+  data?: any;
 };
 
 export type PresenceList = Array<Partial<PresenceStruct>>;
@@ -100,6 +101,16 @@ export interface PresentiUser {
   userID: string;
   platforms: Record<OAUTH_PLATFORM, PresentiLink> | null;
   excludes: string[];
+  attributes: {
+    admin?: boolean;
+    limited?: boolean;
+    banned?: boolean;
+    banReason?: string;
+  }
+}
+
+export interface SensitivePresentiUser extends PresentiUser {
+  email: string;
 }
 
 export type Presence = Partial<PresenceStruct> | Array<Partial<PresenceStruct>> | undefined;

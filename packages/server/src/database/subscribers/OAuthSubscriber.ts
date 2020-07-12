@@ -1,5 +1,5 @@
 import { EventSubscriber, EntitySubscriberInterface, RemoveEvent, InsertEvent } from "typeorm";
-import { OAuthLink } from "../entities/OAuthLink";
+import { OAuthLink } from "@presenti/shared-db";
 import { EventBus } from "../../event-bus";
 import { Events } from "@presenti/utils";
 

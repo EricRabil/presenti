@@ -18,7 +18,7 @@ import { TransformationsAPI } from "./api/transformations";
 import { APIError, SharedPresentiWebController } from "@presenti/web";
 import { UserLoader } from "./web/middleware/loaders";
 import IORedis from "ioredis";
-import { ObjectCache } from "./structs/object-cache";
+import { PresenceCacheBuilder, StateCacheBuilder, ObjectCache } from "@presenti/core-cache";
 
 export var SharedPresenceService: PresenceService;
 
@@ -41,8 +41,9 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   /** IORedis Connection */
   redis = new IORedis(CONFIG.cache);
 
-  presences = new ObjectCache<PresenceList>("presence", this.redis);
-  states = new ObjectCache("state", this.redis);
+  presences = PresenceCacheBuilder(this.redis);
+  states = StateCacheBuilder(this.redis);
+  resolvedScopes = new ObjectCache<string>("scopes", this.redis);
 
   web = {
     loaders: {
@@ -57,6 +58,8 @@ export class PresenceService implements PresenceProvider, PresenceServer {
   }
 
   constructor(private port: number, private userQuery: (token: string) => Promise<string | typeof FIRST_PARTY_SCOPE | null>) {
+    SharedPresenceService = SharedPresentiWebController.server = this;
+
     this.app = App();
     this.client = new NativeClient();
     this.client.on("updated", ({ scope }) => {
@@ -66,8 +69,27 @@ export class PresenceService implements PresenceProvider, PresenceServer {
     this.registerAdapters();
     this.registerStates();
     this.registerOutputs();
+    this.bindCleanupListeners();
+  }
 
-    SharedPresenceService = SharedPresentiWebController.server = this;
+  bindCleanupListeners() {
+    let cleaning = false;
+    [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((ev: any) => process.on(ev, () => this.cleanup()));
+  }
+
+  /** Called when the process is going to exit. */
+  cleaning = false;
+  cleanup() {
+    if (this.cleaning) return;
+    this.cleaning = true;
+
+    this.log.info('Cleaning up...');
+
+    this.presences.beforeExit().exec().then(() => {
+        this.log.info('Thank you, and goodnight.');
+
+        process.exit(0);
+    });
   }
 
   /**
@@ -137,7 +159,7 @@ export class PresenceService implements PresenceProvider, PresenceServer {
       return states;
     }
 
-    return this.states.get(scope);
+    return await this.states.get(scope) || {};
   }
 
   /**
@@ -149,7 +171,7 @@ export class PresenceService implements PresenceProvider, PresenceServer {
     await Promise.all(this.outputs.map(output => output.run()));
 
     const presenceLength = await this.presences.setBulk(await this.adapterSupervisor.scopedDatas());
-    const stateLength = await this.states.setBulk(this.stateSupervisor.scopedDatas());
+    const stateLength = await this.states.setBulk(await this.stateSupervisor.scopedDatas());
 
     this.log.info(`Bootstrapped Presenti with ${presenceLength} presence(s) and ${stateLength} state(s)`);
   }

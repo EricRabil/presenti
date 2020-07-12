@@ -1,11 +1,10 @@
-import { PayloadType, isRemotePayload, PayloadValidators, IdentifyPayload, RemotePayload, FIRST_PARTY_SCOPE } from "@presenti/utils";
+import log from "@presenti/logging";
+import { ScopedPresenceAdapter } from "@presenti/modules";
+import { FIRST_PARTY_SCOPE, IdentifyPayload, isRemotePayload, PayloadType, PayloadValidators } from "@presenti/utils";
 import * as uuid from "uuid";
 import { TemplatedApp, WebSocket } from "uWebSockets.js";
-import log from "@presenti/logging";
-import { User } from "../database/entities";
-import { SecurityKit } from "../utils/security";
-import { ScopedPresenceAdapter } from "@presenti/modules";
 import { blackHat } from "../utils/object";
+import { SecurityKit } from "../utils/security";
 
 export function Handler(payloadType: PayloadType) {
   return function<T extends SocketAPIAdapter>(target: T, property: keyof T, descriptor?: PropertyDescriptor) {
@@ -220,18 +219,19 @@ export abstract class SocketAPIAdapter extends ScopedPresenceAdapter {
   async identificationHandler(ws: SocketContext, token: IdentifyPayload["data"], sendGreetings: boolean = true): Promise<boolean> {
     this.log.debug("Socket initiated authentication flow.", { socketID: ws.id });
 
-    var identity: User | typeof FIRST_PARTY_SCOPE | string | null = await SecurityKit.validateApiKey(token);
+    const { user, firstParty } = await SecurityKit.validateApiKey(token);
+    let identity: string | typeof FIRST_PARTY_SCOPE;
 
-    // invalid or expired identity
-    if (!identity) {
+    // set the identity to the uuid
+    if (user) {
+      identity = user.userID;
+    } else if (firstParty) {
+      identity = FIRST_PARTY_SCOPE;
+    } else {
+      // invalid or expired identity
       this.log.debug("Invalid identity for socket.", { socketID: ws.id });
       ws.close();
       return false;
-    }
-
-    // set the identity to the uuid
-    if (identity instanceof User) {
-      identity = identity.userID;
     }
 
     // Socket joined the game

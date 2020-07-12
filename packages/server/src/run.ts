@@ -3,7 +3,7 @@ import { SharedAdapterSupervisor, SharedStateSupervisor } from "@presenti/module
 import { PresenceService } from ".";
 import { Database } from "./database/connector";
 import * as entities from "./database/entities";
-import { User } from "./database/entities";
+import { User } from "@presenti/shared-db";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { CONFIG } from "./utils/config";
 import { loadModules } from "./utils/modules";
@@ -14,18 +14,14 @@ import * as Constants from "./Constants";
 import { TransformationsAPI } from "./api/transformations";
 
 process.on("unhandledRejection", e => {
-  console.error(e);
-})
+  log.error("Unhandled process rejection.");
+  console.log(e);
+  log.error(e);
+});
 
-const service = new PresenceService(CONFIG.port, async token => SecurityKit.validateApiKey(token).then(user => {
-  if (!user) return null;
-
-  if (user instanceof User) {
-    return user.uuid;
-  } else if (user === FIRST_PARTY_SCOPE) {
-    return user;
-  }
-
+const service = new PresenceService(CONFIG.port, async token => SecurityKit.validateApiKey(token).then(({ user, firstParty }) => {
+  if (user) return user.uuid;
+  if (firstParty) return FIRST_PARTY_SCOPE;
   return null;
 }));
 

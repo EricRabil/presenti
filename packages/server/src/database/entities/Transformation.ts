@@ -1,5 +1,5 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId, JoinColumn } from "typeorm";
-import { User } from "./User";
+import { User } from "@presenti/shared-db";
 import { PresenceTransformation, PresenceTransformationRecord } from "@presenti/utils";
 
 @Entity()

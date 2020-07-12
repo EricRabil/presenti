@@ -1,0 +1,39 @@
+{
+  "name": "@presenti/shared-db",
+  "version": "1.2.6",
+  "description": "Shared database components",
+  "author": "Eric Rabil <ericjrabil@gmail.com>",
+  "homepage": "https://github.com/EricRabil/presenti#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "private": true,
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricRabil/presenti.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/EricRabil/presenti/issues"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.8.0",
+    "@presenti/logging": "^1.2.6",
+    "@presenti/utils": "^1.2.6",
+    "@presenti/web": "^1.2.6",
+    "class-validator": "^0.12.2",
+    "typeorm": "^0.2.25"
+  },
+  "devDependencies": {}
+}

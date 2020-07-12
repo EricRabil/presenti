@@ -52,6 +52,9 @@ export class PresenceStreamOutput extends PresenceOutput {
     });
   }
 
+  connected(scope: string) {}
+  disconnected(scope: string) {}
+
   async payload(id: string, newClient: boolean = false) {
     const { presence, state } = await super.payload(id, newClient);
 
@@ -73,7 +76,19 @@ export class PresenceStreamOutput extends PresenceOutput {
     if (!clients || clients.length === 0) return;
     const payload = JSON.stringify(await this.payload(scope));
 
-    await Promise.all(
+    return this.broadcast(scope, payload);
+  }
+
+  /**
+   * Broadcasts the given payload to the given scope
+   * @param scope scope to broadcast to
+   * @param payload payload to broadcast
+   */
+  broadcast(scope: string, payload: string) {
+    const clients = this.clients[scope];
+    if (!clients || clients.length === 0) return;
+
+    return Promise.all(
       clients.map(client => (
         client.send(payload)
       ))
@@ -90,6 +105,7 @@ export class PresenceStreamOutput extends PresenceOutput {
     if (clients.includes(socket)) return;
     this.idMap.set(socket, id);
     clients.push(socket);
+    this.connected(id);
   }
 
   /**
@@ -103,5 +119,6 @@ export class PresenceStreamOutput extends PresenceOutput {
     if (!clients.includes(socket)) return;
     clients.splice(clients.indexOf(socket), 1);
     this.idMap.delete(socket);
+    this.disconnected(id);
   }
 }

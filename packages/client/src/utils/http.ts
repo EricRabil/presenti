@@ -15,6 +15,9 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: BodyStruct;
   headers?: Record<string, string>;
   base?: string;
+  port?: string;
+  protocol?: string;
+  noAPIInject?: boolean;
 }
 
 /**
@@ -37,9 +40,17 @@ export namespace AJAXKit {
     return fetchJSON(url, "patch", opts);
   }
 
-  export async function fetchJSON(url: string, method: string, { params, body, headers, base, ...options }: RequestOptions = {}) {
+  export async function fetchJSON(url: string, method: string, { params, body, headers, base, port, protocol, noAPIInject, ...options }: RequestOptions = {}) {
     method = method.toUpperCase();
-    const urlComponents = new URL(`${url.startsWith('/api') ? '' : '/api'}${url.startsWith('/') ? '' : '/'}${url}`, base);
+    const prefix = noAPIInject ? '' : url.startsWith('/api') ? '' : '/api';
+    const urlComponents = new URL(`${prefix}${url.startsWith('/') ? '' : '/'}${url}`, base);
+    if (port) {
+      urlComponents.port = port;
+    }
+    if (protocol) {
+      urlComponents.protocol = protocol;
+    }
+
     if (params) {
       Object.entries(params).forEach(([ key, value ]) => (typeof value !== "undefined") && urlComponents.searchParams.set(key, value.toString()));
     }
@@ -104,6 +115,10 @@ export class AJAXClient extends BaseClient<AJAXClientOptions> implements AJAXPro
 
   patch(url: string, opts: RequestOptions = {}) {
     return this.fetchJSON(url, "patch", opts);
+  }
+
+  put(url: string, opts: RequestOptions = {}) {
+    return this.fetchJSON(url, "put", opts);
   }
 
   async fetchJSON(url: string, method: string, options: RequestOptions = {}) {

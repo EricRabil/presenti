@@ -1,12 +1,44 @@
 import { APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post, DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
 import { OAuthAPI } from "../../api/oauth";
 import { UserAPI } from "../../api/user";
-import { User } from "../../database/entities";
+import { User } from "@presenti/shared-db";
 import PBRestAPIBase from "../../structs/rest-api-base";
 import { API } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { UserLoader } from "../middleware/loaders";
 import { CONFIG } from "../../utils/config";
+import { AJVValidator } from "./transformations-api";
+import { SecurityKit } from "../../utils/security";
+
+const LoginValidator = AJVValidator({
+  properties: {
+    id: {
+      type: "string"
+    },
+    password: {
+      type: "string"
+    }
+  },
+  additionalProperties: false
+})(req => req.body);
+
+const SignupValidator = AJVValidator({
+  properties: {
+    id: {
+      type: "string"
+    },
+    displayName: {
+      type: "string"
+    },
+    email: {
+      format: "email"
+    },
+    password: {
+      type: "string"
+    }
+  },
+  additionalProperties: false
+})(req => req.body);
 
 @API("/api/user")
 export class RESTUserAPI extends PBRestAPIBase {
@@ -34,17 +66,17 @@ export class RESTUserAPI extends PBRestAPIBase {
         res.json({ root: true });
         break;
       default:
-        res.json(res.user.json(true));
+        res.json(res.user);
         break;
     }
   }
 
-  @Get("/me/key", UserLoader(), IdentityGuard, DenyFirstPartyGuard)
+  @Get("/me/key")
   async createKey(req: PBRequest, res: PBResponse) {
-    const user: User = res.user;
-    const key = await user.apiKey();
+    const token = req.cookie('identity');
+    if (!token) throw APIError.unauthorized("You are not signed in.");
 
-    res.json({ key });
+    res.json(await SecurityKit.apiKey(token));
   }
 
   /** Endpoint for the current user to modify the pipe direction of a given link */
@@ -77,14 +109,12 @@ export class RESTUserAPI extends PBRestAPIBase {
   @Patch("/me/password", UserLoader(), IdentityGuard, DenyFirstPartyGuard, BodyParser)
   async changePassword(req: PBRequest, res: PBResponse) {
     const { password, newPassword } = req.body;
-    if (!password || !newPassword) return res.json(APIError.badRequest("The 'password' and 'newPassword' fields are required.").fields("password", "newPassword"));
+    if (!password || !newPassword) return res.json(APIError.badRequest("The 'password' and 'newPassword' fields are required.").fields({
+      password: ['This field is required.'],
+      newPassword: ['This field is required.']
+    }));
 
-    if (!await res.user!.checkPassword(password)) {
-      return res.json(APIError.unauthorized("Invalid credentials.").fields("password"));
-    }
-
-    await res.user!.setPassword(newPassword);
-    await res.user!.save();
+    await SecurityKit.changePassword(res.user.userID, newPassword);
 
     res.json({ ok: true });
   }
@@ -97,14 +127,11 @@ export class RESTUserAPI extends PBRestAPIBase {
     }
 
     const { id: userID, password } = req.body;
-    const user = await User.findOne({ userID });
-    if (!user) return fail();
 
-    const token = await user.token(password);
-    if (!token) return fail();
+    const { user, token } = await SecurityKit.createToken(userID, password);
     
     res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, path: "/" });
-    res.json(user.json(true));
+    res.json(user);
   }
 
   @Get("/logout")
@@ -113,7 +140,7 @@ export class RESTUserAPI extends PBRestAPIBase {
     res.json({ ok: true });
   }
 
-  @Post("/new", BodyParser)
+  @Post("/new", BodyParser, SignupValidator)
   async signup(req: PBRequest, res: PBResponse) {
     const fail = (msg: string) => res.json(APIError.badRequest(msg));
 
@@ -121,19 +148,10 @@ export class RESTUserAPI extends PBRestAPIBase {
       return fail('Please fill out all required fields.');
     }
 
-    const { id: userID, password } = req.body;
-    let user = await User.findOne({ userID });
-    /** UserID collision */
-    if (user) return fail("A user with that ID already exists. Please select a different one.");
-
-    user = await User.createUser(userID, password);
-    await user.save();
-
-    const token = await user.token(password);
-    /** Token failed to generate, something's wrong with the algo */
-    if (!token) return fail("Sorry, we couldn't finish logging you in.");
+    const { id: userID, password, displayName, email } = req.body;
+    const { user, token } = await SecurityKit.createUser({ userID, password, displayName, email });
 
     res.setCookie('identity', token, { httpOnly: true, domain: CONFIG.web.cookieDomain, maxAge: 60 * 2.5, path: "/" });
-    res.json(user.json(true));
+    res.json(user);
   }
 }

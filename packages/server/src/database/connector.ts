@@ -2,7 +2,7 @@ import inquirer from "inquirer";
 import { createConnection } from "typeorm";
 import { CONFIG, saveConfig } from "../utils/config";
 import { BaseEntityStatic } from "@presenti/modules";
-import { ElasticService } from "./elastic";
+import { ElasticSupervisor, User, OAuthLink } from "@presenti/shared-db";
 
 export class Database {
   async connect(extraEntities: BaseEntityStatic[] = []) {
@@ -17,7 +17,8 @@ export class Database {
       database: name,
       entities: [
         __dirname + "/entities/*.js",
-        ...extraEntities
+        User,
+        OAuthLink
       ],
       subscribers: [
         __dirname + "/subscribers/*.js"
@@ -31,7 +32,7 @@ export class Database {
         alwaysEnabled: true,
         ...(typeof CONFIG.db.cache === "object" ? CONFIG.db.cache : {})
       } : false
-    }).then(() => ElasticService.loadElastic());
+    }).then(() => CONFIG.elasticSearch && ElasticSupervisor.init(CONFIG.elasticSearch).run());
   }
 
   async ensureConfig() {

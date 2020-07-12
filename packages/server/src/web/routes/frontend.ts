@@ -2,7 +2,7 @@ import { Any, BodyParser, Get, PBRequest, PBResponse, Post, RequestHandler, Rout
 import fs from "fs-extra";
 import path from "path";
 import { TemplatedApp } from "uWebSockets.js";
-import { User } from "../../database/entities";
+import { User } from "@presenti/shared-db";
 import { CONFIG } from "../../utils/config";
 import { API, GlobalGuards } from "@presenti/modules";
 import PBRestAPIBase from "../../structs/rest-api-base";

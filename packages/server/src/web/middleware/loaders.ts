@@ -1,7 +1,8 @@
 import { RequestHandler } from "@presenti/web";
-import { User } from "../../database/entities";
+import { User } from "@presenti/shared-db";
 import { SecurityKit } from "../../utils/security";
 import { SharedPresenceService } from "../..";
+import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 
 /**
  * Loads a User object into the response variable, using the identity cookie, or the authorization header if specified
@@ -10,7 +11,13 @@ import { SharedPresenceService } from "../..";
 export const UserLoader: (includeAuthorization?: boolean) => RequestHandler = includeAuth => async (req, res, next) => {
   const identity = req.cookie('identity'), authorization = (includeAuth ? req.getHeader('authorization') : null);
   if (!identity && !authorization) return next();
-  res.user = identity ? await User.userForToken(identity) : authorization ? await SecurityKit.validateApiKey(authorization) : null;
+  const { user, firstParty } = identity ? { user: await SecurityKit.userForToken(identity), firstParty: false } : authorization ? await SecurityKit.validateApiKey(authorization) : { user: null, firstParty: false };
+
+  if (user) {
+    res.user = user;
+  } else if (firstParty) {
+    res.user = FIRST_PARTY_SCOPE;
+  }
   
   next();
 }
