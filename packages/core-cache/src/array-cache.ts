@@ -1,4 +1,5 @@
 import { BaseCache } from "./base-cache";
+import { Pipeline } from "ioredis";
 
 export class DistributedArray<T extends Array<any> = any[]> extends BaseCache {
     trackedKeys: Record<string, boolean> = {};
@@ -24,9 +25,13 @@ export class DistributedArray<T extends Array<any> = any[]> extends BaseCache {
         const serialized = Object.entries(values).map(([key, value]) => [(this.trackedKeys[key] = true, this.path(key)), JSON.stringify(value)]);
         serialized.forEach(([key, value]) => multi.hmset(key, this.keyname, value));
 
-        const readStart = serialized.length;
+        return this.runMultiAndPublishNewValues(multi, serialized.map(([key]) => key));
+    }
 
-        serialized.forEach(([key]) => multi.hgetall(key));
+    private async runMultiAndPublishNewValues(multi: Pipeline, keys: string[]) {
+        const readStart = keys.length;
+
+        keys.forEach(([key]) => multi.hgetall(key));
 
         /** gets the updated array partials */
         const results: [string, Record<string, string>][] = (await multi.exec())
@@ -35,16 +40,14 @@ export class DistributedArray<T extends Array<any> = any[]> extends BaseCache {
                                                                         /** flatmap and slice the [error, result] be result */
                                                                         .flatMap(v => v.slice(1))
                                                                         /** take results and pair them with their keys */
-                                                                        .map((result, idx) => [serialized[idx][0], result as Record<string, string>]);
-
-        multi = this.redis.multi();
+                                                                        .map((result, idx) => [keys[idx], result as Record<string, string>]);
 
         /** publishes stitched arrays to each channel */
         results.forEach(([key, values]) => multi.publish(this.path(key), JSON.stringify(Object.values(values as Record<string, string>).flatMap((v) => JSON.parse(v)) as T)));
 
         await multi.exec();
 
-        return serialized.length;
+        return keys.length;
     }
 
     public async exists(key: string): Promise<boolean> {
@@ -66,10 +69,12 @@ export class DistributedArray<T extends Array<any> = any[]> extends BaseCache {
         delete this.trackedKeys[key];
     }
 
-    public beforeExit(multi = this.redis.multi()) {
-        Object.keys(this.trackedKeys).forEach(key => multi.hdel(this.path(key), this.keyname));
+    public async beforeExit(multi = this.redis.multi()) {
+        const keys = Object.keys(this.trackedKeys);
 
-        return multi;
+        keys.forEach(key => multi.hdel(this.path(key), this.keyname));
+
+        return this.runMultiAndPublishNewValues(multi, keys);
     }
 
     private get keyname(): string {
