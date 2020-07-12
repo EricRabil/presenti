@@ -1,15 +1,12 @@
 import { API, PBRestAPIBase, GlobalGuards } from "@presenti/modules";
-import { Get, PBRequest, PBResponse, APIError, Patch, BodyParser, RequestHandler, Post, Delete, Put } from "@presenti/web";
+import { AJVGuard, Get, PBRequest, PBResponse, APIError, Patch, BodyParser, RequestHandler, Post, Delete, Put } from "@presenti/web";
 import { User } from "@presenti/shared-db";
 import { AdminGuard } from "../middleware/guards";
 import { UserLoader } from "../middleware/loaders";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 import { SearchResult } from "@presenti/shared-db";
 import { UserAPI } from "../../api/user";
-import { AJVValidator } from "./transformations-api";
 import { SecurityKit } from "../../utils/security";
-
-(global as any).Userr = User;
 
 const AttributesSchema = {
     type: "object",
@@ -47,8 +44,8 @@ const UserSchema = {
     additionalProperties: false
 }
 
-const UserValidator = AJVValidator(UserSchema);
-const AttribuesValidator = AJVValidator(AttributesSchema);
+const UserValidator = AJVGuard(UserSchema);
+const AttribuesValidator = AJVGuard(AttributesSchema);
 
 const AdminUserLoader: RequestHandler = async (req, res, next) => {
     if (!(res.loadedUser = await User.findOne({ uuid: req.getParameter(0) }))) {

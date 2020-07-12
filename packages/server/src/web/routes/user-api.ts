@@ -1,4 +1,4 @@
-import { APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post, DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
+import { AJVGuard, APIError, BodyParser, Delete, Get, Patch, PBRequest, PBResponse, Post, DenyFirstPartyGuard, IdentityGuard } from "@presenti/web";
 import { OAuthAPI } from "../../api/oauth";
 import { UserAPI } from "../../api/user";
 import { User } from "@presenti/shared-db";
@@ -7,10 +7,9 @@ import { API } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE } from "@presenti/utils";
 import { UserLoader } from "../middleware/loaders";
 import { CONFIG } from "../../utils/config";
-import { AJVValidator } from "./transformations-api";
 import { SecurityKit } from "../../utils/security";
 
-const LoginValidator = AJVValidator({
+const LoginValidator = AJVGuard({
   properties: {
     id: {
       type: "string"
@@ -22,7 +21,7 @@ const LoginValidator = AJVValidator({
   additionalProperties: false
 })(req => req.body);
 
-const SignupValidator = AJVValidator({
+const SignupValidator = AJVGuard({
   properties: {
     id: {
       type: "string"
