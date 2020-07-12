@@ -5,7 +5,6 @@ export abstract class BaseCache<T = any> {
     constructor(public readonly namespace: string, protected redis: IORedis.Redis, protected eventConnection?: IORedis.Redis) {}
 
     public static receiveEvent(channel: string, message: string, caches: BaseCache[]) {
-        const [ prefix ] = channel.split('.');
         caches.forEach(c => c.onMessage(channel, message));
     }
 
