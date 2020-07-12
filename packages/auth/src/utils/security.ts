@@ -189,7 +189,7 @@ export namespace SecurityKit {
 
         if (!key) {
             log.debug("API key failed to decode.", { result });
-            throw APIError.internal("Invalid API key.");
+            throw APIError.unauthorized("Invalid API key.");
         }
 
         if (uuid) {
