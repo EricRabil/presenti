@@ -5,6 +5,15 @@
       "path": "packages/additions"
     },
     {
+      "path": "packages/auth-client"
+    },
+    {
+      "path": "packages/auth-shared"
+    },
+    {
+      "path": "packages/auth"
+    },
+    {
       "path": "packages/client"
     },
     {
@@ -14,7 +23,13 @@
       "path": "packages/frontend"
     },
     {
+      "path": "packages/gateway"
+    },
+    {
       "path": "packages/logging"
+    },
+    {
+      "path": "packages/mailer"
     },
     {
       "path": "packages/modules"
@@ -24,6 +39,9 @@
     },
     {
       "path": "packages/server"
+    },
+    {
+      "path": "packages/shared-db"
     },
     {
       "path": "packages/slack"
