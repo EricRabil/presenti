@@ -1,6 +1,6 @@
 {
   "name": "@presenti/gateway",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Presenti Gateway service",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti#readme",
@@ -18,10 +18,10 @@
     "url": "https://github.com/EricRabil/presenti/issues"
   },
   "dependencies": {
-    "@presenti/core-cache": "^1.2.9",
-    "@presenti/modules": "^1.2.9",
-    "@presenti/shared-infrastructure": "^1.2.9",
-    "@presenti/utils": "^1.2.9",
+    "@presenti/core-cache": "^1.2.10",
+    "@presenti/modules": "^1.2.10",
+    "@presenti/shared-infrastructure": "^1.2.10",
+    "@presenti/utils": "^1.2.10",
     "ioredis": "^4.17.3",
     "uWebSockets.js": "uNetworking/uWebSockets.js"
   },
