@@ -10,6 +10,7 @@ services:
       - mailer
       - es01
     environment:
+      AUTH_HOST: auth
       DB_HOST: postgres
       DB_NAME: server
       DB_USERNAME: server
@@ -24,8 +25,28 @@ services:
       - '/root/node_modules'
       - './packages:/root/node_modules/@presenti'
       - './packages/server/dist:/root/dist'
-    links:
-      - "mailer:mailer"
+  auth:
+    build:
+      context: packages/auth
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+      - mailer
+      - es01
+    environment:
+      DB_HOST: postgres
+      DB_NAME: server
+      DB_USERNAME: server
+      DB_PASSWORD: badbitch
+      REDIS_HOST: redis
+      ELASTIC_NODE: http://es01:9200
+      MAILER_URL: http://mailer:8443
+    working_dir: /root
+    volumes:
+      - '/root/node_modules'
+      - './packages:/root/node_modules/@presenti'
+      - './packages/server/dist:/root/dist'
   mailer:
     build:
       context: packages/mailer
@@ -58,6 +79,7 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - SERVICE_PORTS=9200
     ulimits:
       memlock:
         soft: -1
@@ -74,6 +96,7 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - SERVICE_PORTS=9200
     ulimits:
       memlock:
         soft: -1
@@ -90,6 +113,7 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - SERVICE_PORTS=9200
     ulimits:
       memlock:
         soft: -1
