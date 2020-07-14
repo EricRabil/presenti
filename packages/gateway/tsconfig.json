@@ -22,10 +22,13 @@
   ],
   "references": [
     {
+      "path": "../core-cache"
+    },
+    {
       "path": "../modules"
     },
     {
-      "path": "../core-cache"
+      "path": "../shared-infrastructure"
     },
     {
       "path": "../utils"

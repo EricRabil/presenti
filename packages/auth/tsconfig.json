@@ -28,13 +28,13 @@
       "path": "../logging"
     },
     {
+      "path": "../shared-db"
+    },
+    {
       "path": "../utils"
     },
     {
       "path": "../web"
-    },
-    {
-      "path": "../shared-db"
     }
   ]
 }

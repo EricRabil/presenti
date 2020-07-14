@@ -9,6 +9,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "watch": "tsc -p . --watch --preserveWatchOutput",
     "clean": "rm -rf dist; rm -rf tsconfig.tsbuildinfo",

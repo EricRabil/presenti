@@ -20,6 +20,9 @@
       "path": "packages/dashboard"
     },
     {
+      "path": "packages/discord"
+    },
+    {
       "path": "packages/frontend"
     },
     {
@@ -44,7 +47,13 @@
       "path": "packages/shared-db"
     },
     {
+      "path": "packages/shared-infrastructure"
+    },
+    {
       "path": "packages/slack"
+    },
+    {
+      "path": "packages/spotify"
     },
     {
       "path": "packages/utils"

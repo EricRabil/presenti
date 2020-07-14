@@ -17,20 +17,15 @@
     "skipLibCheck": true
   },
   "include": [
-    "src", "src/**/*.ts"
+    "src",
+    "src/**/*.ts"
   ],
   "references": [
-    {
-      "path": "../client"
-    },
     {
       "path": "../logging"
     },
     {
       "path": "../modules"
-    },
-    {
-      "path": "../renderer"
     },
     {
       "path": "../utils"

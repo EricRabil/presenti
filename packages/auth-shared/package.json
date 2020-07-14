@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/EricRabil/presenti.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w"
