@@ -28,6 +28,7 @@
     "@presenti/utils": "^1.2.10",
     "@presenti/web": "^1.2.10",
     "class-validator": "^0.12.2",
+    "ioredis": "^4.17.3",
     "pg": "^8.3.0",
     "typeorm": "^0.2.25"
   }
