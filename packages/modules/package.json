@@ -1,6 +1,6 @@
 {
   "name": "@presenti/modules",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Framework with classes necessary to write Presenti modules",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@presenti/core-cache": "^1.2.7",
     "@presenti/utils": "^1.2.7",
-    "@presenti/web": "^1.2.7",
+    "@presenti/web": "^1.2.8",
     "typeorm": "^0.2.25",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v18.3.0"
   },

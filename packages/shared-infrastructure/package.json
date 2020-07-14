@@ -1,6 +1,6 @@
 {
   "name": "@presenti/shared-infrastructure",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Now I’m the model of a modern major general / The venerated Virginian veteran whose men are all / Lining up, to put me up on a pedestal / Writin’ letters to relatives / Embellishin’ my elegance and eloquence / But the elephant is in the room / The truth is in ya face when ya hear the British cannons go / BOOM",
   "keywords": [],
   "author": "Eric Rabil <ericjrabil@gmail.com>",
@@ -9,10 +9,10 @@
   "dependencies": {
     "@presenti/core-cache": "^1.2.7",
     "@presenti/logging": "^1.2.7",
-    "@presenti/modules": "^1.2.7",
+    "@presenti/modules": "^1.2.8",
     "@presenti/utils": "^1.2.7",
-    "@presenti/web": "^1.2.7",
-    "@presenti/ws": "^1.2.7",
+    "@presenti/web": "^1.2.8",
+    "@presenti/ws": "^1.2.8",
     "ioredis": "^4.17.3",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v18.3.0",
     "uuid": "^8.2.0"

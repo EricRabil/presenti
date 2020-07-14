@@ -1,6 +1,6 @@
 {
   "name": "@presenti/mailer",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "> TODO: description",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti#readme",
@@ -30,7 +30,7 @@
   "dependencies": {
     "@presenti/logging": "^1.2.7",
     "@presenti/utils": "^1.2.7",
-    "@presenti/web": "^1.2.7",
+    "@presenti/web": "^1.2.8",
     "@sendgrid/mail": "^7.2.1",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v18.3.0"
   }

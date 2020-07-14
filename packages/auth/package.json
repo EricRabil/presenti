@@ -1,6 +1,6 @@
 {
   "name": "@presenti/auth",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Internal user authentication service",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti#readme",
@@ -28,11 +28,11 @@
     "url": "https://github.com/EricRabil/presenti/issues"
   },
   "dependencies": {
-    "@presenti/auth-shared": "^1.2.7",
+    "@presenti/auth-shared": "^1.2.8",
     "@presenti/logging": "^1.2.7",
-    "@presenti/shared-db": "^1.2.7",
+    "@presenti/shared-db": "^1.2.8",
     "@presenti/utils": "^1.2.7",
-    "@presenti/web": "^1.2.7",
+    "@presenti/web": "^1.2.8",
     "bcrypt": "^5.0.0",
     "class-validator": "^0.12.2",
     "fs-extra": "^9.0.1",

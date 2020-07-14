@@ -1,6 +1,6 @@
 {
   "name": "@presenti/discord",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Now I’m the model of a modern major general / The venerated Virginian veteran whose men are all / Lining up, to put me up on a pedestal / Writin’ letters to relatives / Embellishin’ my elegance and eloquence / But the elephant is in the room / The truth is in ya face when ya hear the British cannons go / BOOM",
   "keywords": [],
   "author": "Eric Rabil <ericjrabil@gmail.com>",
@@ -8,9 +8,9 @@
   "main": "dist/index.js",
   "dependencies": {
     "@presenti/logging": "^1.2.7",
-    "@presenti/modules": "^1.2.7",
+    "@presenti/modules": "^1.2.8",
     "@presenti/utils": "^1.2.7",
-    "@presenti/web": "^1.2.7",
+    "@presenti/web": "^1.2.8",
     "discord.js": "^12.2.0",
     "got": "^11.5.0",
     "typeorm": "^0.2.25",
