@@ -1,7 +1,8 @@
 import { Evented, PresenceAdapter } from "./presence-adapter";
 import { AdapterState, Presence, PayloadType, FirstPartyPresenceData, PresentiUser, OAUTH_PLATFORM, RemotePayload, PresentiLink, PipeDirection, OAuthQuery, OAuthData, ResolvedPresentiLink, Events, EventsTable } from "../types";
+import { PresentiAPI } from "./api-spec";
 
-export abstract class PresentiAPIClient extends Evented {
+export abstract class PresentiAPIClient extends Evented implements PresentiAPI {
   adapters: PresenceAdapter[] = [];
   ready: boolean = false;
 
@@ -138,4 +139,9 @@ export abstract class PresentiAPIClient extends Evented {
    * @param payload payload to commit
    */
   abstract send(payload: RemotePayload): void | Promise<void>;
+  /** 
+   * Commit an action/message to Presenti
+   * @param payload payload to commit
+   */
+  publish<T extends Events>(event: T, data: EventsTable[T]): void | Promise<void> {}
 }

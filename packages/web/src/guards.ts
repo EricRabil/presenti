@@ -1,6 +1,6 @@
 import ajv from "ajv";
-import { FIRST_PARTY_SCOPE } from "@presenti/utils";
-import { RequestHandler, APIError, PBRequest } from "./utils";
+import { FIRST_PARTY_SCOPE, APIError } from "@presenti/utils";
+import { RequestHandler, PBRequest } from "./utils";
 
 /** Returns a 401 if the request is not authenticated */
 export const IdentityGuard: RequestHandler = async (req, res, next) => {
@@ -50,4 +50,18 @@ export function AJVGuard(schema: object | string | boolean, message?: string) {
 
     return Validator(req => !validator.validate(schema, extractor(req)) ? (message || validator.errorsText(schema["errors"])) : true);
   }
+}
+
+export const AdminGuard: RequestHandler = async (req, res, next) => {
+  if (res.user?.attributes?.admin !== true) return res.json(APIError.forbidden("Only admins may access this endpoint."));
+  next();
+};
+
+/** Only accepts first-party requests to an endpoint */
+export const FirstPartyGuard: RequestHandler = async (req, res, next) => {
+  if (res.user !== (FIRST_PARTY_SCOPE as any)) {
+    res.writeStatus(403).json({ error: "You are not authorized to use this endpoint." });
+    return next(true);
+  }
+  next();
 }

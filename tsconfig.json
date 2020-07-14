@@ -2,9 +2,6 @@
   "files": [],
   "references": [
     {
-      "path": "packages/additions"
-    },
-    {
       "path": "packages/auth-client"
     },
     {
@@ -15,6 +12,9 @@
     },
     {
       "path": "packages/client"
+    },
+    {
+      "path": "packages/core-cache"
     },
     {
       "path": "packages/dashboard"
@@ -51,6 +51,9 @@
     },
     {
       "path": "packages/web"
+    },
+    {
+      "path": "packages/ws"
     }
   ]
 }

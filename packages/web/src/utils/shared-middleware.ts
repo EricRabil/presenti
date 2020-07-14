@@ -1,3 +1,4 @@
+import cors from "cors";
 import qs from "querystring";
 import { RequestHandler } from "./types";
 
@@ -20,3 +21,11 @@ export const BodyParser: RequestHandler = async (req, res, next) => {
 
   next();
 }
+
+export const CORSMiddleware: RequestHandler = cors({
+  origin: (origin, cb) => cb(null, true),
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  allowedHeaders: ['content-type', 'authorization'],
+  optionsSuccessStatus: 200
+}) as any as RequestHandler;

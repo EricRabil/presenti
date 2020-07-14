@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import IORedis from "ioredis";
 
 export interface ConfigurationStruct {
@@ -30,7 +30,7 @@ export interface ConfigurationStruct {
   };
   cache: IORedis.RedisOptions;
   elasticSearch?: import("@elastic/elasticsearch").ClientOptions;
-  modules: Record<string, object | boolean>;
+  modules: Record<string, object>;
 }
 
 const DEFAULT_CONFIG: ConfigurationStruct = {
@@ -92,4 +92,4 @@ if (process.env.ELASTIC_NODE) CONFIG.elasticSearch = {
   node: process.env.ELASTIC_NODE
 };
 
-export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => log.info('Updated configuration file'));
+export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => logger.info('Updated configuration file'));

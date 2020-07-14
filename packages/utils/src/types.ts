@@ -307,11 +307,6 @@ export interface SuccessResponse {
 }
 
 export interface PresenceServer {
-  web: {
-    loaders: {
-      UserLoader: Function;
-    };
-  };
   config: {
     port: number;
     web: {

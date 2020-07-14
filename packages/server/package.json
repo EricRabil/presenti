@@ -33,7 +33,6 @@
   "homepage": "https://github.com/EricRabil/PresenceBot#readme",
   "dependencies": {
     "@elastic/elasticsearch": "^7.8.0",
-    "@presenti/additions": "^1.2.6",
     "@presenti/auth-client": "^1.2.6",
     "@presenti/client": "^1.2.6",
     "@presenti/core-cache": "^1.2.6",

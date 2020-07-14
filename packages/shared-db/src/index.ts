@@ -9,3 +9,4 @@ export * from "./namespaces/indexed-column-storage";
 export * from "./entities/IndexedEntity";
 export * from "./entities/User";
 export * from "./entities/OAuthLink";
+export * from "./entities/Transformation";

@@ -20,31 +20,3 @@ export function GlobalGuards(...middleware: RequestHandler[]) {
     return target;
   }
 }
-
-/** Base class for API endpoints */
-export class PBRestAPIBase extends RestAPIBase {
-  /** prefix for the API routes encapsulated within the class */
-  static prefix: string = "";
-  /** middleware to be injected into all API routes */
-  static middleware: RequestHandler[] = [];
-
-  constructor(app: TemplatedApp, headers: string[] = []) {
-    super(app, '', headers);
-    this.timedExecution = process.env.NODE_ENV === "development";
-  }
-
-  loadRoutes() {
-    /** Prepends all routes with the prefixed path */
-    this._routes = this._routes.map(metadata => {
-      metadata.path = `${(this.constructor as IPresentiAPIFoundation<this>).prefix}${metadata.path}`;
-      return metadata;
-    });
-
-    super.loadRoutes();
-  }
-  
-  buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
-    /** Prepends all middleware with the configured middleware */
-    return super.buildStack(metadata, (this.constructor as IPresentiAPIFoundation<this>).middleware.concat(middleware), headers.concat('authorization', 'host', 'origin'));
-  }
-}

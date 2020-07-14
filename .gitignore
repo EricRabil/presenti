@@ -5,3 +5,4 @@ packages/*/lib
 .idea
 .DS_Store
 tsconfig.tsbuildinfo
+.env

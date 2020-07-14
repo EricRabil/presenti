@@ -1,9 +1,9 @@
 import { BaseEntity, PrimaryGeneratedColumn, getConnection, ObjectType } from "typeorm";
 import { DeletePayload, UpdatePayload, IndexPayload, ElasticColumnOptions } from "../types/elastic";
 import { IndexedColumnStorage } from "../namespaces/indexed-column-storage";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import { isValidSearchOptions } from "../validators/search";
-import { APIError } from "@presenti/web";
+import { APIError } from "@presenti/utils";
 import { SearchOptions, SearchResult } from "../types/search";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 import { ElasticSupervisor } from "../structs/elastic-supervisor";
@@ -48,7 +48,7 @@ export class IndexedEntity extends BaseEntity {
         return value;
     }
 
-    static log = log.child({ name: "IndexedEntity" })
+    static log = logger.child({ name: "IndexedEntity" })
 
     static get tableName() {
         return getConnection().getMetadata(this).tableName;

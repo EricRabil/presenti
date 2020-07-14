@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt, { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 import { CONFIG, saveConfig } from "./config";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import { FIRST_PARTY_SCOPE, PresentiUser } from "@presenti/utils";
 import { IndexedEntity, User } from "@presenti/shared-db";
-import { APIError } from "@presenti/web";
+import { APIError } from "@presenti/utils";
 
 export namespace UserSecurity {
     async function userEntityForToken(token: string) {
@@ -94,7 +94,7 @@ export namespace SecurityKit {
     /** Generates the jwt secret if missing */
     async function ensureSecret() {
         if (!CONFIG.crypto.jwtSecret) {
-            log.info('Generating JWT secret...');
+            logger.info('Generating JWT secret...');
             CONFIG.crypto.jwtSecret = await bcrypt.genSalt(3);
             await saveConfig();
         }
@@ -103,7 +103,7 @@ export namespace SecurityKit {
     /** Generates the first-party signing key if missing */
     async function ensureFirstPartyKey() {
         if (!CONFIG.crypto.firstPartyKey) {
-            log.info('Generating first-party key...');
+            logger.info('Generating first-party key...');
             CONFIG.crypto.firstPartyKey = await bcrypt.genSalt(3);
             await saveConfig();
         }
@@ -124,10 +124,10 @@ export namespace SecurityKit {
             return await new Promise((resolve, reject) => jwt.verify(data, CONFIG.crypto.jwtSecret!, (e, dec) => e ? reject(e) : resolve(dec)));
         } catch (e) {
             if (e instanceof TokenExpiredError) {
-                log.debug("Tride to validate API key, but it was expired.");
+                logger.debug("Tride to validate API key, but it was expired.");
                 return null;
             } else if (e instanceof JsonWebTokenError) {
-                log.debug("Tried to validate API key, but encountered a JWT error.", { message: e.message });
+                logger.debug("Tried to validate API key, but encountered a JWT error.", { message: e.message });
                 return null;
             }
             throw e;
@@ -183,12 +183,12 @@ export namespace SecurityKit {
      * @exposed
      */
     export async function validateApiKey(apiKey: string) {
-        log.debug("Validating API key.");
+        logger.debug("Validating API key.");
         const result = await verify(apiKey);
         const { uuid, key, firstParty } = result || {};
 
         if (!key) {
-            log.debug("API key failed to decode.", { result });
+            logger.debug("API key failed to decode.", { result });
             throw APIError.unauthorized("Invalid API key.");
         }
 
@@ -196,18 +196,18 @@ export namespace SecurityKit {
             const user = await User.findOne({ uuid });
 
             if (!user || !await UserSecurity.checkRawApiKey(user, key)) {
-                log.debug(user ? "API key didn't match user's secrets" : "API key didn't return a user")
+                logger.debug(user ? "API key didn't match user's secrets" : "API key didn't return a user")
                 throw APIError.unauthorized("Invalid API key.");
             }
 
-            log.debug("API key validated as user", { uuid });
+            logger.debug("API key validated as user", { uuid });
             return { user: user.json(true), firstParty: false };
         } else if (firstParty) {
             const isValidFirstParty = await bcrypt.compare(CONFIG.crypto.firstPartyKey!, key);
 
-            if (!isValidFirstParty) return (log.debug("API key didn't match first-party key."), null);
+            if (!isValidFirstParty) return (logger.debug("API key didn't match first-party key."), null);
 
-            log.debug("API key validated as first-party.");
+            logger.debug("API key validated as first-party.");
             return { user: null, firstParty: true };
         } else throw APIError.unauthorized("Invalid API key.");
     }

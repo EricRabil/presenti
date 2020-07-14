@@ -1,5 +1,6 @@
-import log from "@presenti/logging";
-import { AdapterState, Evented } from "@presenti/utils";
+import logger from "@presenti/logging";
+import { AdapterState } from "@presenti/utils";
+import { EventEmitter } from "events";
 import { AdapterStruct } from ".";
 
 export declare interface Supervisor<T extends AdapterStruct> {
@@ -13,10 +14,10 @@ export declare interface Supervisor<T extends AdapterStruct> {
 /**
  * Represents an aggregator/manager of a class of adapters
  */
-export abstract class Supervisor<T extends AdapterStruct> extends Evented {
+export abstract class Supervisor<T extends AdapterStruct> extends EventEmitter {
   adapters: T[] = [];
   state: AdapterState = AdapterState.READY;
-  log = log.child({ name: "Supervisor" })
+  log = logger.child({ name: "Supervisor" })
 
   register(adapter: T) {
     if (this.adapters.includes(adapter)) {

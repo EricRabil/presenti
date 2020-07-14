@@ -1,5 +1,4 @@
 import path from "path";
-import { APIError } from "@presenti/web";
 
 export const VIEWS_DIRECTORY = path.resolve(__dirname, "..", "views");
 export const STATIC_DIRECTORY = path.resolve(__dirname, "..", "assets");

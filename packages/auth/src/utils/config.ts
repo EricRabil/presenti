@@ -1,4 +1,4 @@
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import path from "path";
 import fs from "fs-extra";
 
@@ -68,4 +68,4 @@ if (process.env.ELASTIC_NODE) CONFIG.elasticSearch = {
     node: process.env.ELASTIC_NODE
 };
 
-export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => log.info('Updated configuration file'));
+export const saveConfig = () => fs.writeJson(CONFIG_PATH, CONFIG, { spaces: 4 }).then(() => logger.info('Updated configuration file'));

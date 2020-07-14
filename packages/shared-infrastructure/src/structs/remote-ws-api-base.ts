@@ -109,7 +109,7 @@ export class RemoteWSAPIBase extends SocketAPIBase {
     const result = await super.identificationHandler(ws, data, false);
     if (!result) return false;
 
-    this.log.debug("Initiated identifiaction handler");
+    this.log.debug("Initiated identification handler");
     
     // After a socket has authenticated, generate a presence table for it.
     if (ws.firstParty) {

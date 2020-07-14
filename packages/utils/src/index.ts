@@ -1,5 +1,6 @@
 export * from "./Constants";
 export * from "./structs/api-client";
+export * from "./structs/api-spec";
 export * from "./structs/api-error";
 export * from "./structs/presence-adapter";
 export * from "./structs/presence-builder";

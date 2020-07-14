@@ -1,6 +1,5 @@
-import { PresenceProvider, StateAdapter } from "@presenti/modules";
-import { AdapterState, Events, PresenceStruct } from "@presenti/utils";
-import { EventBus } from "../../event-bus";
+import { PresenceProvider, StateAdapter, Listener } from "@presenti/modules";
+import { AdapterState, Events, PresenceStruct, PresenceUpdateEvent } from "@presenti/utils";
 import got from "got";
 import splashy from "splashy";
 
@@ -76,9 +75,14 @@ export class GradientState extends StateAdapter {
   constructor(public readonly provider: PresenceProvider) {
     super();
 
-    EventBus.on(Events.PRESENCE_UPDATE, ({ scope }) => {
+    provider.api.subscribe(Events.PRESENCE_UPDATE, ({scope}) => {
       this.emit("updated", scope);
     });
+  }
+
+  @Listener(Events.PRESENCE_UPDATE)
+  onPresenceUpdate({ scope }: PresenceUpdateEvent) {
+    this.emit("updated", scope);
   }
 
   async run() {

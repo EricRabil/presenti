@@ -1,6 +1,6 @@
 import { IndexedColumn, IndexedCreateDateColumn, IndexedEntity, IndexedUpdateDateColumn } from "..";
 import { OAUTH_PLATFORM, PresentiLink, PresentiUser, SensitivePresentiUser } from "@presenti/utils";
-import { APIError } from "@presenti/web";
+import { APIError } from "@presenti/utils";
 import { IsAlphanumeric, IsEmail, Length, Matches, validate, ValidationError } from "class-validator";
 import { Column, Entity, OneToMany } from "typeorm";
 import { OAuthLink } from "./OAuthLink";

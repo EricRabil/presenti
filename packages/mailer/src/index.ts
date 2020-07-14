@@ -1,7 +1,7 @@
 import { App } from "uWebSockets.js";
 import { RestAPIBase, Post, BodyParser, PBRequest, PBResponse, Get, Any } from "@presenti/web";
 import sendgrid, { MailDataRequired } from "@sendgrid/mail";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 
 const port = +process.env.PORT! || 8443;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY!;
@@ -10,7 +10,7 @@ const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "no-reply@present
 sendgrid.setApiKey(SENDGRID_API_KEY);
 
 export class MailerService extends RestAPIBase {
-    log = log.child({ name: "Mailer" });
+    log = logger.child({ name: "Mailer" });
 
     constructor() {
         super(App());

@@ -1,4 +1,4 @@
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import { ScopedPresenceAdapter } from "../structs";
 import { AdapterState, PresenceAdapter, PresenceList, PresenceStruct, Presence, PresenceDictionary } from "@presenti/utils";
 import { Supervisor } from "../structs/supervisor";
@@ -9,7 +9,7 @@ export let SharedAdapterSupervisor: AdapterSupervisor;
  * Data namespace for Presence Data
  */
 export class AdapterSupervisor extends Supervisor<PresenceAdapter> {
-  log = log.child({ name: "AdapterSupervisor" });
+  log = logger.child({ name: "AdapterSupervisor" });
 
   constructor() {
     super();

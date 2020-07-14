@@ -1,5 +1,5 @@
 import { Client, ClientOptions } from "@elastic/elasticsearch";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import { UpdatePayload, IndexPayload, DeletePayload, CreatePayload } from "../types/elastic";
 import { getConnection } from "typeorm";
 import { IndexedColumnStorage } from "../namespaces/indexed-column-storage";
@@ -26,7 +26,7 @@ export class ElasticSupervisor {
     }
 
     client: Client = new Client(this.options);
-    log = log.child({ name: "ElasticSupervisor" });
+    log = logger.child({ name: "ElasticSupervisor" });
     interval: ReturnType<typeof setInterval>;
 
     pendingActions: PendingAction[] = [];

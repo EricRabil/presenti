@@ -2,8 +2,7 @@ import { RecognizedString, HttpRequest, HttpResponse, TemplatedApp } from "uWebS
 import { CookieSerializeOptions } from "cookie";
 import { Readable } from "stream";
 import { Options, LocalsObject } from "pug";
-import { APIError } from "./utils";
-import { PresenceServer } from "@presenti/utils";
+import { PresenceServer, PresentiUser, APIError } from "@presenti/utils";
 
 export type HTTPMethod = keyof Omit<TemplatedApp, 'listen' | 'publish' | 'ws'>;
 export type RequestHandler = (req: PBRequest, res: PBResponse, next: (stop?: boolean) => any, err: (e: any) => any) => any;
@@ -27,10 +26,25 @@ export interface PBRequest extends HttpRequest {
   /** Read a cookie */
   cookie(name: string): string | null;
 }
+
+/** Metadata for a Route */
+export interface RouteData {
+  /** absolute path for the route */
+  path: string;
+  /** request method for the route */
+  method: HTTPMethod;
+  /** property on the class that represents the route */
+  property: string;
+  /** any middleware to be called before handler execution */
+  middleware: RequestHandler[];
+}
+
 export interface PBResponse extends HttpResponse {
   /** Render a pug template */
   render(tpl: string, options?: Options & LocalsObject): void;
   statusCode: number;
+
+  user: PresentiUser;
 
   _reqHeaders: Record<string, string>;
 

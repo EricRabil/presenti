@@ -2,5 +2,29 @@ version: '3'
 services:
   presenti:
     command: yarn dev
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    environment:
+      ELASTIC_NODE: http://elasticsearch:9200
     stdin_open: true
     tty: true
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  es01:
+    entrypoint: ["echo", "es01 disabled"]
+  es02:
+    entrypoint: ["echo", "es02 disabled"]
+  es03:
+    entrypoint: ["echo", "es03 disabled"]

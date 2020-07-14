@@ -2,9 +2,6 @@
   "files": [],
   "references": [
     {
-      "path": "packages/additions"
-    },
-    {
       "path": "packages/client"
     },
     {
@@ -45,6 +42,18 @@
     },
     {
       "path": "packages/core-cache"
+    },
+    {
+      "path": "packages/ws"
+    },
+    {
+      "path": "packages/shared-infrastructure"
+    },
+    {
+      "path": "packages/discord"
+    },
+    {
+      "path": "packages/spotify"
     }
   ]
 }

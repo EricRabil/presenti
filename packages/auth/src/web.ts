@@ -1,17 +1,13 @@
-import log from "@presenti/logging";
-import { Get, PBRequest, PBResponse, Post, RestAPIBase, AJVGuard, APIError, RequestHandler, BodyParser, Patch } from "@presenti/web";
+import logger from "@presenti/logging";
+import { Get, PBRequest, PBResponse, Post, RestAPIBase, AJVGuard, RequestHandler, BodyParser, Patch } from "@presenti/web";
 import { AuthRoutes } from "@presenti/auth-shared";
 import uws from "uWebSockets.js";
 import { CONFIG } from "./utils/config";
 import { UserSecurity, SecurityKit } from "./utils/security";
 import { User } from "@presenti/shared-db";
-import { FIRST_PARTY_SCOPE } from "@presenti/utils";
+import { FIRST_PARTY_SCOPE, APIError } from "@presenti/utils";
 
 const string = { type: "string" };
-
-interface APBResponse extends PBResponse {
-    user: User;
-}
 
 const NoOptionalAllStrings = (properties: string[]) => ({
     required: properties,
@@ -28,7 +24,7 @@ const UserLoader: (extractor?: (req: PBRequest) => Partial<User>) => RequestHand
 
     if (!user) throw APIError.notFound("Unknown user.");
 
-    res.user = user;
+    res.user = user.json(true);
 }
 
 const SignupValidator = StrictStringBodyValidator(["displayName", "email", "password", "userID"]);
@@ -105,7 +101,7 @@ export class AuthWebService extends RestAPIBase {
         res.json({ key });
     }
 
-    log = log.child({ name: "AuthWebService" });
+    log = logger.child({ name: "AuthWebService" });
 
     run() {
         super.run();

@@ -1,4 +1,4 @@
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 import { ScopedPresenceAdapter } from "@presenti/modules";
 import { FIRST_PARTY_SCOPE, IdentifyPayload, isRemotePayload, PayloadType, PayloadValidators } from "@presenti/utils";
 import * as uuid from "uuid";
@@ -43,7 +43,7 @@ export type PayloadHandler = (ws: WebSocket, data: any) => any;
 
 /** Contextual wrapper for socket connections */
 export class SocketContext<T extends SocketAPIBase = SocketAPIBase> {
-  static socketLog = log.child({ name: "SocketContext" })
+  static socketLog = logger.child({ name: "SocketContext" })
   readonly id: string = uuid.v4();
 
   constructor(public readonly ws: WebSocket, private adapter: T) {
@@ -134,7 +134,7 @@ export abstract class SocketAPIBase extends ScopedPresenceAdapter {
   contextsByID: Map<string, SocketContext> = new Map();
   handlers: Record<PayloadType, HandlerStruct<this>>;
   handlerMetadata: Record<keyof this, HandlerMetadata>;
-  log = log.child({ name: "SocketAPIAdapter "});
+  log = logger.child({ name: "SocketAPIAdapter "});
 
   constructor(app: TemplatedApp, path: string) {
     super();
@@ -234,6 +234,7 @@ export abstract class SocketAPIBase extends ScopedPresenceAdapter {
     try {
       var { user, firstParty } = await auth.sharedInstance.validateApiKey(token);
     } catch (e) {
+      this.log.error(e);
       this.log.debug("Invalid identity for socket.", { socketID: ws.id });
       return false;
     }

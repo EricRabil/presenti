@@ -1,50 +1,14 @@
-import cors from "cors";
 import path from "path";
 import * as uuid from "uuid";
 import { TemplatedApp, HttpResponse, HttpRequest } from "uWebSockets.js";
-import { RequestHandler, HTTPMethod, PBRequest, PBResponse } from "../utils/types";
-import { runMiddleware, wrapResponse, wrapRequest, RouteData } from "../utils/utils";
+import { RequestHandler, HTTPMethod, PBRequest, PBResponse, RouteData } from "../utils/types";
 import logger from "@presenti/logging";
 import { PresenceServer } from "@presenti/utils";
 import { ServerLoader } from "../loaders";
-
-export const CORSMiddleware: RequestHandler = cors({
-  origin: (origin, cb) => cb(null, true),
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  allowedHeaders: ['content-type', 'authorization'],
-  optionsSuccessStatus: 200
-}) as any as RequestHandler;
-
-export function Route(path: string = "", method: HTTPMethod = "get", ...middleware: RequestHandler[]) {
-  return function<T extends RestAPIBase>(target: T, property: string, descriptor: PropertyDescriptor) {
-    if (!target._routes) target._routes = [];
-
-    target._routes.push({
-      path,
-      method,
-      property,
-      middleware
-    });
-  }
-}
-
-const BuildRouteShorthand = (method: HTTPMethod) => (path?: string | RequestHandler, ...middleware: RequestHandler[]) => Route(typeof path === "string" ? path : undefined, method, ...((typeof path === "function" ? [path] : []).concat(middleware)));
-export const Get = BuildRouteShorthand("get");
-export const Post = BuildRouteShorthand("post");
-export const Patch = BuildRouteShorthand("patch");
-export const Delete = BuildRouteShorthand("del");
-export const Put = BuildRouteShorthand("put");
-export const Any = BuildRouteShorthand("any");
-export const Options = BuildRouteShorthand("options");
-
-/** set headers that the route will access */
-export function Headers(...headers: string[]): any {
-  return function (target: any, property: string, descriptor: PropertyDecorator) {
-    const fn = target[property];
-    fn.headers = headers;
-  }
-}
+import { CORSMiddleware } from "../utils";
+import runMiddleware from "../utils/middleware-runner";
+import extendResponse from "../utils/extensions/response";
+import extendRequest from "../utils/extensions/request";
 
 /**
  * Returns empty Route metadata
@@ -58,6 +22,12 @@ export function RouteDataShell(path: string, method: HTTPMethod = "any"): RouteD
     method,
     middleware: [] 
   }
+}
+
+interface IPresentiAPIFoundation<T> {
+  new(...args: any[]): T;
+  prefix: string;
+  middleware: RequestHandler[];
 }
 
 /** synchronous handler for all requests - deals with use-after-free preventions and adds an onAborted handler */
@@ -83,6 +53,7 @@ function handler(exec: (res: HttpResponse, req: HttpRequest) => any, headers: st
   }
 }
 
+/** builds a handler generator for the given method */
 function build(app: RestAPIBase, method: HTTPMethod) {
   return function(path: string, ...handlers: RequestHandler[]) {
     app[path] = handlers[handlers.length - 1];
@@ -103,10 +74,17 @@ export namespace SharedPresentiWebController {
 
 /** Foundation for any HTTP-based service */
 export class RestAPIBase {
-  _routes: RouteData[];
-  protected timedExecution: boolean = false;
+  /** prefix for the API routes encapsulated within the class */
+  static prefix: string = "";
+  /** middleware to be injected into all API routes */
+  static middleware: RequestHandler[] = [];
 
-  constructor(readonly app: TemplatedApp, protected viewsDirectory: string = process.cwd(), private headers: string[] = []) {
+  _routes: RouteData[];
+  protected timedExecution: boolean = process.env.NODE_ENV !== "development";
+
+  protected viewsDirectory: string = process.cwd();
+
+  constructor(readonly app: TemplatedApp, private headers: string[] = []) {
   }
 
 
@@ -125,6 +103,12 @@ export class RestAPIBase {
 
   /** Loads all routes registered to this instance. */
   protected loadRoutes() {
+    /** Prepends all routes with the prefixed path */
+    this._routes = this._routes.map(metadata => {
+      metadata.path = `${(this.constructor as IPresentiAPIFoundation<this>).prefix}${metadata.path}`;
+      return metadata;
+    });
+
     this._routes.forEach((metadata) => {
       let { path, method, property, middleware } = metadata;
       const handler: RequestHandler = (req, res, next, eNext) => this[property](req, res, next, eNext);
@@ -142,14 +126,20 @@ export class RestAPIBase {
    * @param headers headers to be loaded
    */
   protected buildStack(metadata: RouteData, middleware: RequestHandler[], headers: string[] = []) {
-    middleware = [CORSMiddleware, ServerLoader].concat(middleware);
+    middleware = [CORSMiddleware, ServerLoader].concat((this.constructor as IPresentiAPIFoundation<this>).middleware).concat(middleware);
+
+    ['authorization', 'host', 'origin'].forEach(header => {
+      if (!headers.includes(header)) {
+        headers.push(header);
+      }
+    });
 
     return handler(async (res, req) => {
       if (this.timedExecution) {
         var id = uuid.v4();
         log.profile(id);
       }
-      const nRes = wrapResponse(res, this.resolveTemplate.bind(this)), nReq = wrapRequest(req, nRes);
+      const nRes = extendResponse(res, this.resolveTemplate.bind(this)), nReq = extendRequest(req, nRes);
 
       await runMiddleware(metadata, nReq, nRes, middleware);
       if (this.timedExecution) log.profile(id!, {

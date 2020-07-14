@@ -1,6 +1,6 @@
 import { User } from "@presenti/shared-db";
 import { hash } from "bcrypt";
-import log from "@presenti/logging";
+import logger from "@presenti/logging";
 
 export namespace DebugKit {
     function makeid(length: number) {
@@ -21,7 +21,7 @@ export namespace DebugKit {
         const password = randomPasswords ? () => hash(makeid(64), 10) : dummy(await hash(plainText = makeid(64), 10))
 
         if (!randomPasswords) {
-            log.info(`Generating ${count} user(s) with static password '${plainText!}'`);
+            logger.info(`Generating ${count} user(s) with static password '${plainText!}'`);
         }
 
         for (let i = 0; i < count; i++) {

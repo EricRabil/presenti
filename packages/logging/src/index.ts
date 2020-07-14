@@ -24,7 +24,7 @@ const logLevels = {
   }
 }
 
-export const log = winston.createLogger({
+export const logger = winston.createLogger({
   levels: logLevels.levels,
   transports: [
     new winston.transports.Console({
@@ -45,4 +45,4 @@ export const log = winston.createLogger({
   ]
 });
 
-export default log;
+export default logger;
