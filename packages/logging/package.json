@@ -1,6 +1,6 @@
 {
   "name": "@presenti/logging",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Logging library for server-side Presenti software",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
