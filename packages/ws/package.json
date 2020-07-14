@@ -6,6 +6,9 @@
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "license": "ISC",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@presenti/auth-client": "^1.2.9",
     "@presenti/logging": "^1.2.9",

@@ -6,6 +6,9 @@
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "license": "UNLICENSED",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@presenti/auth-shared": "^1.2.9",
     "@presenti/client": "^1.2.9",

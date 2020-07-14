@@ -9,6 +9,7 @@ services:
       - redis
       - mailer
       - es01
+      - auth
     environment:
       AUTH_HOST: auth
       DB_HOST: postgres
@@ -45,8 +46,7 @@ services:
     working_dir: /root
     volumes:
       - '/root/node_modules'
-      - './packages:/root/node_modules/@presenti'
-      - './packages/server/dist:/root/dist'
+      - './packages/auth/dist:/root/dist'
   mailer:
     build:
       context: packages/mailer

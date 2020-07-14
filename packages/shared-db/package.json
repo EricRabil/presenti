@@ -6,12 +6,8 @@
   "homepage": "https://github.com/EricRabil/presenti#readme",
   "license": "ISC",
   "main": "dist/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
   "files": [
-    "lib"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"

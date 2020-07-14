@@ -6,6 +6,9 @@
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "license": "ISC",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@presenti/logging": "^1.2.9",
     "@presenti/modules": "^1.2.9",
