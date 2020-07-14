@@ -10,7 +10,7 @@
     "@presenti/auth-shared": "^1.2.8",
     "@presenti/client": "^1.2.7",
     "@presenti/utils": "^1.2.7",
-    "node-fetch": "^3.0.0-beta.7"
+    "node-fetch": "3.0.0-beta.7"
   },
   "publishConfig": {
     "access": "public"

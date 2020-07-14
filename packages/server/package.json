@@ -58,7 +58,7 @@
     "ioredis": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.27",
-    "node-fetch": "^3.0.0-beta.7",
+    "node-fetch": "3.0.0-beta.7",
     "pg": "^8.0.3",
     "pug": "^2.0.4",
     "sactivity": "^1.0.4",
