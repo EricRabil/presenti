@@ -3,6 +3,7 @@
   "version": "1.2.6",
   "description": "Lightweight REST API for retrieving the presence of a set list of Discord users.",
   "main": "dist/index.js",
+  "private": true,
   "scripts": {
     "build": "tsc -p .",
     "build:prod": "tsc -p tsconfig.docker.json",
