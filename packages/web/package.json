@@ -1,6 +1,6 @@
 {
   "name": "@presenti/web",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Web framework for Presenti packages",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti-monorepo#readme",
@@ -19,9 +19,9 @@
     "url": "https://github.com/EricRabil/presenti-monorepo/issues"
   },
   "dependencies": {
-    "@presenti/auth-client": "^1.2.8",
-    "@presenti/logging": "^1.2.7",
-    "@presenti/utils": "^1.2.7",
+    "@presenti/auth-client": "^1.2.9",
+    "@presenti/logging": "^1.2.9",
+    "@presenti/utils": "^1.2.9",
     "ajv": "^6.12.3",
     "cookie": "^0.4.1",
     "cors": "^2.8.5",
