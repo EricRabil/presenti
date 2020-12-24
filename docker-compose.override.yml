@@ -2,30 +2,28 @@ version: '3'
 services:
   presenti:
     command: yarn dev
-    depends_on:
-      - postgres
-      - redis
-      - es01
-      - auth
-      # - mailer
-    environment:
-      ELASTIC_NODE: http://es01:9200
+    # depends_on:
+    #   - postgres
+    #   - redis
+    #   - es01
+    #   - auth
+    #   # - mailer
     stdin_open: true
     tty: true
     ports:
       - '8138:8138'
-  es01:
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-  es02:
-    entrypoint: ["echo", "es02 disabled"]
-  es03:
-    entrypoint: ["echo", "es03 disabled"]
+  # es01:
+  #   environment:
+  #     - cluster.name=docker-cluster
+  #     - bootstrap.memory_lock=true
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  # es02:
+  #   entrypoint: ["echo", "es02 disabled"]
+  # es03:
+  #   entrypoint: ["echo", "es03 disabled"]

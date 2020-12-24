@@ -9,6 +9,8 @@ services:
       - redis
       # - mailer
       - es01
+      - es02
+      - es03
       - auth
     environment:
       AUTH_HOST: auth
