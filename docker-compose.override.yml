@@ -5,13 +5,16 @@ services:
     depends_on:
       - postgres
       - redis
-      - elasticsearch
+      - es01
+      - auth
+      # - mailer
     environment:
-      ELASTIC_NODE: http://elasticsearch:9200
+      ELASTIC_NODE: http://es01:9200
     stdin_open: true
     tty: true
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    ports:
+      - '8138:8138'
+  es01:
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -22,8 +25,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-  es01:
-    entrypoint: ["echo", "es01 disabled"]
   es02:
     entrypoint: ["echo", "es02 disabled"]
   es03:

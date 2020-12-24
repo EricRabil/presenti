@@ -4,6 +4,8 @@ import { PrivateSpotifyAdapter } from "./adapter";
 import { SpotifyLinkAPI } from "./api";
 import SpotifyModuleStorage from "./entity";
 import { OAUTH_PLATFORM, Events, LinkEvent, PipeDirection, OAuthModuleDefinition } from "@presenti/utils";
+import { AnalysisCache, MetadataCache } from "./SpotifyCache";
+import { AsyncAnalysisCache } from "sactivity";
 
 const DATABASE_NAME = process.env.SPOTIFY_DATABASE_NAME || "PresentiSpotifyModule";
 
@@ -29,7 +31,17 @@ class SpotifyModule extends Module<any> {
     constructor(options: ModuleOptions<any>) {
         super(options);
 
-        this.registerAdapter(this.spotifyAdapter = new PrivateSpotifyAdapter(options.api));
+
+        this.registerAdapter(this.spotifyAdapter = new PrivateSpotifyAdapter(options.api, {
+            resolve: id => AnalysisCache.findOne({ id }).then(c => c?.result),
+            resolveMany: ids => AnalysisCache.findByIds(ids).then(results => results.reduce((acc, { id, result }) => Object.assign(acc, { [id]: result }), {})),
+            resolveMetadata: id => MetadataCache.findOne({ id }).then(c => c?.track),
+            resolveManyMetadatas: ids => MetadataCache.findByIds(ids).then(results => results.reduce((acc, { id, track }) => Object.assign(acc, { [id]: track }), {})),
+            store: (id, result) => AnalysisCache.create({ id, result }).save().then(() => undefined),
+            storeMetadata: (id, track) => MetadataCache.create({ id, track }).save().then(() => undefined),
+            storeManyMetadatas: metas => MetadataCache.save(Object.entries(metas).map(([ id, track ]) => MetadataCache.create({ id, track }))).then(() => undefined)
+        }));
+
         this.spotifyLinkAPI = new SpotifyLinkAPI(options.app, options.api);
     }
 
@@ -65,7 +77,7 @@ class SpotifyModule extends Module<any> {
     }
 
     async run() {
-        this.connection = await this.connectionForDatabase(DATABASE_NAME, [SpotifyModuleStorage]);
+        this.connection = await this.connectionForDatabase(DATABASE_NAME, [AnalysisCache, MetadataCache, SpotifyModuleStorage]);
 
         this.spotifyLinkAPI.run();
 

@@ -7,6 +7,7 @@ import { PresenceCacheBuilder, StateCacheBuilder, ObjectCache, BaseCache, Distri
 import { SharedPresentiAPIImplementation } from "./presenti-api";
 import { RedisNotificationCenter } from "./notification-center";
 import { PresentiAPI } from "@presenti/utils";
+import { SharedPresentiWebController } from "@presenti/web";
 
 export interface ServiceOptions<T extends PresenceServer['config']> {
     name: string;
@@ -90,6 +91,8 @@ export class Server<T extends PresenceServer['config']> implements PresenceServe
         this.log = logger.child({ name });
         this.app = app;
         this.database = database;
+
+        SharedPresentiWebController.server = this;
 
         if (typeof redis["prototype"] === "function") {
             this.redis = redis as Redis;

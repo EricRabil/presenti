@@ -7,7 +7,7 @@ services:
     depends_on:
       - postgres
       - redis
-      - mailer
+      # - mailer
       - es01
       - auth
     environment:
@@ -24,8 +24,37 @@ services:
     working_dir: /root
     volumes:
       - '/root/node_modules'
-      - './packages:/root/node_modules/@presenti'
       - './packages/server/dist:/root/dist'
+  gateway0:
+    build:
+      context: packages/gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - auth
+    environment:
+      REDIS_HOST: redis
+      AUTH_HOST: auth
+    expose:
+      - '9283'
+  gateway1:
+    build:
+      context: packages/gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - auth
+    environment:
+      REDIS_HOST: redis
+      AUTH_HOST: auth
+    expose:
+      - '9283'
+  gateway_proxy:
+    image: haproxy
+    volumes:
+      - './docker/haproxy.cfg:/etc/haproxy/haproxy.cfg'
+    ports:
+    - 80:80/tcp
   auth:
     build:
       context: packages/auth
@@ -33,7 +62,7 @@ services:
     depends_on:
       - postgres
       - redis
-      - mailer
+      # - mailer
       - es01
     environment:
       DB_HOST: postgres
@@ -47,17 +76,17 @@ services:
     volumes:
       - '/root/node_modules'
       - './packages/auth/dist:/root/dist'
-  mailer:
-    build:
-      context: packages/mailer
-      dockerfile: dockerfile
-    environment:
-      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
-    volumes:
-      - mailer_modules:/root/node_modules
-      - './packages:/root/node_modules/@presenti'
-      - './packages/mailer/dist:/root/dist'
-    working_dir: /root
+  # mailer:
+  #   build:
+  #     context: packages/mailer
+  #     dockerfile: dockerfile
+  #   environment:
+  #     - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+  #   volumes:
+  #     - mailer_modules:/root/node_modules
+  #     - './packages:/root/node_modules/@presenti'
+  #     - './packages/mailer/dist:/root/dist'
+  #   working_dir: /root
   postgres:
     image: postgres:12.2-alpine
     environment:

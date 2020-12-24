@@ -3,6 +3,7 @@ import { AdapterState, OAUTH_PLATFORM, PresenceDictionary, PresenceList, Present
 import { SpotifyInternalKit } from "./utils/SpotifyInternalKit";
 import { SpotifyPrivateClient } from "./utils/SpotifyPrivateClient";
 import { ScopedPresenceAdapter } from "@presenti/modules";
+import { AsyncAnalysisCache } from "sactivity";
 
 /**
  * Presence binding for sactivity
@@ -11,7 +12,7 @@ export class PrivateSpotifyAdapter extends ScopedPresenceAdapter {
   static configKey: string = "spotifyInternal";
   log = logger.child({ name: "PrivateSpotify" })
 
-  constructor(private presenti: PresentiAPI) {
+  constructor(private presenti: PresentiAPI, private cache: AsyncAnalysisCache) {
     super();
   }
 
@@ -50,7 +51,8 @@ export class PrivateSpotifyAdapter extends ScopedPresenceAdapter {
     const cookies = await SpotifyInternalKit.decryptCookies(encryptedCookies);
 
     this.log.info(`Registering Spotify connection with scope ${scope}`);
-    const client = new SpotifyPrivateClient(cookies);
+    const client = new SpotifyPrivateClient(cookies, this.cache);
+    
     client.on("updated", () => {
       this.log.info(`Spotify scope ${scope} had a track update`);
 

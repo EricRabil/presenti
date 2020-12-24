@@ -9,7 +9,7 @@
 		"packages/*"
 	],
 	"scripts": {
-		"docker-dev": "docker-compose run presenti",
+		"docker-dev": "docker-compose run --service-ports presenti",
 		"docker-dev-init": "docker-compose build",
 		"docker-prod-init": "docker-compose -f docker-compose.yml build",
 		"docker-prod": "docker-compose up -d",

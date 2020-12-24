@@ -1,5 +1,5 @@
 import { AdapterState, Presence, PresenceAdapter, PresenceBuilder } from "@presenti/utils";
-import Sactivity, { SpotifyClient } from "sactivity";
+import Sactivity, { AsyncAnalysisCache, SpotifyClient } from "sactivity";
 
 const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
 
@@ -9,7 +9,7 @@ export class SpotifyPrivateClient extends PresenceAdapter {
   state: AdapterState = AdapterState.READY;
   static readonly NAME = "Listening to Spotify";
 
-  constructor(public readonly cookies: string) {
+  constructor(public readonly cookies: string, public cache: AsyncAnalysisCache) {
     super();
   }
 
@@ -60,6 +60,7 @@ export class SpotifyPrivateClient extends PresenceAdapter {
   async rebuildSpotifyClient() {
     this._closed = false;
     this.client = await this.activitySupervisor.connect();
+    this.client.asyncCache = this.cache;
 
     this.client.on("close", () => {
       if (this._closed) return;

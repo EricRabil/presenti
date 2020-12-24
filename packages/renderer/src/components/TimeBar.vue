@@ -9,7 +9,7 @@
 <script lang="ts">
 import moment from "moment";
 import VueSlider from 'vue-slider-component'
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import 'vue-slider-component/theme/default.css'
 const durationFormat = require('moment-duration-format')
 durationFormat(moment)
@@ -32,9 +32,19 @@ export default class TimeBar extends Vue {
   progress = 0;
   currentTime = '00:00';
   endTime = '00:00';
-  interval: ReturnType<typeof setInterval>;
+  interval: ReturnType<typeof setInterval> | null = null;
 
   mounted () {
+    this.resetCounter()
+  }
+
+  @Watch("start")
+  startChanged() {
+    this.resetCounter()
+  }
+
+  resetCounter() {
+    if (this.interval !== null) clearInterval(this.interval)
     this.interval = setInterval(() => {
       this.updateTime()
     }, 1000)
@@ -42,7 +52,7 @@ export default class TimeBar extends Vue {
   }
 
   beforeDestroy () {
-    clearInterval(this.interval)
+    if (this.interval !== null) clearInterval(this.interval)
   }
 
   get startDate () {

@@ -12521,10 +12521,9 @@ rxjs@^6.3.3, rxjs@^6.4.0, rxjs@^6.5.2, rxjs@^6.6.0:
   dependencies:
     tslib "^1.9.0"
 
-sactivity@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/sactivity/-/sactivity-1.0.4.tgz#b1f274f6fed07335a155b66438d8b86e0d59e50b"
-  integrity sha512-Uxc60y3Xnm5FZfRLIHARfLWs4nwtKr0mOTl7BRZHg6i35TdM7/FDN/oW5j9Oe7py33oURvoH4LnNPYvRkGTWDQ==
+sactivity@EricRabil/sactivity:
+  version "1.0.6"
+  resolved "https://codeload.github.com/EricRabil/sactivity/tar.gz/9834bbde8445b92cc25599c04c8fb9f8611cfd0f"
   dependencies:
     "@clusterws/cws" "github:EricRabil/cWS#pre-gyp"
     got "^10.7.0"

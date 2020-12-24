@@ -81,7 +81,7 @@ export default class DiscordOAuthAPI extends RestAPIBase {
     await this.client.deleteLink({
       platform: OAUTH_PLATFORM.DISCORD,
       userUUID: res.user.uuid
-    });
+    }).catch(() => null);
 
     await this.client.createLink({
       platform: OAUTH_PLATFORM.DISCORD,
