@@ -1,6 +1,6 @@
 {
   "name": "@presenti/renderer",
-  "version": "1.2.10",
+  "version": "1.2.13",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

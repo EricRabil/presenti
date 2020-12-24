@@ -1,6 +1,6 @@
 {
   "name": "@presenti/dashboard",
-  "version": "1.2.10",
+  "version": "1.2.13",
   "private": true,
   "description": "> TODO: description",
   "author": {
@@ -22,7 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@presenti/client": "^1.2.10",
-    "@presenti/renderer": "^1.2.10",
+    "@presenti/renderer": "^1.2.13",
     "bootstrap": "^4.5.0",
     "core-js": "^3.6.5",
     "jquery": "^3.5.1",

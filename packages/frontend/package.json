@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.2.10",
+  "version": "1.2.13",
   "private": true,
   "scripts": {
     "serve": "VUE_APP_API_ENDPOINT=api.presenti.me vue-cli-service serve",
@@ -13,7 +13,7 @@
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
     "@presenti/client": "^1.2.10",
-    "@presenti/renderer": "^1.2.10",
+    "@presenti/renderer": "^1.2.13",
     "@presenti/utils": "^1.2.10",
     "buefy": "^0.8.20",
     "codemirror": "^5.53.2",
