@@ -14,7 +14,7 @@
     "@presenti/modules": "^1.3.0",
     "@presenti/utils": "^1.3.0",
     "@presenti/web": "^1.3.0",
-    "sactivity": "EricRabil/sactivity",
+    "sactivity": "EricRabil/sactivity#306a33e",
     "typeorm": "^0.2.25",
     "uWebSockets.js": "uNetworking/uWebSockets.js#v18.3.0"
   },

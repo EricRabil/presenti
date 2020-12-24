@@ -63,7 +63,7 @@
     "node-fetch": "3.0.0-beta.7",
     "pg": "^8.0.3",
     "pug": "^2.0.4",
-    "sactivity": "EricRabil/sactivity",
+    "sactivity": "EricRabil/sactivity#306a33e",
     "splashy": "^5.0.2",
     "typeorm": "^0.2.24",
     "typescript": "^3.9.6",
