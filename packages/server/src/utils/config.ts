@@ -38,13 +38,13 @@ const DEFAULT_CONFIG: ConfigurationStruct = {
   registration: false,
   discord: null,
   auth: {
-    host: "http://127.0.0.1",
-    port: "8892"
+    host: process.env.AUTH_HOST || "http://127.0.0.1",
+    port: process.env.AUTH_PORT || "8892"
   },
   web: {
-    host: "://localhost:8138",
-    oauthSuccessRedirect: "http://presenti.me",
-    cookieDomain: "presenti.me"
+    host: process.env.PUBLIC_HOST || "://localhost:8138",
+    oauthSuccessRedirect: process.env.OAUTH_REDIRECT || "http://presenti.me",
+    cookieDomain: process.env.COOKIE_DOMAIN || "presenti.me"
   },
   db: {
     host: process.env.DB_HOST || 'localhost',
@@ -77,6 +77,11 @@ if (process.env.DB_PORT) CONFIG.db.port = +process.env.DB_PORT;
 if (process.env.DB_NAME) CONFIG.db.name = process.env.DB_NAME;
 if (process.env.DB_USERNAME) CONFIG.db.username = process.env.DB_USERNAME;
 if (process.env.DB_PASSWORD) CONFIG.db.password = process.env.DB_PASSWORD;
+if (process.env.AUTH_HOST) CONFIG.auth.host = process.env.AUTH_HOST;
+if (process.env.AUTH_PORT) CONFIG.auth.port = process.env.AUTH_PORT;
+if (process.env.PUBLIC_HOST) CONFIG.web.host = process.env.PUBLIC_HOST;
+if (process.env.OAUTH_REDIRECT) CONFIG.web.oauthSuccessRedirect = process.env.OAUTH_REDIRECT;
+if (process.env.COOKIE_DOMAIN) CONFIG.web.cookieDomain = process.env.COOKIE_DOMAIN;
 if (process.env.REDIS_HOST) {
   CONFIG.db.cache = {
     options: {
