@@ -18,43 +18,43 @@ services:
       DB_PASSWORD: badbitch
       REDIS_HOST: redis
       ELASTIC_NODE: http://es01:9200
-      MAILER_URL: http://mailer:8443
+      # MAILER_URL: http://mailer:8443
     ports:
       - '8138:8138'
     working_dir: /root
     volumes:
       - '/root/node_modules'
       - './packages/server/dist:/root/dist'
-  gateway0:
-    build:
-      context: packages/gateway
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - auth
-    environment:
-      REDIS_HOST: redis
-      AUTH_HOST: auth
-    expose:
-      - '9283'
-  gateway1:
-    build:
-      context: packages/gateway
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - auth
-    environment:
-      REDIS_HOST: redis
-      AUTH_HOST: auth
-    expose:
-      - '9283'
-  gateway_proxy:
-    image: haproxy
-    volumes:
-      - './docker/haproxy.cfg:/etc/haproxy/haproxy.cfg'
-    ports:
-    - 80:80/tcp
+  # gateway0:
+  #   build:
+  #     context: packages/gateway
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - redis
+  #     - auth
+  #   environment:
+  #     REDIS_HOST: redis
+  #     AUTH_HOST: auth
+  #   expose:
+  #     - '9283'
+  # gateway1:
+  #   build:
+  #     context: packages/gateway
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - redis
+  #     - auth
+  #   environment:
+  #     REDIS_HOST: redis
+  #     AUTH_HOST: auth
+  #   expose:
+  #     - '9283'
+  # gateway_proxy:
+  #   image: haproxy
+  #   volumes:
+  #     - './docker/haproxy.cfg:/etc/haproxy/haproxy.cfg'
+  #   ports:
+  #   - 80:80/tcp
   auth:
     build:
       context: packages/auth
