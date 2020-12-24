@@ -1,6 +1,6 @@
 {
   "name": "@presenti/shared-db",
-  "version": "1.2.12",
+  "version": "1.3.0",
   "description": "Shared database components",
   "author": "Eric Rabil <ericjrabil@gmail.com>",
   "homepage": "https://github.com/EricRabil/presenti#readme",
@@ -24,9 +24,9 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.8.0",
-    "@presenti/logging": "^1.2.10",
-    "@presenti/utils": "^1.2.10",
-    "@presenti/web": "^1.2.10",
+    "@presenti/logging": "^1.3.0",
+    "@presenti/utils": "^1.3.0",
+    "@presenti/web": "^1.3.0",
     "class-validator": "^0.12.2",
     "ioredis": "^4.17.3",
     "pg": "^8.3.0",
